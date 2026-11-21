@@ -1,25 +1,546 @@
-import { Link } from '@tanstack/react-router';
-import { useState } from 'react';
-import { useServerFn } from '@tanstack/react-start';
-import { ArrowUpRight,Check,ShieldCheck,Mail,Phone,Clock,LoaderCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { contactSchema } from '@/lib/bank';
-import { submitContact } from '@/lib/bank.functions';
-import { AboutSection,ServiceGrid,SectionTitle } from './home';
-export function PageBanner({title,description,eyebrow='AUREMONT TRUST BANK'}:{title:string;description:string;eyebrow?:string}){return <section className="page-banner"><div className="container"><div className="breadcrumb"><Link to="/">Home</Link><span>/</span><span>{title}</span></div><span className="eyebrow">{eyebrow}</span><h1>{title}</h1><p>{description}</p></div></section>}
-export const productContent={
- personal:{title:'Personal Banking',headline:'Your life. Your plans. Your banking.',description:'A thoughtful approach to everyday finances, with room for everything you’re working toward.',features:['Everyday checking and account information','Savings goals and financial planning','Convenient digital account management','Clear information about fees and eligibility'],product:'Banking for your everyday',detail:'Explore a demonstration of checking and savings services built around your needs. Actual account terms, eligibility and fees will be published only after approval.'},
- business:{title:'Business Banking',headline:'A foundation for your next ambition.',description:'Bring clarity to your business finances, so you can focus on the possibilities ahead.',features:['Business checking and savings information','Payment and cash-flow solution overviews','Tools for financial organization','Support for your business journey'],product:'A partner in your progress',detail:'Discover a considered approach to business accounts and payment solutions. This demonstration does not accept business funds or initiate payments.'},
- loans:{title:'Loans & Credit',headline:'For the milestones that matter.',description:'Explore financing possibilities with clear information and a long-term perspective.',features:['Personal financing information','Illustrative borrowing rates','Guidance on lending eligibility','Transparent terms before any commitment'],product:'A clearer way forward',detail:'Loan examples are illustrative, not offers or approvals. No lending applications, credit checks, or personal financial documents are collected in this environment.'},
- cards:{title:'Debit & Credit Cards',headline:'More possibility. Less complexity.',description:'Explore modern payment experiences and card options designed for everyday flexibility.',features:['Debit and credit card service information','Digital payment possibilities','Clear rate and fee disclosures','Security and fraud-prevention guidance'],product:'A world in your pocket',detail:'Card benefits and rates are demonstration content. No cards are issued here. Never enter a real card number, PIN or security code.'},
- wealth:{title:'Wealth Management',headline:'A thoughtful view of your tomorrow.',description:'Start with what matters to you. Explore financial planning with a considered long-term perspective.',features:['Financial goal-setting information','Long-term planning resources','Investment education','Transparent risk information'],product:'Plan with perspective',detail:'This site provides general demonstration information, not investment advice. Returns are not guaranteed. No investment accounts or transactions are available.'},
- digital:{title:'Digital Banking',headline:'Wherever life takes you.',description:'A connected, intuitive approach to managing your banking experience.',features:['Secure demo account sign-in','A simple simulated account overview','Access across desktop and mobile','Privacy-conscious account management'],product:'Your banking, on your terms',detail:'Create a website-only demo login to explore a simulated account overview. There are no real balances, deposits, payments or transfers.'}
+import { Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { ArrowUpRight, Check, ShieldCheck, Mail, Phone, Clock, LoaderCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { contactSchema } from "@/lib/bank";
+import { submitContact } from "@/lib/bank.functions";
+import { AboutSection, ServiceGrid, SectionTitle } from "./home";
+export function PageBanner({
+  title,
+  description,
+  eyebrow = "AUREMONT TRUST BANK",
+}: {
+  title: string;
+  description: string;
+  eyebrow?: string;
+}) {
+  return (
+    <section className="page-banner">
+      <div className="container">
+        <div className="breadcrumb">
+          <Link to="/">Home</Link>
+          <span>/</span>
+          <span>{title}</span>
+        </div>
+        <span className="eyebrow">{eyebrow}</span>
+        <h1>{title}</h1>
+        <p>{description}</p>
+      </div>
+    </section>
+  );
+}
+export const productContent = {
+  personal: {
+    title: "Personal Banking",
+    headline: "Your life. Your plans. Your banking.",
+    description:
+      "A thoughtful approach to everyday finances, with room for everything you’re working toward.",
+    features: [
+      "Everyday checking and account information",
+      "Savings goals and financial planning",
+      "Convenient digital account management",
+      "Clear information about fees and eligibility",
+    ],
+    product: "Banking for your everyday",
+    detail:
+      "Explore a demonstration of checking and savings services built around your needs. Actual account terms, eligibility and fees will be published only after approval.",
+  },
+  business: {
+    title: "Business Banking",
+    headline: "A foundation for your next ambition.",
+    description:
+      "Bring clarity to your business finances, so you can focus on the possibilities ahead.",
+    features: [
+      "Business checking and savings information",
+      "Payment and cash-flow solution overviews",
+      "Tools for financial organization",
+      "Support for your business journey",
+    ],
+    product: "A partner in your progress",
+    detail:
+      "Discover a considered approach to business accounts and payment solutions. This demonstration does not accept business funds or initiate payments.",
+  },
+  loans: {
+    title: "Loans & Credit",
+    headline: "For the milestones that matter.",
+    description:
+      "Explore financing possibilities with clear information and a long-term perspective.",
+    features: [
+      "Personal financing information",
+      "Illustrative borrowing rates",
+      "Guidance on lending eligibility",
+      "Transparent terms before any commitment",
+    ],
+    product: "A clearer way forward",
+    detail:
+      "Loan examples are illustrative, not offers or approvals. No lending applications, credit checks, or personal financial documents are collected in this environment.",
+  },
+  cards: {
+    title: "Debit & Credit Cards",
+    headline: "More possibility. Less complexity.",
+    description:
+      "Explore modern payment experiences and card options designed for everyday flexibility.",
+    features: [
+      "Debit and credit card service information",
+      "Digital payment possibilities",
+      "Clear rate and fee disclosures",
+      "Security and fraud-prevention guidance",
+    ],
+    product: "A world in your pocket",
+    detail:
+      "Card benefits and rates are demonstration content. No cards are issued here. Never enter a real card number, PIN or security code.",
+  },
+  wealth: {
+    title: "Wealth Management",
+    headline: "A thoughtful view of your tomorrow.",
+    description:
+      "Start with what matters to you. Explore financial planning with a considered long-term perspective.",
+    features: [
+      "Financial goal-setting information",
+      "Long-term planning resources",
+      "Investment education",
+      "Transparent risk information",
+    ],
+    product: "Plan with perspective",
+    detail:
+      "This site provides general demonstration information, not investment advice. Returns are not guaranteed. No investment accounts or transactions are available.",
+  },
+  digital: {
+    title: "Digital Banking",
+    headline: "Wherever life takes you.",
+    description: "A connected, intuitive approach to managing your banking experience.",
+    features: [
+      "Secure demo account sign-in",
+      "A simple simulated account overview",
+      "Access across desktop and mobile",
+      "Privacy-conscious account management",
+    ],
+    product: "Your banking, on your terms",
+    detail:
+      "Create a website-only demo login to explore a simulated account overview. There are no real balances, deposits, payments or transfers.",
+  },
 } as const;
-export function ProductPage({kind}:{kind:keyof typeof productContent}){const p=productContent[kind];return <><PageBanner title={p.title} description={p.description}/><section className="section"><div className="container content-grid"><div><span className="eyebrow">BUILT AROUND YOU</span><h2>{p.headline}</h2><p>{p.description}</p><ul className="feature-list">{p.features.map(f=><li key={f}><Check/>{f}</li>)}</ul><Button variant="secondary" size="lg" asChild><Link to="/contact">Start a Conversation <ArrowUpRight/></Link></Button></div><div className="product-panel"><span className="eyebrow">EXPLORE THE POSSIBILITIES</span><h3>{p.product}</h3><p>{p.detail}</p><div className="notice"><ShieldCheck size={18}/> Demonstration only. Services are not currently available for real financial operations.</div><Button asChild><Link to="/open-account">Explore a Demo Account <ArrowUpRight/></Link></Button></div></div></section><section className="section services-section"><div className="container"><SectionTitle eyebrow="YOUR FINANCIAL WORLD" title="Explore More With Auremont."/><ServiceGrid/></div></section></>}
-export function AboutPage(){return <><PageBanner title="About Auremont Trust Bank" description="People, possibilities and progress. A vision for more thoughtful international banking."/><AboutSection/><section className="section benefits-section"><div className="container"><SectionTitle eyebrow="OUR COMMITMENT" title="Your Wealth. Your Future. Our Commitment." description="We put clarity, care and a connected experience at the center of our vision."/><p className="notice">Auremont Trust Bank is currently a demonstration brand. The architecture shown is generated imagery, not a verified institutional headquarters. Licensing, locations and operational details have not been established.</p></div></section></>}
-export const faqs=[['Is this a live banking institution?','No. This website is a clearly identified demonstration of a banking experience. It does not provide licensed banking services or accept deposits.'],['Can I open a real bank account here?','No. Registration creates a website-only demo login, not a bank account. Do not submit account numbers, identity documents or other sensitive financial information.'],['Are the advertised rates available?','All displayed rates are illustrative demonstration values. They are not verified bank rates, loan offers, or guaranteed returns.'],['How do I contact Auremont?','The contact form saves an inquiry in the private website administration inbox. Official email, telephone and business hours remain unpublished until verified.'],['How can I protect my information?','Use a unique password for this demo website. Never share an existing banking password, PIN, card security code or account details. Visit the Security Centre for more guidance.']];
-export function FAQPage(){return <><PageBanner title="Frequently Asked Questions" description="Clear answers. Greater confidence."/><section className="section"><div className="container legal-content faq-list">{faqs.map(([q,a])=><details key={q}><summary>{q}</summary><p>{a}</p></details>)}<div className="notice">Need more information? <Link to="/contact">Send an inquiry →</Link></div></div></section></>}
-export function ContactPage({contacts}:{contacts:{email:string;phone:string;hours:string}}){const send=useServerFn(submitContact);const [busy,setBusy]=useState(false);const [error,setError]=useState('');const [sent,setSent]=useState(false);async function submit(e:React.FormEvent<HTMLFormElement>){e.preventDefault();setError('');const form=e.currentTarget;const data=Object.fromEntries(new FormData(form));const valid=contactSchema.safeParse(data);if(!valid.success){setError(valid.error.issues[0]?.message??'Please check your information.');return;}setBusy(true);try{await send({data:valid.data});setSent(true);form.reset();}catch(err){setError(err instanceof Error?err.message:'Your message could not be saved.');}finally{setBusy(false);}}
-return <><PageBanner title="Let’s Start a Conversation." description="A little guidance can make a meaningful difference. We’re here for your next step." eyebrow="CONTACT AUREMONT"/><section className="section"><div className="container content-grid"><div><span className="eyebrow">HERE FOR WHAT’S NEXT</span><h2>How can we help?</h2><p>Send a general inquiry through our demonstration website. Please do not include passwords, account numbers, identity documents or other sensitive information.</p><div className="contact-info"><div><Mail size={20}/><strong>Support email</strong><small>{contacts.email||'Official email not yet published'}</small></div><div><Phone size={20}/><strong>Telephone</strong><small>{contacts.phone||'Official telephone not yet published'}</small></div><div><Clock size={20}/><strong>Business hours</strong><small>{contacts.hours||'Business hours not yet confirmed'}</small></div></div><div className="notice">For information on protecting your details, visit our <Link to="/security">Security Centre →</Link></div></div><div className="product-panel"><h3>Send an inquiry</h3><form onSubmit={submit}><div className="field-row"><div className="field"><label htmlFor="contact-name">Your name</label><input id="contact-name" name="name" required maxLength={100} autoComplete="name"/></div><div className="field"><label htmlFor="contact-email">Email address</label><input id="contact-email" name="email" type="email" required maxLength={255} autoComplete="email"/></div></div><div className="field"><label htmlFor="contact-topic">How can we help?</label><select id="contact-topic" name="topic">{['General inquiry','Personal banking','Business banking','Security concern'].map(s=><option key={s}>{s}</option>)}</select></div><div className="field"><label htmlFor="contact-message">Your message</label><textarea id="contact-message" name="message" required minLength={10} maxLength={2000}/></div><div className="sr-trap" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off"/></label></div><Button type="submit" disabled={busy}>{busy?<LoaderCircle className="animate-spin"/>:<ArrowUpRight/>}{busy?'Sending…':'Send Inquiry'}</Button>{error&&<p role="alert" className="form-error">{error}</p>}{sent&&<p role="status" className="form-message">Your inquiry has been saved in the private website inbox. No email notification is sent at this time.</p>}</form></div></div></section><section className="section services-section"><div className="container legal-content"><SectionTitle eyebrow="A LITTLE MORE CLARITY" title="Frequently Asked Questions"/><div className="faq-list">{faqs.slice(0,4).map(([q,a])=><details key={q}><summary>{q}</summary><p>{a}</p></details>)}</div></div></section></>}
-const legalPages={privacy:{title:'Privacy Policy',description:'Transparency about information collected on this demonstration website.',sections:[['Demonstration policy','This draft privacy notice describes the current demo website. It is not an approved institutional privacy policy. Legal review is required before offering real banking services.'],['Information you provide','Website registration uses your email address and a website-only password managed by secure authentication. Contact inquiries store your name, email, topic and message in a private inbox. Do not submit financial credentials, identity documents or sensitive account information.'],['How information is used','Registration information enables demo website access. Contact details allow website administrators to review inquiries. No real credit decisions, transactions or financial profiling take place.'],['Access and requests','Contact inquiries are restricted to authorized administrators. You can submit a general information request through the contact page. Official privacy contact details and retention periods have not yet been approved.']]},terms:{title:'Terms & Conditions',description:'Important information about using the Auremont demonstration.',sections:[['Website demonstration','Auremont Trust Bank is a demonstration brand, not a confirmed licensed banking institution. These terms are draft website information and require professional review before live services launch.'],['No financial services','No real deposits, withdrawals, transfers, credit applications or investment services are available. Registering creates a demo website login, not a financial account or contractual banking relationship.'],['Illustrative content','Rates, promotional imagery, customer testimonials and simulated balances are demonstration examples. They are not offers, guarantees or verified institutional claims.'],['Responsible use','Use a unique website-only password. Do not provide real banking credentials, payment information, identity documents or sensitive personal financial information.']]},security:{title:'Security Centre',description:'Confidence starts with protecting what matters.',sections:[['Protect your credentials','Use a unique password for this demonstration website. Never enter the password for an existing bank account. Do not share passwords, one-time codes, PINs or card security codes.'],['Recognize suspicious requests','Be cautious of messages asking for money, private credentials or account information. This website cannot accept deposits or process transfers. Requests claiming otherwise are not part of this demo.'],['Secure website access','Demo website authentication uses managed secure sign-in and session handling. Contact inquiries are kept in a private administration inbox. These measures do not imply any banking certification or regulatory approval.'],['Report a concern','Send a general security inquiry through the contact page. Do not include confidential information. For a real financial emergency, contact your actual financial institution using independently verified details.']]},cookies:{title:'Cookie Policy',description:'A clear view of website storage and your choices.',sections:[['Essential website storage','The demo uses browser storage to maintain authenticated website sessions. This is needed to keep you signed in.'],['No advertising cookies','No advertising or social tracking functionality has been implemented in this demonstration. External font and image requests may be made when you view the site.'],['Manage your session','Signing out ends the website session. You may also clear site data in your browser, which removes saved authentication state. This policy is draft information and needs review before launch.']]},disclosures:{title:'Important Disclosures',description:'Financial integrity, without ambiguity.',sections:[['Not a licensed banking service','This project is a banking website demonstration. No licensing, deposit-insurance, regulatory status or security certification is claimed.'],['Illustrative rates and accounts','All APY and APR values are illustrative, configurable examples. Simulated account balances are not real money. No offers, guaranteed returns or approved lending terms are presented.'],['Imagery and testimonials','Architecture and family images are generated illustrative imagery. Testimonial names, avatars and feedback are demonstration content, not genuine verified customer reviews.'],['Before live operations','Real services must remain disabled until the necessary licensed arrangements, regulatory approvals, genuine disclosures, verified contacts and compliant integrations are in place.']]},careers:{title:'Careers at Auremont',description:'A vision built around people and progress.',sections:[['No current vacancies','Auremont is a demonstration brand. No verified employment opportunities or active recruitment processes are currently available.'],['Stay in conversation','You may send a general inquiry through the contact page. Do not send identity documents or sensitive information.']]}} as const;
-export function LegalPage({kind}:{kind:keyof typeof legalPages}){const p=legalPages[kind];return <><PageBanner title={p.title} description={p.description}/><section className="section"><div className="container legal-content">{p.sections.map(([h,t])=><section key={h}><h2>{h}</h2><p>{t}</p></section>)}<Button variant="secondary" asChild><Link to="/contact">Contact Us <ArrowUpRight/></Link></Button></div></section></>}
+export function ProductPage({ kind }: { kind: keyof typeof productContent }) {
+  const p = productContent[kind];
+  return (
+    <>
+      <PageBanner title={p.title} description={p.description} />
+      <section className="section">
+        <div className="container content-grid">
+          <div>
+            <span className="eyebrow">BUILT AROUND YOU</span>
+            <h2>{p.headline}</h2>
+            <p>{p.description}</p>
+            <ul className="feature-list">
+              {p.features.map((f) => (
+                <li key={f}>
+                  <Check />
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <Button variant="secondary" size="lg" asChild>
+              <Link to="/contact">
+                Start a Conversation <ArrowUpRight />
+              </Link>
+            </Button>
+          </div>
+          <div className="product-panel">
+            <span className="eyebrow">EXPLORE THE POSSIBILITIES</span>
+            <h3>{p.product}</h3>
+            <p>{p.detail}</p>
+            <div className="notice">
+              <ShieldCheck size={18} /> Demonstration only. Services are not currently available for
+              real financial operations.
+            </div>
+            <Button asChild>
+              <Link to="/open-account">
+                Explore a Demo Account <ArrowUpRight />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+      <section className="section services-section">
+        <div className="container">
+          <SectionTitle eyebrow="YOUR FINANCIAL WORLD" title="Explore More With Auremont." />
+          <ServiceGrid />
+        </div>
+      </section>
+    </>
+  );
+}
+export function AboutPage() {
+  return (
+    <>
+      <PageBanner
+        title="About Auremont Trust Bank"
+        description="People, possibilities and progress. A vision for more thoughtful international banking."
+      />
+      <AboutSection />
+      <section className="section benefits-section">
+        <div className="container">
+          <SectionTitle
+            eyebrow="OUR COMMITMENT"
+            title="Your Wealth. Your Future. Our Commitment."
+            description="We put clarity, care and a connected experience at the center of our vision."
+          />
+          <p className="notice">
+            Auremont Trust Bank is currently a demonstration brand. The architecture shown is
+            generated imagery, not a verified institutional headquarters. Licensing, locations and
+            operational details have not been established.
+          </p>
+        </div>
+      </section>
+    </>
+  );
+}
+export const faqs = [
+  [
+    "Is this a live banking institution?",
+    "No. This website is a clearly identified demonstration of a banking experience. It does not provide licensed banking services or accept deposits.",
+  ],
+  [
+    "Can I open a real bank account here?",
+    "No. Registration creates a website-only demo login, not a bank account. Do not submit account numbers, identity documents or other sensitive financial information.",
+  ],
+  [
+    "Are the advertised rates available?",
+    "All displayed rates are illustrative demonstration values. They are not verified bank rates, loan offers, or guaranteed returns.",
+  ],
+  [
+    "How do I contact Auremont?",
+    "The contact form saves an inquiry in the private website administration inbox. Official email, telephone and business hours remain unpublished until verified.",
+  ],
+  [
+    "How can I protect my information?",
+    "Use a unique password for this demo website. Never share an existing banking password, PIN, card security code or account details. Visit the Security Centre for more guidance.",
+  ],
+];
+export function FAQPage() {
+  return (
+    <>
+      <PageBanner
+        title="Frequently Asked Questions"
+        description="Clear answers. Greater confidence."
+      />
+      <section className="section">
+        <div className="container legal-content faq-list">
+          {faqs.map(([q, a]) => (
+            <details key={q}>
+              <summary>{q}</summary>
+              <p>{a}</p>
+            </details>
+          ))}
+          <div className="notice">
+            Need more information? <Link to="/contact">Send an inquiry →</Link>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+export function ContactPage({
+  contacts,
+}: {
+  contacts: { email: string; phone: string; hours: string };
+}) {
+  const send = useServerFn(submitContact);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [sent, setSent] = useState(false);
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError("");
+    const form = e.currentTarget;
+    const data = Object.fromEntries(new FormData(form));
+    const valid = contactSchema.safeParse(data);
+    if (!valid.success) {
+      setError(valid.error.issues[0]?.message ?? "Please check your information.");
+      return;
+    }
+    setBusy(true);
+    try {
+      await send({ data: valid.data });
+      setSent(true);
+      form.reset();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Your message could not be saved.");
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <>
+      <PageBanner
+        title="Let’s Start a Conversation."
+        description="A little guidance can make a meaningful difference. We’re here for your next step."
+        eyebrow="CONTACT AUREMONT"
+      />
+      <section className="section">
+        <div className="container content-grid">
+          <div>
+            <span className="eyebrow">HERE FOR WHAT’S NEXT</span>
+            <h2>How can we help?</h2>
+            <p>
+              Send a general inquiry through our demonstration website. Please do not include
+              passwords, account numbers, identity documents or other sensitive information.
+            </p>
+            <div className="contact-info">
+              <div>
+                <Mail size={20} />
+                <strong>Support email</strong>
+                <small>{contacts.email || "Official email not yet published"}</small>
+              </div>
+              <div>
+                <Phone size={20} />
+                <strong>Telephone</strong>
+                <small>{contacts.phone || "Official telephone not yet published"}</small>
+              </div>
+              <div>
+                <Clock size={20} />
+                <strong>Business hours</strong>
+                <small>{contacts.hours || "Business hours not yet confirmed"}</small>
+              </div>
+            </div>
+            <div className="notice">
+              For information on protecting your details, visit our{" "}
+              <Link to="/security">Security Centre →</Link>
+            </div>
+          </div>
+          <div className="product-panel">
+            <h3>Send an inquiry</h3>
+            <form onSubmit={submit}>
+              <div className="field-row">
+                <div className="field">
+                  <label htmlFor="contact-name">Your name</label>
+                  <input
+                    id="contact-name"
+                    name="name"
+                    required
+                    maxLength={100}
+                    autoComplete="name"
+                  />
+                </div>
+                <div className="field">
+                  <label htmlFor="contact-email">Email address</label>
+                  <input
+                    id="contact-email"
+                    name="email"
+                    type="email"
+                    required
+                    maxLength={255}
+                    autoComplete="email"
+                  />
+                </div>
+              </div>
+              <div className="field">
+                <label htmlFor="contact-topic">How can we help?</label>
+                <select id="contact-topic" name="topic">
+                  {[
+                    "General inquiry",
+                    "Personal banking",
+                    "Business banking",
+                    "Security concern",
+                  ].map((s) => (
+                    <option key={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="field">
+                <label htmlFor="contact-message">Your message</label>
+                <textarea
+                  id="contact-message"
+                  name="message"
+                  required
+                  minLength={10}
+                  maxLength={2000}
+                />
+              </div>
+              <div className="sr-trap" aria-hidden="true">
+                <label>
+                  Website
+                  <input name="website" tabIndex={-1} autoComplete="off" />
+                </label>
+              </div>
+              <Button type="submit" disabled={busy}>
+                {busy ? <LoaderCircle className="animate-spin" /> : <ArrowUpRight />}
+                {busy ? "Sending…" : "Send Inquiry"}
+              </Button>
+              {error && (
+                <p role="alert" className="form-error">
+                  {error}
+                </p>
+              )}
+              {sent && (
+                <p role="status" className="form-message">
+                  Your inquiry has been saved in the private website inbox. No email notification is
+                  sent at this time.
+                </p>
+              )}
+            </form>
+          </div>
+        </div>
+      </section>
+      <section className="section services-section">
+        <div className="container legal-content">
+          <SectionTitle eyebrow="A LITTLE MORE CLARITY" title="Frequently Asked Questions" />
+          <div className="faq-list">
+            {faqs.slice(0, 4).map(([q, a]) => (
+              <details key={q}>
+                <summary>{q}</summary>
+                <p>{a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+const legalPages = {
+  privacy: {
+    title: "Privacy Policy",
+    description: "Transparency about information collected on this demonstration website.",
+    sections: [
+      [
+        "Demonstration policy",
+        "This draft privacy notice describes the current demo website. It is not an approved institutional privacy policy. Legal review is required before offering real banking services.",
+      ],
+      [
+        "Information you provide",
+        "Website registration uses your email address and a website-only password managed by secure authentication. Contact inquiries store your name, email, topic and message in a private inbox. Do not submit financial credentials, identity documents or sensitive account information.",
+      ],
+      [
+        "How information is used",
+        "Registration information enables demo website access. Contact details allow website administrators to review inquiries. No real credit decisions, transactions or financial profiling take place.",
+      ],
+      [
+        "Access and requests",
+        "Contact inquiries are restricted to authorized administrators. You can submit a general information request through the contact page. Official privacy contact details and retention periods have not yet been approved.",
+      ],
+    ],
+  },
+  terms: {
+    title: "Terms & Conditions",
+    description: "Important information about using the Auremont demonstration.",
+    sections: [
+      [
+        "Website demonstration",
+        "Auremont Trust Bank is a demonstration brand, not a confirmed licensed banking institution. These terms are draft website information and require professional review before live services launch.",
+      ],
+      [
+        "No financial services",
+        "No real deposits, withdrawals, transfers, credit applications or investment services are available. Registering creates a demo website login, not a financial account or contractual banking relationship.",
+      ],
+      [
+        "Illustrative content",
+        "Rates, promotional imagery, customer testimonials and simulated balances are demonstration examples. They are not offers, guarantees or verified institutional claims.",
+      ],
+      [
+        "Responsible use",
+        "Use a unique website-only password. Do not provide real banking credentials, payment information, identity documents or sensitive personal financial information.",
+      ],
+    ],
+  },
+  security: {
+    title: "Security Centre",
+    description: "Confidence starts with protecting what matters.",
+    sections: [
+      [
+        "Protect your credentials",
+        "Use a unique password for this demonstration website. Never enter the password for an existing bank account. Do not share passwords, one-time codes, PINs or card security codes.",
+      ],
+      [
+        "Recognize suspicious requests",
+        "Be cautious of messages asking for money, private credentials or account information. This website cannot accept deposits or process transfers. Requests claiming otherwise are not part of this demo.",
+      ],
+      [
+        "Secure website access",
+        "Demo website authentication uses managed secure sign-in and session handling. Contact inquiries are kept in a private administration inbox. These measures do not imply any banking certification or regulatory approval.",
+      ],
+      [
+        "Report a concern",
+        "Send a general security inquiry through the contact page. Do not include confidential information. For a real financial emergency, contact your actual financial institution using independently verified details.",
+      ],
+    ],
+  },
+  cookies: {
+    title: "Cookie Policy",
+    description: "A clear view of website storage and your choices.",
+    sections: [
+      [
+        "Essential website storage",
+        "The demo uses browser storage to maintain authenticated website sessions. This is needed to keep you signed in.",
+      ],
+      [
+        "No advertising cookies",
+        "No advertising or social tracking functionality has been implemented in this demonstration. External font and image requests may be made when you view the site.",
+      ],
+      [
+        "Manage your session",
+        "Signing out ends the website session. You may also clear site data in your browser, which removes saved authentication state. This policy is draft information and needs review before launch.",
+      ],
+    ],
+  },
+  disclosures: {
+    title: "Important Disclosures",
+    description: "Financial integrity, without ambiguity.",
+    sections: [
+      [
+        "Not a licensed banking service",
+        "This project is a banking website demonstration. No licensing, deposit-insurance, regulatory status or security certification is claimed.",
+      ],
+      [
+        "Illustrative rates and accounts",
+        "All APY and APR values are illustrative, configurable examples. Simulated account balances are not real money. No offers, guaranteed returns or approved lending terms are presented.",
+      ],
+      [
+        "Imagery and testimonials",
+        "Architecture and family images are generated illustrative imagery. Testimonial names, avatars and feedback are demonstration content, not genuine verified customer reviews.",
+      ],
+      [
+        "Before live operations",
+        "Real services must remain disabled until the necessary licensed arrangements, regulatory approvals, genuine disclosures, verified contacts and compliant integrations are in place.",
+      ],
+    ],
+  },
+  careers: {
+    title: "Careers at Auremont",
+    description: "A vision built around people and progress.",
+    sections: [
+      [
+        "No current vacancies",
+        "Auremont is a demonstration brand. No verified employment opportunities or active recruitment processes are currently available.",
+      ],
+      [
+        "Stay in conversation",
+        "You may send a general inquiry through the contact page. Do not send identity documents or sensitive information.",
+      ],
+    ],
+  },
+} as const;
+export function LegalPage({ kind }: { kind: keyof typeof legalPages }) {
+  const p = legalPages[kind];
+  return (
+    <>
+      <PageBanner title={p.title} description={p.description} />
+      <section className="section">
+        <div className="container legal-content">
+          {p.sections.map(([h, t]) => (
+            <section key={h}>
+              <h2>{h}</h2>
+              <p>{t}</p>
+            </section>
+          ))}
+          <Button variant="secondary" asChild>
+            <Link to="/contact">
+              Contact Us <ArrowUpRight />
+            </Link>
+          </Button>
+        </div>
+      </section>
+    </>
+  );
+}

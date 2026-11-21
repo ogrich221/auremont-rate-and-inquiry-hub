@@ -1,13 +1,263 @@
-import { useState,useEffect } from 'react';
-import { Link,useNavigate } from '@tanstack/react-router';
-import { LoaderCircle,ArrowUpRight,ShieldCheck } from 'lucide-react';
-import { LovableMark } from '@lovable.dev/cloud-auth-js/react';
-import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
-import { lovable } from '@/integrations/lovable';
-import headquarters from '@/assets/headquarters.asset.json';
-export function AuthPage({mode}:{mode:'login'|'register'|'reset'}){const [busy,setBusy]=useState(false);const [error,setError]=useState('');const [message,setMessage]=useState('');const navigate=useNavigate();const register=mode==='register';const reset=mode==='reset';useEffect(()=>{if(reset)return;const {data:{subscription}}=supabase.auth.onAuthStateChange((_e,s)=>{if(s)void navigate({to:'/account'});});void supabase.auth.getSession().then(({data})=>{if(data.session)void navigate({to:'/account'});});return()=>subscription.unsubscribe();},[navigate,reset]);
-async function submit(e:React.FormEvent<HTMLFormElement>){e.preventDefault();setError('');setMessage('');setBusy(true);const fd=new FormData(e.currentTarget);const email=String(fd.get('email'));const password=String(fd.get('password')??'');try{if(reset){const {error:e}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+'/update-password'});if(e)throw e;setMessage('If an account exists, a password reset email will be sent.');}else if(register){const {data,error:e}=await supabase.auth.signUp({email,password,options:{emailRedirectTo:window.location.origin+'/login'}});if(e)throw e;if(data.session)await navigate({to:'/account'});else setMessage('Check your email to confirm your demo website account before signing in. This is not a bank account.');}else{const {error:e}=await supabase.auth.signInWithPassword({email,password});if(e)throw e;await navigate({to:'/account'});}}catch(err){setError(err instanceof Error?err.message:'Unable to continue. Please try again.');}finally{setBusy(false);}}
-async function social(provider:'google'|'lovable'){setBusy(true);setError('');try{const result=await lovable.auth.signInWithOAuth(provider,{redirect_uri:window.location.origin+'/login'});if(result.error)throw result.error;if(!result.redirected)await navigate({to:'/account'});}catch(err){setError(err instanceof Error?err.message:'Sign-in failed.');}finally{setBusy(false);}}
-return <div className="auth-layout"><div className="auth-photo"><img src={headquarters.url} alt="Illustrative Auremont architecture"/><div className="auth-photo-copy"><span className="eyebrow">A HIGHER STANDARD OF BANKING</span><h2>Your Wealth.<br/>Your Future.<br/>Our Commitment.</h2><p>A thoughtful digital experience, built around what matters to you.</p><span className="hero-assurances"><ShieldCheck/> Demonstration environment</span></div></div><div className="auth-form"><span className="eyebrow">{register?'YOUR NEXT CHAPTER':'AUREMONT ONLINE'}</span><h1>{reset?'Reset your password':register?'Begin with Auremont.':'Welcome back.'}</h1><p>{reset?'Enter your demo website email to request a reset link.':register?'Create your website-only demo account.':'Sign in to your Auremont demo website account.'}</p><div className="notice">Demo website only. Use a unique password, never an existing bank password. No real banking account is opened.</div>{!reset&&<><div className="social-buttons"><Button variant="google" disabled={busy} onClick={()=>social('google')}><svg aria-hidden="true" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.98-3.09z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>Continue with Google</Button><Button variant="outline" disabled={busy} onClick={()=>social('lovable')}><LovableMark/>Continue with Lovable</Button></div><div className="auth-divider">or continue with email</div></>}<form onSubmit={submit}><div className="field"><label htmlFor="auth-email">Email address</label><input id="auth-email" name="email" type="email" maxLength={255} required autoComplete="email"/></div>{!reset&&<div className="field"><label htmlFor="auth-password">Website-only password</label><input id="auth-password" name="password" type="password" minLength={8} maxLength={128} required autoComplete={register?'new-password':'current-password'}/></div>}{register&&<label className="auth-check"><input type="checkbox" required/><span>I understand this is a demonstration, not a bank account, and accept the <Link to="/terms">website terms</Link> and <Link to="/privacy">privacy notice</Link>.</span></label>}<Button disabled={busy}>{busy?<LoaderCircle className="animate-spin"/>:<ArrowUpRight/>}{reset?'Send Reset Link':register?'Create Demo Account':'Sign In'}</Button>{error&&<p role="alert" className="form-error">{error}</p>}{message&&<p role="status" className="form-message">{message}</p>}</form><div className="auth-switch">{register?<>Already have a demo login? <Link to="/login">Sign in</Link></>:reset?<Link to="/login">Back to sign in</Link>:<>New to Auremont? <Link to="/open-account">Create a demo account</Link><br/><Link to="/reset-password">Forgot password?</Link></>}</div></div></div>}
-export function UpdatePassword(){const [error,setError]=useState('');const [busy,setBusy]=useState(false);const [done,setDone]=useState(false);return <div className="auth-form"><h1>Choose a new password.</h1><p>Use a unique password for this demo website.</p><form onSubmit={async e=>{e.preventDefault();setBusy(true);const password=String(new FormData(e.currentTarget).get('password'));const {error}=await supabase.auth.updateUser({password});setBusy(false);if(error)setError(error.message);else setDone(true);}}><div className="field"><label htmlFor="new-password">New website-only password</label><input id="new-password" name="password" type="password" required minLength={8} maxLength={128} autoComplete="new-password"/></div><Button disabled={busy}>Update Password</Button>{error&&<p role="alert" className="form-error">{error}</p>}{done&&<p role="status" className="form-message">Password updated. <Link to="/account">Continue to your demo account →</Link></p>}</form></div>}
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { LoaderCircle, ArrowUpRight, ShieldCheck } from "lucide-react";
+import { LovableMark } from "@lovable.dev/cloud-auth-js/react";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
+import headquarters from "@/assets/headquarters.asset.json";
+export function AuthPage({ mode }: { mode: "login" | "register" | "reset" }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const navigate = useNavigate();
+  const register = mode === "register";
+  const reset = mode === "reset";
+  useEffect(() => {
+    if (reset) return;
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_e, s) => {
+      if (s) void navigate({ to: "/account" });
+    });
+    void supabase.auth.getSession().then(({ data }) => {
+      if (data.session) void navigate({ to: "/account" });
+    });
+    return () => subscription.unsubscribe();
+  }, [navigate, reset]);
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError("");
+    setMessage("");
+    setBusy(true);
+    const fd = new FormData(e.currentTarget);
+    const email = String(fd.get("email"));
+    const password = String(fd.get("password") ?? "");
+    try {
+      if (reset) {
+        const { error: e } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin + "/update-password",
+        });
+        if (e) throw e;
+        setMessage("If an account exists, a password reset email will be sent.");
+      } else if (register) {
+        const { data, error: e } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: window.location.origin + "/login" },
+        });
+        if (e) throw e;
+        if (data.session) await navigate({ to: "/account" });
+        else
+          setMessage(
+            "Check your email to confirm your demo website account before signing in. This is not a bank account.",
+          );
+      } else {
+        const { error: e } = await supabase.auth.signInWithPassword({ email, password });
+        if (e) throw e;
+        await navigate({ to: "/account" });
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to continue. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function social(provider: "google" | "lovable") {
+    setBusy(true);
+    setError("");
+    try {
+      const result = await lovable.auth.signInWithOAuth(provider, {
+        redirect_uri: window.location.origin + "/login",
+      });
+      if (result.error) throw result.error;
+      if (!result.redirected) await navigate({ to: "/account" });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Sign-in failed.");
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="auth-layout">
+      <div className="auth-photo">
+        <img src={headquarters.url} alt="Illustrative Auremont architecture" />
+        <div className="auth-photo-copy">
+          <span className="eyebrow">A HIGHER STANDARD OF BANKING</span>
+          <h2>
+            Your Wealth.
+            <br />
+            Your Future.
+            <br />
+            Our Commitment.
+          </h2>
+          <p>A thoughtful digital experience, built around what matters to you.</p>
+          <span className="hero-assurances">
+            <ShieldCheck /> Demonstration environment
+          </span>
+        </div>
+      </div>
+      <div className="auth-form">
+        <span className="eyebrow">{register ? "YOUR NEXT CHAPTER" : "AUREMONT ONLINE"}</span>
+        <h1>
+          {reset ? "Reset your password" : register ? "Begin with Auremont." : "Welcome back."}
+        </h1>
+        <p>
+          {reset
+            ? "Enter your demo website email to request a reset link."
+            : register
+              ? "Create your website-only demo account."
+              : "Sign in to your Auremont demo website account."}
+        </p>
+        <div className="notice">
+          Demo website only. Use a unique password, never an existing bank password. No real banking
+          account is opened.
+        </div>
+        {!reset && (
+          <>
+            <div className="social-buttons">
+              <Button variant="google" disabled={busy} onClick={() => social("google")}>
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path
+                    fill="#4285F4"
+                    d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.27 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.98-3.09z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"
+                  />
+                </svg>
+                Continue with Google
+              </Button>
+              <Button variant="outline" disabled={busy} onClick={() => social("lovable")}>
+                <LovableMark />
+                Continue with Lovable
+              </Button>
+            </div>
+            <div className="auth-divider">or continue with email</div>
+          </>
+        )}
+        <form onSubmit={submit}>
+          <div className="field">
+            <label htmlFor="auth-email">Email address</label>
+            <input
+              id="auth-email"
+              name="email"
+              type="email"
+              maxLength={255}
+              required
+              autoComplete="email"
+            />
+          </div>
+          {!reset && (
+            <div className="field">
+              <label htmlFor="auth-password">Website-only password</label>
+              <input
+                id="auth-password"
+                name="password"
+                type="password"
+                minLength={8}
+                maxLength={128}
+                required
+                autoComplete={register ? "new-password" : "current-password"}
+              />
+            </div>
+          )}
+          {register && (
+            <label className="auth-check">
+              <input type="checkbox" required />
+              <span>
+                I understand this is a demonstration, not a bank account, and accept the{" "}
+                <Link to="/terms">website terms</Link> and <Link to="/privacy">privacy notice</Link>
+                .
+              </span>
+            </label>
+          )}
+          <Button disabled={busy}>
+            {busy ? <LoaderCircle className="animate-spin" /> : <ArrowUpRight />}
+            {reset ? "Send Reset Link" : register ? "Create Demo Account" : "Sign In"}
+          </Button>
+          {error && (
+            <p role="alert" className="form-error">
+              {error}
+            </p>
+          )}
+          {message && (
+            <p role="status" className="form-message">
+              {message}
+            </p>
+          )}
+        </form>
+        <div className="auth-switch">
+          {register ? (
+            <>
+              Already have a demo login? <Link to="/login">Sign in</Link>
+            </>
+          ) : reset ? (
+            <Link to="/login">Back to sign in</Link>
+          ) : (
+            <>
+              New to Auremont? <Link to="/open-account">Create a demo account</Link>
+              <br />
+              <Link to="/reset-password">Forgot password?</Link>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+export function UpdatePassword() {
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(false);
+  return (
+    <div className="auth-form">
+      <h1>Choose a new password.</h1>
+      <p>Use a unique password for this demo website.</p>
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setBusy(true);
+          const password = String(new FormData(e.currentTarget).get("password"));
+          const { error } = await supabase.auth.updateUser({ password });
+          setBusy(false);
+          if (error) setError(error.message);
+          else setDone(true);
+        }}
+      >
+        <div className="field">
+          <label htmlFor="new-password">New website-only password</label>
+          <input
+            id="new-password"
+            name="password"
+            type="password"
+            required
+            minLength={8}
+            maxLength={128}
+            autoComplete="new-password"
+          />
+        </div>
+        <Button disabled={busy}>Update Password</Button>
+        {error && (
+          <p role="alert" className="form-error">
+            {error}
+          </p>
+        )}
+        {done && (
+          <p role="status" className="form-message">
+            Password updated. <Link to="/account">Continue to your demo account →</Link>
+          </p>
+        )}
+      </form>
+    </div>
+  );
+}

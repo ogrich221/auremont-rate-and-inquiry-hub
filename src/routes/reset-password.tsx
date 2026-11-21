@@ -1,5 +1,14 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { pageHead } from '@/lib/bank';
-import { AuthPage } from '@/components/bank/auth';
-export const Route=createFileRoute('/reset-password')({head:()=>pageHead('Reset Password','Secure access to the Auremont demo website. No real banking services.'),component:Page});
-function Page(){return <AuthPage mode="reset"/>}
+import { createFileRoute } from "@tanstack/react-router";
+import { pageHead } from "@/lib/bank";
+import { AuthPage } from "@/components/bank/auth";
+export const Route = createFileRoute("/reset-password")({
+  head: () =>
+    pageHead(
+      "Reset Password",
+      "Secure access to the Auremont demo website. No real banking services.",
+    ),
+  component: Page,
+});
+function Page() {
+  return <AuthPage mode="reset" />;
+}

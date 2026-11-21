@@ -1,4 +1,5 @@
 <!-- LOVABLE:BEGIN -->
+
 > [!IMPORTANT]
 > This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
 > published git history — force pushing, or rebasing/amending/squashing commits
@@ -27,9 +28,11 @@ use the editor.
   `LOVABLE_API_KEY`. When Lovable does not provide one, users can bring their
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
+
 <!-- LOVABLE:END -->
 
 ## Application structure
+
 - Keep bank presentation in `src/components/bank` and distinct content in leaf routes; shared navigation is mounted in the root so every page uses the same identity.
 - Store configurable public website content in `site_content`; validate with the shared schemas and use role-protected server functions for changes so visitors cannot grant themselves permissions.
 - Persist contact inquiries through a validated server function into a private inbox; do not report delivery when only browser state changed.
