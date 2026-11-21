@@ -37,3 +37,7 @@ use the editor.
 - Store configurable public website content in `site_content`; validate with the shared schemas and use role-protected server functions for changes so visitors cannot grant themselves permissions.
 - Persist contact inquiries through a validated server function into a private inbox; do not report delivery when only browser state changed.
 - Authentication creates website-only demo access; financial operations remain disabled independently of session state to prevent confusing simulations with banking services.
+- Central administration lives in the authenticated route subtree with its own bank shell; public pages retain the shared website shell.
+- Private administration uses a singleton designated identity plus the protected admin role and AAL2 in database policies and server functions; status, review and archival actions require recent MFA.
+- Customer and application mutations run through atomic guarded database functions with trigger-written audit history and optimistic customer versions; customer deletion means archival, never audit erasure.
+- Administration clears private query caches before sign-out and signs out after fifteen minutes without browser interaction; sensitive operations still enforce recent MFA in the database.

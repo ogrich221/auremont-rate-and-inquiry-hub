@@ -10,11 +10,10 @@ const contentSchema = z.discriminatedUnion("key", [
 export const getAdminData = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data: admin, error: roleError } = await context.supabase.rpc("has_role", {
-      _user_id: context.userId,
-      _role: "admin",
+    const { error: roleError } = await context.supabase.rpc("require_primary_administrator", {
+      recent: false,
     });
-    if (roleError || !admin) throw new Error("Administrator access is required.");
+    if (roleError) throw new Error("Primary administrator multi-factor access is required.");
     const { data, error } = await context.supabase
       .from("contact_submissions")
       .select("id,created_at,name,email,topic,message")
@@ -27,11 +26,10 @@ export const saveContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => contentSchema.parse(input))
   .handler(async ({ context, data }) => {
-    const { data: admin, error: roleError } = await context.supabase.rpc("has_role", {
-      _user_id: context.userId,
-      _role: "admin",
+    const { error: roleError } = await context.supabase.rpc("require_primary_administrator", {
+      recent: false,
     });
-    if (roleError || !admin) throw new Error("Administrator access is required.");
+    if (roleError) throw new Error("Primary administrator multi-factor access is required.");
     const { error } = await context.supabase
       .from("site_content")
       .upsert({ key: data.key, value: data.value });

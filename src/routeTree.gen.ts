@@ -10,9 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AccountRouteImport } from './routes/account'
-import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AdminLoginRouteImport } from './routes/admin-login'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BusinessBankingRouteImport } from './routes/business-banking'
 import { Route as CardsRouteImport } from './routes/cards'
 import { Route as CareersRouteImport } from './routes/careers'
@@ -31,10 +33,19 @@ import { Route as SecurityRouteImport } from './routes/security'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as UpdatePasswordRouteImport } from './routes/update-password'
 import { Route as WealthManagementRouteImport } from './routes/wealth-management'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminSectionRouteImport } from './routes/_authenticated/admin.$section'
+import { Route as AuthenticatedAdminCustomersCustomerIdRouteImport } from './routes/_authenticated/admin.customers.$customerId'
+import { Route as AuthenticatedAdminCustomersCustomerIdEditRouteImport } from './routes/_authenticated/admin.customers.$customerId_.edit'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -47,9 +58,14 @@ const AccountRoute = AccountRouteImport.update({
   path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin-login',
+  path: '/admin-login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BusinessBankingRoute = BusinessBankingRouteImport.update({
@@ -142,12 +158,41 @@ const WealthManagementRoute = WealthManagementRouteImport.update({
   path: '/wealth-management',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminSectionRoute =
+  AuthenticatedAdminSectionRouteImport.update({
+    id: '/$section',
+    path: '/$section',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCustomersCustomerIdRoute =
+  AuthenticatedAdminCustomersCustomerIdRouteImport.update({
+    id: '/customers/$customerId',
+    path: '/customers/$customerId',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCustomersCustomerIdEditRoute =
+  AuthenticatedAdminCustomersCustomerIdEditRouteImport.update({
+    id: '/customers/$customerId_/edit',
+    path: '/customers/$customerId/edit',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/account': typeof AccountRoute
-  '/admin': typeof AdminRoute
+  '/admin-login': typeof AdminLoginRoute
+  '/auth': typeof AuthRoute
   '/business-banking': typeof BusinessBankingRoute
   '/cards': typeof CardsRoute
   '/careers': typeof CareersRoute
@@ -166,12 +211,18 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/update-password': typeof UpdatePasswordRoute
   '/wealth-management': typeof WealthManagementRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/admin/$section': typeof AuthenticatedAdminSectionRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/customers/$customerId': typeof AuthenticatedAdminCustomersCustomerIdRoute
+  '/admin/customers/$customerId/edit': typeof AuthenticatedAdminCustomersCustomerIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/account': typeof AccountRoute
-  '/admin': typeof AdminRoute
+  '/admin-login': typeof AdminLoginRoute
+  '/auth': typeof AuthRoute
   '/business-banking': typeof BusinessBankingRoute
   '/cards': typeof CardsRoute
   '/careers': typeof CareersRoute
@@ -190,13 +241,19 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/update-password': typeof UpdatePasswordRoute
   '/wealth-management': typeof WealthManagementRoute
+  '/admin/$section': typeof AuthenticatedAdminSectionRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/customers/$customerId': typeof AuthenticatedAdminCustomersCustomerIdRoute
+  '/admin/customers/$customerId/edit': typeof AuthenticatedAdminCustomersCustomerIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/account': typeof AccountRoute
-  '/admin': typeof AdminRoute
+  '/admin-login': typeof AdminLoginRoute
+  '/auth': typeof AuthRoute
   '/business-banking': typeof BusinessBankingRoute
   '/cards': typeof CardsRoute
   '/careers': typeof CareersRoute
@@ -215,6 +272,11 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/update-password': typeof UpdatePasswordRoute
   '/wealth-management': typeof WealthManagementRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_authenticated/admin/$section': typeof AuthenticatedAdminSectionRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/customers/$customerId': typeof AuthenticatedAdminCustomersCustomerIdRoute
+  '/_authenticated/admin/customers/$customerId_/edit': typeof AuthenticatedAdminCustomersCustomerIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -222,7 +284,8 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/account'
-    | '/admin'
+    | '/admin-login'
+    | '/auth'
     | '/business-banking'
     | '/cards'
     | '/careers'
@@ -241,12 +304,18 @@ export interface FileRouteTypes {
     | '/terms'
     | '/update-password'
     | '/wealth-management'
+    | '/admin'
+    | '/admin/$section'
+    | '/admin/'
+    | '/admin/customers/$customerId'
+    | '/admin/customers/$customerId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
     | '/account'
-    | '/admin'
+    | '/admin-login'
+    | '/auth'
     | '/business-banking'
     | '/cards'
     | '/careers'
@@ -265,12 +334,18 @@ export interface FileRouteTypes {
     | '/terms'
     | '/update-password'
     | '/wealth-management'
+    | '/admin/$section'
+    | '/admin'
+    | '/admin/customers/$customerId'
+    | '/admin/customers/$customerId/edit'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/about'
     | '/account'
-    | '/admin'
+    | '/admin-login'
+    | '/auth'
     | '/business-banking'
     | '/cards'
     | '/careers'
@@ -289,13 +364,20 @@ export interface FileRouteTypes {
     | '/terms'
     | '/update-password'
     | '/wealth-management'
+    | '/_authenticated/admin'
+    | '/_authenticated/admin/$section'
+    | '/_authenticated/admin/'
+    | '/_authenticated/admin/customers/$customerId'
+    | '/_authenticated/admin/customers/$customerId_/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   AccountRoute: typeof AccountRoute
-  AdminRoute: typeof AdminRoute
+  AdminLoginRoute: typeof AdminLoginRoute
+  AuthRoute: typeof AuthRoute
   BusinessBankingRoute: typeof BusinessBankingRoute
   CardsRoute: typeof CardsRoute
   CareersRoute: typeof CareersRoute
@@ -325,6 +407,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -339,11 +428,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
+    '/admin-login': {
+      id: '/admin-login'
+      path: '/admin-login'
+      fullPath: '/admin-login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/business-banking': {
@@ -472,14 +568,81 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WealthManagementRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/$section': {
+      id: '/_authenticated/admin/$section'
+      path: '/$section'
+      fullPath: '/admin/$section'
+      preLoaderRoute: typeof AuthenticatedAdminSectionRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/customers/$customerId': {
+      id: '/_authenticated/admin/customers/$customerId'
+      path: '/customers/$customerId'
+      fullPath: '/admin/customers/$customerId'
+      preLoaderRoute: typeof AuthenticatedAdminCustomersCustomerIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/customers/$customerId_/edit': {
+      id: '/_authenticated/admin/customers/$customerId_/edit'
+      path: '/customers/$customerId/edit'
+      fullPath: '/admin/customers/$customerId/edit'
+      preLoaderRoute: typeof AuthenticatedAdminCustomersCustomerIdEditRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminSectionRoute: typeof AuthenticatedAdminSectionRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminCustomersCustomerIdRoute: typeof AuthenticatedAdminCustomersCustomerIdRoute
+  AuthenticatedAdminCustomersCustomerIdEditRoute: typeof AuthenticatedAdminCustomersCustomerIdEditRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminSectionRoute: AuthenticatedAdminSectionRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminCustomersCustomerIdRoute:
+    AuthenticatedAdminCustomersCustomerIdRoute,
+  AuthenticatedAdminCustomersCustomerIdEditRoute:
+    AuthenticatedAdminCustomersCustomerIdEditRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   AccountRoute: AccountRoute,
-  AdminRoute: AdminRoute,
+  AdminLoginRoute: AdminLoginRoute,
+  AuthRoute: AuthRoute,
   BusinessBankingRoute: BusinessBankingRoute,
   CardsRoute: CardsRoute,
   CareersRoute: CareersRoute,

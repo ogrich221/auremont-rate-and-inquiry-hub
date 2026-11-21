@@ -14,6 +14,268 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_applications: {
+        Row: {
+          account_type: string
+          created_at: string
+          currency: string
+          customer_id: string | null
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          phone: string
+          reference: string
+          review_reason: string
+          status: string
+          updated_at: string
+          verification_status: string
+        }
+        Insert: {
+          account_type?: string
+          created_at?: string
+          currency?: string
+          customer_id?: string | null
+          email: string
+          first_name: string
+          id?: string
+          last_name: string
+          phone?: string
+          reference?: string
+          review_reason?: string
+          status?: string
+          updated_at?: string
+          verification_status?: string
+        }
+        Update: {
+          account_type?: string
+          created_at?: string
+          currency?: string
+          customer_id?: string | null
+          email?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          phone?: string
+          reference?: string
+          review_reason?: string
+          status?: string
+          updated_at?: string
+          verification_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_applications_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "admin_customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_audit: {
+        Row: {
+          action: string
+          actor_id: string
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          new_values: Json | null
+          old_values: Json | null
+          reason: string
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          new_values?: Json | null
+          old_values?: Json | null
+          reason?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          new_values?: Json | null
+          old_values?: Json | null
+          reason?: string
+        }
+        Relationships: []
+      }
+      admin_customers: {
+        Row: {
+          account_ref: string
+          account_type: string
+          address: string
+          alternative_phone: string
+          archived_at: string | null
+          country: string
+          created_at: string
+          currency: string
+          customer_ref: string
+          date_of_birth: string | null
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          middle_name: string
+          nationality: string
+          notes: string
+          opening_date: string
+          phone: string
+          status: string
+          updated_at: string
+          verification_status: string
+          version: number
+        }
+        Insert: {
+          account_ref?: string
+          account_type?: string
+          address?: string
+          alternative_phone?: string
+          archived_at?: string | null
+          country?: string
+          created_at?: string
+          currency?: string
+          customer_ref?: string
+          date_of_birth?: string | null
+          email: string
+          first_name: string
+          id?: string
+          last_name: string
+          middle_name?: string
+          nationality?: string
+          notes?: string
+          opening_date?: string
+          phone?: string
+          status?: string
+          updated_at?: string
+          verification_status?: string
+          version?: number
+        }
+        Update: {
+          account_ref?: string
+          account_type?: string
+          address?: string
+          alternative_phone?: string
+          archived_at?: string | null
+          country?: string
+          created_at?: string
+          currency?: string
+          customer_ref?: string
+          date_of_birth?: string | null
+          email?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          middle_name?: string
+          nationality?: string
+          notes?: string
+          opening_date?: string
+          phone?: string
+          status?: string
+          updated_at?: string
+          verification_status?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      admin_notifications: {
+        Row: {
+          created_at: string
+          entity_id: string | null
+          id: string
+          read_at: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          entity_id?: string | null
+          id?: string
+          read_at?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string | null
+          id?: string
+          read_at?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      admin_preferences: {
+        Row: {
+          display_name: string
+          security_notifications: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          display_name?: string
+          security_notifications?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          display_name?: string
+          security_notifications?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      admin_transactions: {
+        Row: {
+          amount: number
+          currency: string
+          customer_id: string
+          id: string
+          occurred_at: string
+          provider_reference: string
+          reference: string
+          status: string
+          transaction_type: string
+        }
+        Insert: {
+          amount: number
+          currency: string
+          customer_id: string
+          id?: string
+          occurred_at: string
+          provider_reference: string
+          reference: string
+          status: string
+          transaction_type: string
+        }
+        Update: {
+          amount?: number
+          currency?: string
+          customer_id?: string
+          id?: string
+          occurred_at?: string
+          provider_reference?: string
+          reference?: string
+          status?: string
+          transaction_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_transactions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "admin_customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_limits: {
         Row: {
           email_hash: string
@@ -56,6 +318,21 @@ export type Database = {
         }
         Relationships: []
       }
+      primary_administrator: {
+        Row: {
+          singleton: boolean
+          user_id: string
+        }
+        Insert: {
+          singleton?: boolean
+          user_id: string
+        }
+        Update: {
+          singleton?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       site_content: {
         Row: {
           key: string
@@ -94,12 +371,52 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_change_customer: {
+        Args: {
+          archive?: boolean
+          checks_complete?: boolean
+          expected_version?: number
+          reason: string
+          record_id: string
+          target_status: string
+        }
+        Returns: undefined
+      }
+      admin_create_application: { Args: { payload: Json }; Returns: string }
+      admin_mark_notifications: {
+        Args: { record_id?: string }
+        Returns: undefined
+      }
+      admin_record_access: { Args: { event?: string }; Returns: undefined }
+      admin_review_application: {
+        Args: {
+          checks_complete?: boolean
+          decision: string
+          reason: string
+          record_id: string
+        }
+        Returns: string
+      }
+      admin_save_customer: {
+        Args: { expected_version?: number; payload: Json; record_id?: string }
+        Returns: string
+      }
+      admin_save_preferences: {
+        Args: { display_name: string; security_notifications: boolean }
+        Returns: undefined
+      }
+      admin_summary: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      is_primary_administrator: { Args: never; Returns: boolean }
+      require_primary_administrator: {
+        Args: { recent?: boolean }
+        Returns: undefined
       }
     }
     Enums: {
