@@ -10,33 +10,310 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AccountRouteImport } from './routes/account'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as BusinessBankingRouteImport } from './routes/business-banking'
+import { Route as CardsRouteImport } from './routes/cards'
+import { Route as CareersRouteImport } from './routes/careers'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as CookiesRouteImport } from './routes/cookies'
+import { Route as DigitalBankingRouteImport } from './routes/digital-banking'
+import { Route as DisclosuresRouteImport } from './routes/disclosures'
+import { Route as FaqRouteImport } from './routes/faq'
+import { Route as LoansRouteImport } from './routes/loans'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as OpenAccountRouteImport } from './routes/open-account'
+import { Route as PersonalBankingRouteImport } from './routes/personal-banking'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SecurityRouteImport } from './routes/security'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as UpdatePasswordRouteImport } from './routes/update-password'
+import { Route as WealthManagementRouteImport } from './routes/wealth-management'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BusinessBankingRoute = BusinessBankingRouteImport.update({
+  id: '/business-banking',
+  path: '/business-banking',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CardsRoute = CardsRouteImport.update({
+  id: '/cards',
+  path: '/cards',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersRoute = CareersRouteImport.update({
+  id: '/careers',
+  path: '/careers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DigitalBankingRoute = DigitalBankingRouteImport.update({
+  id: '/digital-banking',
+  path: '/digital-banking',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisclosuresRoute = DisclosuresRouteImport.update({
+  id: '/disclosures',
+  path: '/disclosures',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoansRoute = LoansRouteImport.update({
+  id: '/loans',
+  path: '/loans',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OpenAccountRoute = OpenAccountRouteImport.update({
+  id: '/open-account',
+  path: '/open-account',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PersonalBankingRoute = PersonalBankingRouteImport.update({
+  id: '/personal-banking',
+  path: '/personal-banking',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecurityRoute = SecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UpdatePasswordRoute = UpdatePasswordRouteImport.update({
+  id: '/update-password',
+  path: '/update-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WealthManagementRoute = WealthManagementRouteImport.update({
+  id: '/wealth-management',
+  path: '/wealth-management',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/account': typeof AccountRoute
+  '/admin': typeof AdminRoute
+  '/business-banking': typeof BusinessBankingRoute
+  '/cards': typeof CardsRoute
+  '/careers': typeof CareersRoute
+  '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
+  '/digital-banking': typeof DigitalBankingRoute
+  '/disclosures': typeof DisclosuresRoute
+  '/faq': typeof FaqRoute
+  '/loans': typeof LoansRoute
+  '/login': typeof LoginRoute
+  '/open-account': typeof OpenAccountRoute
+  '/personal-banking': typeof PersonalBankingRoute
+  '/privacy': typeof PrivacyRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/security': typeof SecurityRoute
+  '/terms': typeof TermsRoute
+  '/update-password': typeof UpdatePasswordRoute
+  '/wealth-management': typeof WealthManagementRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/account': typeof AccountRoute
+  '/admin': typeof AdminRoute
+  '/business-banking': typeof BusinessBankingRoute
+  '/cards': typeof CardsRoute
+  '/careers': typeof CareersRoute
+  '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
+  '/digital-banking': typeof DigitalBankingRoute
+  '/disclosures': typeof DisclosuresRoute
+  '/faq': typeof FaqRoute
+  '/loans': typeof LoansRoute
+  '/login': typeof LoginRoute
+  '/open-account': typeof OpenAccountRoute
+  '/personal-banking': typeof PersonalBankingRoute
+  '/privacy': typeof PrivacyRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/security': typeof SecurityRoute
+  '/terms': typeof TermsRoute
+  '/update-password': typeof UpdatePasswordRoute
+  '/wealth-management': typeof WealthManagementRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/account': typeof AccountRoute
+  '/admin': typeof AdminRoute
+  '/business-banking': typeof BusinessBankingRoute
+  '/cards': typeof CardsRoute
+  '/careers': typeof CareersRoute
+  '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
+  '/digital-banking': typeof DigitalBankingRoute
+  '/disclosures': typeof DisclosuresRoute
+  '/faq': typeof FaqRoute
+  '/loans': typeof LoansRoute
+  '/login': typeof LoginRoute
+  '/open-account': typeof OpenAccountRoute
+  '/personal-banking': typeof PersonalBankingRoute
+  '/privacy': typeof PrivacyRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/security': typeof SecurityRoute
+  '/terms': typeof TermsRoute
+  '/update-password': typeof UpdatePasswordRoute
+  '/wealth-management': typeof WealthManagementRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/account'
+    | '/admin'
+    | '/business-banking'
+    | '/cards'
+    | '/careers'
+    | '/contact'
+    | '/cookies'
+    | '/digital-banking'
+    | '/disclosures'
+    | '/faq'
+    | '/loans'
+    | '/login'
+    | '/open-account'
+    | '/personal-banking'
+    | '/privacy'
+    | '/reset-password'
+    | '/security'
+    | '/terms'
+    | '/update-password'
+    | '/wealth-management'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/account'
+    | '/admin'
+    | '/business-banking'
+    | '/cards'
+    | '/careers'
+    | '/contact'
+    | '/cookies'
+    | '/digital-banking'
+    | '/disclosures'
+    | '/faq'
+    | '/loans'
+    | '/login'
+    | '/open-account'
+    | '/personal-banking'
+    | '/privacy'
+    | '/reset-password'
+    | '/security'
+    | '/terms'
+    | '/update-password'
+    | '/wealth-management'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/account'
+    | '/admin'
+    | '/business-banking'
+    | '/cards'
+    | '/careers'
+    | '/contact'
+    | '/cookies'
+    | '/digital-banking'
+    | '/disclosures'
+    | '/faq'
+    | '/loans'
+    | '/login'
+    | '/open-account'
+    | '/personal-banking'
+    | '/privacy'
+    | '/reset-password'
+    | '/security'
+    | '/terms'
+    | '/update-password'
+    | '/wealth-management'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  AccountRoute: typeof AccountRoute
+  AdminRoute: typeof AdminRoute
+  BusinessBankingRoute: typeof BusinessBankingRoute
+  CardsRoute: typeof CardsRoute
+  CareersRoute: typeof CareersRoute
+  ContactRoute: typeof ContactRoute
+  CookiesRoute: typeof CookiesRoute
+  DigitalBankingRoute: typeof DigitalBankingRoute
+  DisclosuresRoute: typeof DisclosuresRoute
+  FaqRoute: typeof FaqRoute
+  LoansRoute: typeof LoansRoute
+  LoginRoute: typeof LoginRoute
+  OpenAccountRoute: typeof OpenAccountRoute
+  PersonalBankingRoute: typeof PersonalBankingRoute
+  PrivacyRoute: typeof PrivacyRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  SecurityRoute: typeof SecurityRoute
+  TermsRoute: typeof TermsRoute
+  UpdatePasswordRoute: typeof UpdatePasswordRoute
+  WealthManagementRoute: typeof WealthManagementRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +325,179 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/business-banking': {
+      id: '/business-banking'
+      path: '/business-banking'
+      fullPath: '/business-banking'
+      preLoaderRoute: typeof BusinessBankingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cards': {
+      id: '/cards'
+      path: '/cards'
+      fullPath: '/cards'
+      preLoaderRoute: typeof CardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers': {
+      id: '/careers'
+      path: '/careers'
+      fullPath: '/careers'
+      preLoaderRoute: typeof CareersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/digital-banking': {
+      id: '/digital-banking'
+      path: '/digital-banking'
+      fullPath: '/digital-banking'
+      preLoaderRoute: typeof DigitalBankingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/disclosures': {
+      id: '/disclosures'
+      path: '/disclosures'
+      fullPath: '/disclosures'
+      preLoaderRoute: typeof DisclosuresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loans': {
+      id: '/loans'
+      path: '/loans'
+      fullPath: '/loans'
+      preLoaderRoute: typeof LoansRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/open-account': {
+      id: '/open-account'
+      path: '/open-account'
+      fullPath: '/open-account'
+      preLoaderRoute: typeof OpenAccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/personal-banking': {
+      id: '/personal-banking'
+      path: '/personal-banking'
+      fullPath: '/personal-banking'
+      preLoaderRoute: typeof PersonalBankingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/security': {
+      id: '/security'
+      path: '/security'
+      fullPath: '/security'
+      preLoaderRoute: typeof SecurityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/update-password': {
+      id: '/update-password'
+      path: '/update-password'
+      fullPath: '/update-password'
+      preLoaderRoute: typeof UpdatePasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wealth-management': {
+      id: '/wealth-management'
+      path: '/wealth-management'
+      fullPath: '/wealth-management'
+      preLoaderRoute: typeof WealthManagementRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  AccountRoute: AccountRoute,
+  AdminRoute: AdminRoute,
+  BusinessBankingRoute: BusinessBankingRoute,
+  CardsRoute: CardsRoute,
+  CareersRoute: CareersRoute,
+  ContactRoute: ContactRoute,
+  CookiesRoute: CookiesRoute,
+  DigitalBankingRoute: DigitalBankingRoute,
+  DisclosuresRoute: DisclosuresRoute,
+  FaqRoute: FaqRoute,
+  LoansRoute: LoansRoute,
+  LoginRoute: LoginRoute,
+  OpenAccountRoute: OpenAccountRoute,
+  PersonalBankingRoute: PersonalBankingRoute,
+  PrivacyRoute: PrivacyRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
+  SecurityRoute: SecurityRoute,
+  TermsRoute: TermsRoute,
+  UpdatePasswordRoute: UpdatePasswordRoute,
+  WealthManagementRoute: WealthManagementRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
