@@ -8,6 +8,27 @@
       "when": 1795293388320,
       "tag": "0000_auremont_demo_content",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795297457994,
+      "tag": "0001_central_administration",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795297636232,
+      "tag": "0002_administration_summary",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795297879927,
+      "tag": "0003_primary_admin_content_protection",
+      "breakpoints": true
     }
   ]
 }

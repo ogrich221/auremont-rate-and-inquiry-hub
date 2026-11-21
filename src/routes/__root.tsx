@@ -6,6 +6,7 @@ import {
   useRouter,
   HeadContent,
   Scripts,
+  useRouterState,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
@@ -131,15 +132,36 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
+  const path = useRouterState({ select: (s) => s.location.pathname });
+  const administration =
+    path === "/admin-login" || path === "/auth" || path === "/admin" || path.startsWith("/admin/");
+  useEffect(() => {
+    let subscription: { unsubscribe: () => void } | undefined;
+    void import("@/integrations/supabase/client").then(({ supabase }) => {
+      subscription = supabase.auth.onAuthStateChange((event) => {
+        if (
+          event !== "SIGNED_IN" &&
+          event !== "SIGNED_OUT" &&
+          event !== "USER_UPDATED" &&
+          event !== "MFA_CHALLENGE_VERIFIED"
+        )
+          return;
+        void router.invalidate();
+        if (event !== "SIGNED_OUT") void queryClient.invalidateQueries();
+      }).data.subscription;
+    });
+    return () => subscription?.unsubscribe();
+  }, [router, queryClient]);
 
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Header />
+      {!administration && <Header />}
       <main>
         <Outlet />
       </main>
-      <Footer />
+      {!administration && <Footer />}
     </QueryClientProvider>
   );
 }
