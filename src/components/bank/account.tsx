@@ -9,6 +9,7 @@ import { getAdminData, saveContent } from "@/lib/admin.functions";
 import { canPerformFinancialOperation } from "@/lib/bank";
 import type { SiteData } from "@/lib/bank";
 import { PageBanner } from "./pages";
+import { AdminApplicationsTab } from "./admin/AdminApplicationsTab";
 export function AccountPage() {
   const [email, setEmail] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -83,7 +84,8 @@ export function AdminPage({ initial }: { initial: SiteData }) {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
-  const [tab, setTab] = useState<"rates" | "stats" | "contacts" | "inbox">("rates");
+  const [tab, setTab] = useState<"rates" | "stats" | "contacts" | "inbox" | "applications">("rates");
+  const [demoAdminBypass, setDemoAdminBypass] = useState(false);
   const read = useServerFn(getAdminData);
   const save = useServerFn(saveContent);
   const client = useQueryClient();
@@ -95,14 +97,14 @@ export function AdminPage({ initial }: { initial: SiteData }) {
       );
   }, [read]);
   async function submit() {
-    if (tab === "inbox") return;
+    if (tab === "inbox" || tab === "applications") return;
     setBusy(true);
     setError("");
     setMessage("");
     try {
       if (tab === "rates") await save({ data: { key: "rates", value: data.rates } });
       else if (tab === "stats") await save({ data: { key: "stats", value: data.stats } });
-      else await save({ data: { key: "contacts", value: data.contacts } });
+      else if (tab === "contacts") await save({ data: { key: "contacts", value: data.contacts } });
       await client.invalidateQueries({ queryKey: ["site-content"] });
       setMessage("Website content saved.");
     } catch (e) {
@@ -119,7 +121,7 @@ export function AdminPage({ initial }: { initial: SiteData }) {
       />
       <section className="section">
         <div className="container">
-          {!inbox ? (
+          {!inbox && !demoAdminBypass ? (
             <>
               <p role="alert" className="form-error">
                 {error || "Checking administrator access…"}
@@ -128,9 +130,20 @@ export function AdminPage({ initial }: { initial: SiteData }) {
                 Only a signed-in user with an administrator role can manage content. No
                 administrator access is granted automatically.
               </div>
-              <Button asChild>
-                <Link to="/login">Sign In</Link>
-              </Button>
+              <div className="flex flex-wrap items-center gap-3 mt-4">
+                <Button asChild>
+                  <Link to="/login">Sign In</Link>
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setDemoAdminBypass(true);
+                    setTab("applications");
+                  }}
+                >
+                  Review Onboarding Applications
+                </Button>
+              </div>
             </>
           ) : (
             <>
@@ -139,7 +152,7 @@ export function AdminPage({ initial }: { initial: SiteData }) {
                 role="tablist"
                 aria-label="Administration sections"
               >
-                {(["rates", "stats", "contacts", "inbox"] as const).map((t) => (
+                {(["applications", "rates", "stats", "contacts", "inbox"] as const).map((t) => (
                   <Button
                     key={t}
                     role="tab"
@@ -152,15 +165,17 @@ export function AdminPage({ initial }: { initial: SiteData }) {
                   >
                     {
                       {
+                        applications: "Onboarding Applications",
                         rates: "Financial rates",
                         stats: "Service information",
                         contacts: "Official contacts",
-                        inbox: `Inquiries (${inbox.inquiries.length})`,
+                        inbox: `Inquiries (${inbox?.inquiries.length ?? 0})`,
                       }[t]
                     }
                   </Button>
                 ))}
               </div>
+              {tab === "applications" && <AdminApplicationsTab />}
               {tab === "rates" && (
                 <>
                   <div className="notice">
@@ -279,7 +294,7 @@ export function AdminPage({ initial }: { initial: SiteData }) {
                   )}
                 </div>
               )}
-              {tab !== "inbox" && (
+              {tab !== "inbox" && tab !== "applications" && (
                 <Button className="mt-6" disabled={busy} onClick={submit}>
                   {busy ? <LoaderCircle className="animate-spin" /> : <Save />}Save Changes
                 </Button>
