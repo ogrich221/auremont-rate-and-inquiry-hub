@@ -1,0 +1,96 @@
+/* =========================================================================
+   AUREMONT TRUST BANK - PREMIUM CUSTOMER ONLINE BANKING DASHBOARD
+   Official Theme Palette:
+   Midnight Navy: #101D32 | Royal Navy: #172C49 | Champagne Gold: #C6A66B
+   Ivory: #F8F7F3 | White: #FFFFFF | Charcoal: #252B35
+   ========================================================================= */
+
+.customer-dashboard-root {
+  min-height: 100vh;
+  background-color: #101D32;
+  background-image: 
+    radial-gradient(at 15% 15%, rgba(23, 44, 73, 0.8) 0px, transparent 65%),
+    radial-gradient(at 85% 85%, rgba(198, 166, 107, 0.08) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(16, 29, 50, 0.95) 0px, transparent 100%);
+  color: #F8F7F3;
+  font-family: var(--font-sans, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Background Emblem Watermark */
+.customer-watermark {
+  position: fixed;
+  right: -100px;
+  bottom: -100px;
+  width: 700px;
+  height: 700px;
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 0;
+  color: #C6A66B;
+}
+
+/* Glassmorphic Panel Styles */
+.bank-glass-card {
+  background: rgba(23, 44, 73, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px -10px rgba(16, 29, 50, 0.6);
+  border-radius: 1rem;
+}
+
+.bank-glass-card-gold {
+  background: linear-gradient(135deg, rgba(23, 44, 73, 0.75) 0%, rgba(16, 29, 50, 0.9) 100%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(198, 166, 107, 0.35);
+  box-shadow: 0 12px 36px -10px rgba(198, 166, 107, 0.12);
+  border-radius: 1rem;
+}
+
+/* Custom Scrollbars */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(16, 29, 50, 0.4);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(198, 166, 107, 0.3);
+  border-radius: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(198, 166, 107, 0.5);
+}
+
+/* Print Styles for Receipts and Statements */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-surface, .print-surface * {
+    visibility: visible;
+  }
+  .print-surface {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    color: #000 !important;
+    background: #fff !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

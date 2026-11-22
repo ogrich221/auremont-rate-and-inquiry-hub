@@ -10,72 +10,14 @@ import { canPerformFinancialOperation } from "@/lib/bank";
 import type { SiteData } from "@/lib/bank";
 import { PageBanner } from "./pages";
 import { AdminApplicationsTab } from "./admin/AdminApplicationsTab";
+import { CustomerProvider } from "./customer/customer-state";
+import { CustomerLayout } from "./customer/CustomerLayout";
+
 export function AccountPage() {
-  const [email, setEmail] = useState<string | null>(null);
-  const navigate = useNavigate();
-  useEffect(() => {
-    void supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) void navigate({ to: "/login" });
-      else setEmail(data.user.email ?? "Demo member");
-    });
-  }, [navigate]);
-  if (!email)
-    return (
-      <div className="section container" role="status">
-        <LoaderCircle className="animate-spin" /> Loading your demo account…
-      </div>
-    );
   return (
-    <>
-      <PageBanner
-        title="Your Demo Account"
-        description="A clear view of your simulated banking experience."
-      />
-      <section className="section">
-        <div className="container">
-          <div className="heading-row">
-            <div>
-              <span className="eyebrow">WELCOME TO AUREMONT</span>
-              <h2>Your financial overview.</h2>
-              <p>{email}</p>
-            </div>
-            <Button
-              variant="outline"
-              onClick={async () => {
-                await supabase.auth.signOut();
-                await navigate({ to: "/login" });
-              }}
-            >
-              <LogOut />
-              Sign Out
-            </Button>
-          </div>
-          <div className="notice">
-            All balances below are simulated. This website does not hold or move money. No real
-            account has been opened.
-          </div>
-          <div className="account-summary">
-            {[
-              ["Demo checking", "$0.00"],
-              ["Demo savings", "$0.00"],
-              ["Demo credit", "Not issued"],
-            ].map(([label, value]) => (
-              <div key={label} className="summary-item">
-                <span>{label}</span>
-                <strong>{value}</strong>
-                <small>Simulation only · Not a financial account</small>
-              </div>
-            ))}
-          </div>
-          <h3>Account activity</h3>
-          <p>No transactions. Real financial operations are unavailable in this demonstration.</p>
-          <Button disabled={!canPerformFinancialOperation()}>Transfers unavailable in demo</Button>
-          <div className="notice">
-            <Link to="/contact">Have a question? Contact us →</Link>
-          </div>
-        </div>
-      </section>
-    </>
+    <CustomerProvider>
+      <CustomerLayout />
+    </CustomerProvider>
   );
 }
 export function AdminPage({ initial }: { initial: SiteData }) {

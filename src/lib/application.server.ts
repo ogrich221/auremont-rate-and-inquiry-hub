@@ -33,7 +33,9 @@ function saveApplications(records: ApplicationRecord[]) {
   applicationsCache = records;
   try {
     ensureDirectoryExistence(STORAGE_FILE);
-    fs.writeFileSync(STORAGE_FILE, JSON.stringify(records, null, 2), "utf-8");
+    const tempFile = `${STORAGE_FILE}.${process.pid}.${Date.now()}.tmp`;
+    fs.writeFileSync(tempFile, JSON.stringify(records, null, 2), "utf-8");
+    fs.renameSync(tempFile, STORAGE_FILE);
   } catch (err) {
     console.warn("Could not persist applications to disk:", err);
   }

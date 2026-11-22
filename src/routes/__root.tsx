@@ -135,7 +135,12 @@ function RootComponent() {
   const router = useRouter();
   const path = useRouterState({ select: (s) => s.location.pathname });
   const administration =
-    path === "/admin-login" || path === "/auth" || path === "/admin" || path.startsWith("/admin/");
+    path === "/admin-login" ||
+    path === "/auth" ||
+    path === "/admin" ||
+    path.startsWith("/admin/") ||
+    path === "/account" ||
+    path.startsWith("/account/");
   useEffect(() => {
     let subscription: { unsubscribe: () => void } | undefined;
     void import("@/integrations/supabase/client").then(({ supabase }) => {

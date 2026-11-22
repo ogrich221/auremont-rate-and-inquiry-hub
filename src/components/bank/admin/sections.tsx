@@ -21,6 +21,7 @@ import {
   Save,
   Mail,
   Globe,
+  FileText,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -53,6 +54,7 @@ import {
 } from "@/lib/admin-model";
 import { useAdmin, SectionHeading, Empty, Status, RecentCustomers } from "./workspace";
 import { UsersPage, CustomerForm } from "./customers";
+import { AdminApplicationsTab } from "./AdminApplicationsTab";
 import { SecuritySettings } from "./settings";
 import { verifyAdminCode } from "./access";
 import type { Tables } from "@/integrations/supabase/types";
@@ -270,6 +272,7 @@ export function Applications() {
   const { data, refresh, notify } = useAdmin();
   const create = useServerFn(createApplication);
   const review = useServerFn(reviewApplication);
+  const [activeTab, setActiveTab] = useState<"onboarding" | "records">("onboarding");
   const [add, setAdd] = useState(false);
   const [target, setTarget] = useState<Tables<"admin_applications"> | null>(null);
   const [decision, setDecision] = useState<"Information requested" | "Approved" | "Rejected">(
@@ -281,20 +284,43 @@ export function Applications() {
   const apps = data.applications.filter((a) => filter === "All" || a.status === filter);
   return (
     <>
-      <SectionHeading
-        title="Account Applications"
-        description="Recorded demo applications. Approval creates a pending demo customer, not a bank account."
-      >
-        <Button
-          onClick={() => {
-            setError("");
-            setAdd(true);
-          }}
+      <div className="admin-glass-tabs">
+        <button
+          type="button"
+          onClick={() => setActiveTab("onboarding")}
+          className={`admin-glass-tab ${activeTab === "onboarding" ? "active" : ""}`}
         >
-          <ClipboardList />
-          Record Application
-        </Button>
-      </SectionHeading>
+          <FileText size={15} />
+          <span>Customer Onboarding Applications (KYC Portal)</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("records")}
+          className={`admin-glass-tab ${activeTab === "records" ? "active" : ""}`}
+        >
+          <ClipboardList size={15} />
+          <span>Demo Application Records ({data.applications.length})</span>
+        </button>
+      </div>
+
+      {activeTab === "onboarding" ? (
+        <AdminApplicationsTab />
+      ) : (
+        <>
+          <SectionHeading
+            title="Account Applications"
+            description="Recorded demo applications. Approval creates a pending demo customer, not a bank account."
+          >
+            <Button
+              onClick={() => {
+                setError("");
+                setAdd(true);
+              }}
+            >
+              <ClipboardList />
+              Record Application
+            </Button>
+          </SectionHeading>
       <div className="admin-list-toolbar">
         <label className="admin-filter">
           <select
@@ -576,6 +602,8 @@ export function Applications() {
           )}
         </DialogContent>
       </Dialog>
+        </>
+      )}
     </>
   );
 }

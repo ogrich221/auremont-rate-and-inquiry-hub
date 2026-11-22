@@ -1459,6 +1459,305 @@ img {
     display: block;
   }
 }
+
+/* ==========================================================================
+   Rotating 180° Bank Hero Showcase
+   ========================================================================== */
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 48px;
+  align-items: center;
+}
+@media (max-width: 1024px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+.hero-emblem-rotate-180 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 20px;
+  color: var(--gold);
+  animation: rotate180Pulse 6s ease-in-out infinite;
+  transform-origin: center;
+}
+.hero-emblem-rotate-180 svg {
+  width: 100%;
+  height: 100%;
+}
+@keyframes rotate180Pulse {
+  0%, 25% {
+    transform: rotate(0deg);
+  }
+  45%, 70% {
+    transform: rotate(180deg);
+  }
+  90%, 100% {
+    transform: rotate(360deg);
+  }
+}
+.bank-hero-showcase {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+}
+.bank-hero-flipper {
+  perspective: 1400px;
+  width: 100%;
+  cursor: pointer;
+}
+.bank-hero-card {
+  position: relative;
+  width: 100%;
+  min-height: 245px;
+  border-radius: 18px;
+  transform-style: preserve-3d;
+  transition: transform 0.85s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.bank-hero-card.rotated-180 {
+  transform: rotateY(180deg);
+}
+.bank-hero-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+.bank-hero-front {
+  background: linear-gradient(135deg, rgba(20, 32, 54, 0.95) 0%, rgba(10, 18, 32, 0.98) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), 0 0 30px rgba(212, 175, 55, 0.15) inset;
+  transform: rotateY(0deg);
+}
+.bank-hero-back {
+  background: linear-gradient(135deg, rgba(14, 24, 42, 0.97) 0%, rgba(8, 14, 26, 0.99) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(79, 142, 247, 0.1) inset;
+  transform: rotateY(180deg);
+}
+.card-glass-glow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.card-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--paper);
+}
+.card-brand svg {
+  width: 28px;
+  height: 32px;
+  color: var(--gold);
+}
+.card-brand strong {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  display: block;
+  line-height: 1.1;
+}
+.card-brand small {
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  color: var(--gold);
+  display: block;
+}
+.card-emblem-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--gold);
+}
+.card-mid {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 18px 0;
+}
+.card-chip {
+  width: 38px;
+  height: 28px;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #d4af37 0%, #aa8210 100%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 4px 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+.chip-cell {
+  width: 100%;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.35);
+}
+.card-tier-label {
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--on-dark-muted);
+  font-weight: 500;
+}
+.card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.card-label {
+  display: block;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  margin-bottom: 2px;
+}
+.card-value {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--paper);
+  letter-spacing: 0.04em;
+}
+.card-rotate-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 9px;
+  color: var(--gold);
+  transition: all 0.2s ease;
+}
+.bank-hero-flipper:hover .card-rotate-pill {
+  background: var(--gold);
+  color: var(--navy);
+}
+.card-magstripe {
+  position: absolute;
+  top: 24px;
+  left: 0;
+  right: 0;
+  height: 36px;
+  background: linear-gradient(90deg, #090e17 0%, #172338 50%, #090e17 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.card-back-body {
+  margin-top: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+.card-back-specs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 14px;
+}
+.spec-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.spec-label {
+  font-size: 7.5px;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  font-weight: 600;
+}
+.spec-val {
+  font-size: 9px;
+  color: var(--paper);
+  font-weight: 500;
+}
+.card-back-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.card-seal {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 8px;
+  color: var(--on-dark-muted);
+}
+.card-degree-indicator {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  background: rgba(212, 175, 55, 0.12);
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+}
+.bank-hero-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.hero-rotate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: var(--paper);
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.hero-rotate-btn:hover {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: var(--gold);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.25);
+}
+.hero-rotate-sub {
+  font-size: 10px;
+  color: var(--on-dark-muted);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *:before,

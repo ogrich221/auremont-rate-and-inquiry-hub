@@ -28,7 +28,7 @@ import { Button } from "@/components/ui/button";
 import { getWorkspace } from "@/lib/central-admin.functions";
 import { sectionNames, type Section, fullName, maskReference } from "@/lib/admin-model";
 import { supabase } from "@/integrations/supabase/client";
-import { Brand } from "../shell";
+import { Brand, Emblem } from "../shell";
 import { AdminLoading } from "./access";
 export type WorkspaceData = Awaited<ReturnType<typeof getWorkspace>>;
 const AdminContext = createContext<{
@@ -237,6 +237,13 @@ export function AdminWorkspace() {
           </div>
         </aside>
         <div className="admin-main">
+          <div className="admin-ambient-bg" aria-hidden="true">
+            <div className="admin-ambient-glow admin-glow-1" />
+            <div className="admin-ambient-glow admin-glow-2" />
+            <div className="admin-ambient-logo">
+              <Emblem />
+            </div>
+          </div>
           <header className="admin-topbar">
             <div className="admin-topbar-left">
               <Button
