@@ -12,4 +12,5 @@
 - [ ] Dashboard, customer search/profile/edit, notifications and reports
 - [ ] Administrator login, security settings and branded loading states
 - [ ] Test authorization rules and desktop/mobile administration workflows
-- [ ] Assign the primary administrator (waiting for the account email)
+- [ ] Activate the reserved primary administrator (waiting for the owner to register and confirm their email)
+- [x] Add administrator email registration with private designation and confirmation-triggered role assignment

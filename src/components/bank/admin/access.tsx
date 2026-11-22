@@ -34,6 +34,8 @@ export function AdminLogin() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [show, setShow] = useState(false);
+  const [register, setRegister] = useState(false);
+  const [message, setMessage] = useState("");
   const [setup, setSetup] = useState<{ id: string; qr: string } | null>(null);
   const access = useServerFn(getAdministratorAccess);
   const event = useServerFn(recordAdminEvent);
@@ -64,8 +66,22 @@ export function AdminLogin() {
     e.preventDefault();
     setBusy(true);
     setError("");
+    setMessage("");
     const fd = new FormData(e.currentTarget);
     try {
+      if (register) {
+        const password = String(fd.get("password"));
+        if (password !== fd.get("confirm_password")) throw new Error("Passwords do not match.");
+        const { data, error } = await supabase.auth.signUp({
+          email: String(fd.get("email")).trim(),
+          password,
+          options: { emailRedirectTo: window.location.origin + "/admin-login" },
+        });
+        if (error) throw new Error(error.message);
+        if (data.session) await check();
+        else setMessage("Check your email to confirm your account, then return here to sign in. Administrator access is reserved for the owner-designated email.");
+        return;
+      }
       const { error } = await supabase.auth.signInWithPassword({
         email: String(fd.get("email")),
         password: String(fd.get("password")),
@@ -137,7 +153,7 @@ export function AdminLogin() {
           <Emblem />
         </div>
         <span className="eyebrow">CENTRAL ADMINISTRATION</span>
-        <h1>Administrator Access</h1>
+        <h1>{register && stage === "login" ? "Administrator Registration" : "Administrator Access"}</h1>
         <p className="admin-access-intro">One identity. One secure workspace.</p>
         {stage === "login" && (
           <form onSubmit={login}>
@@ -160,7 +176,8 @@ export function AdminLogin() {
                   name="password"
                   type={show ? "text" : "password"}
                   required
-                  autoComplete="current-password"
+                  autoComplete={register ? "new-password" : "current-password"}
+                  minLength={register ? 12 : undefined}
                   maxLength={128}
                 />
                 <Button
@@ -174,13 +191,22 @@ export function AdminLogin() {
                 </Button>
               </div>
             </div>
-            <Link className="admin-forgot" to="/reset-password">
+            {register && (
+              <div className="field">
+                <label htmlFor="admin-confirm-password">Confirm password</label>
+                <input id="admin-confirm-password" name="confirm_password" type="password" required minLength={12} maxLength={128} autoComplete="new-password" />
+              </div>
+            )}
+            {!register && <Link className="admin-forgot" to="/reset-password">
               Forgot password?
-            </Link>
+            </Link>}
             <Button className="admin-login-submit" disabled={busy}>
               <LockKeyhole />
-              {busy ? "Signing in…" : "Secure Sign In"}
+              {busy ? (register ? "Creating account…" : "Signing in…") : (register ? "Register Administrator Email" : "Secure Sign In")}
               <ArrowRight />
+            </Button>
+            <Button type="button" variant="link" disabled={busy} onClick={() => { setRegister(!register); setError(""); setMessage(""); }}>
+              {register ? "Already registered? Sign in" : "Register administrator email"}
             </Button>
           </form>
         )}
@@ -239,6 +265,7 @@ export function AdminLogin() {
             {error}
           </p>
         )}
+        {message && <p role="status" className="notice">{message}</p>}
         <div className="admin-access-security">
           <ShieldCheck />
           <p>Authorized access only. All administrative activities are protected and recorded.</p>
