@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import type { ApplicationRecord, ApplicationStatus } from "@/components/bank/registration/types";
+import type { ApplicationRecord } from "@/components/bank/registration/types";
 
 const applicationSubmitSchema = z.object({
   // Personal Info
@@ -93,9 +94,7 @@ export const submitApplicationFn = createServerFn({ method: "POST" })
 
     const docNumber = data.documentNumber;
     const maskedDocNumber =
-      docNumber.length > 4
-        ? "•••• " + docNumber.slice(-4)
-        : "•••• " + docNumber;
+      docNumber.length > 4 ? "•••• " + docNumber.slice(-4) : "•••• " + docNumber;
 
     const record: ApplicationRecord = {
       referenceNumber,
@@ -103,7 +102,8 @@ export const submitApplicationFn = createServerFn({ method: "POST" })
       updatedAt: now,
       status: "UNDER_COMPLIANCE_REVIEW",
       applicant: {
-        fullName: `${data.firstName} ${data.middleName ? data.middleName + " " : ""}${data.lastName}`.trim(),
+        fullName:
+          `${data.firstName} ${data.middleName ? data.middleName + " " : ""}${data.lastName}`.trim(),
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
@@ -193,16 +193,21 @@ export const lookupApplicationStatusFn = createServerFn({ method: "POST" })
     };
   });
 
-export const getAdminApplicationsListFn = createServerFn({ method: "POST" }).handler(
-  async () => {
+export const getAdminApplicationsListFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { error } = await context.supabase.rpc("require_primary_administrator", {
+      recent: false,
+    });
+    if (error) throw new Error("Administrator verification required.");
     const { getAllApplications } = await import("./application.server");
     return {
       applications: getAllApplications(),
     };
-  },
-);
+  });
 
 export const updateApplicationDecisionFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
     z
       .object({
@@ -215,17 +220,20 @@ export const updateApplicationDecisionFn = createServerFn({ method: "POST" })
           "REJECTED",
         ]),
         decisionNote: z.string().trim().min(3, "Decision note is required"),
-        actor: z.string().optional().default("Compliance Officer"),
       })
       .parse(input),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ context, data }) => {
+    const { error } = await context.supabase.rpc("require_primary_administrator", {
+      recent: true,
+    });
+    if (error) throw new Error("Administrator verification required.");
     const { updateApplicationReview } = await import("./application.server");
     const updated = updateApplicationReview(
       data.referenceNumber,
-      data.newStatus as ApplicationStatus,
+      data.newStatus,
       data.decisionNote,
-      data.actor,
+      context.userId,
     );
     if (!updated) {
       throw new Error("Application could not be found to update.");
