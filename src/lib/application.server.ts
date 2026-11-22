@@ -67,6 +67,7 @@ export function updateApplicationReview(
 
   const now = new Date().toISOString();
   const target = current[index];
+  if (!target) return null;
   const updatedRecord: ApplicationRecord = {
     ...target,
     status: newStatus,

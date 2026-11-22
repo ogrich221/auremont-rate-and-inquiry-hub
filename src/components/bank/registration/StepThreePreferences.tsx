@@ -208,10 +208,10 @@ export function StepThreePreferences({ data, updateData, errors }: StepThreeProp
             value={data.occupation}
             onChange={(e) => updateData({ occupation: e.target.value })}
             placeholder="e.g. Managing Director / Partner"
-            className={errors.occupation ? "border-destructive" : ""}
+            className={errors["occupation"] ? "border-destructive" : ""}
           />
-          {errors.occupation && (
-            <p className="text-xs text-destructive">{errors.occupation}</p>
+          {errors["occupation"] && (
+            <p className="text-xs text-destructive">{errors["occupation"]}</p>
           )}
         </div>
 

@@ -154,9 +154,9 @@ export function StepTwoContact({ data, updateData, errors }: StepTwoProps) {
                 setEmailOtpSent(false);
               }}
               placeholder="name@example.com"
-              className={errors.email ? "border-destructive" : ""}
+              className={errors["email"] ? "border-destructive" : ""}
             />
-            {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+            {errors["email"] && <p className="text-xs text-destructive">{errors["email"]}</p>}
           </div>
 
           <div className="space-y-1.5">
@@ -170,10 +170,10 @@ export function StepTwoContact({ data, updateData, errors }: StepTwoProps) {
               disabled={data.emailVerified}
               onChange={(e) => updateData({ confirmEmail: e.target.value })}
               placeholder="Re-enter your email"
-              className={errors.confirmEmail ? "border-destructive" : ""}
+              className={errors["confirmEmail"] ? "border-destructive" : ""}
             />
-            {errors.confirmEmail && (
-              <p className="text-xs text-destructive">{errors.confirmEmail}</p>
+            {errors["confirmEmail"] && (
+              <p className="text-xs text-destructive">{errors["confirmEmail"]}</p>
             )}
           </div>
         </div>
@@ -321,10 +321,10 @@ export function StepTwoContact({ data, updateData, errors }: StepTwoProps) {
                 setPhoneOtpSent(false);
               }}
               placeholder="e.g. 7911 123456"
-              className={errors.mobilePhone ? "border-destructive" : ""}
+              className={errors["mobilePhone"] ? "border-destructive" : ""}
             />
-            {errors.mobilePhone && (
-              <p className="text-xs text-destructive">{errors.mobilePhone}</p>
+            {errors["mobilePhone"] && (
+              <p className="text-xs text-destructive">{errors["mobilePhone"]}</p>
             )}
           </div>
         </div>

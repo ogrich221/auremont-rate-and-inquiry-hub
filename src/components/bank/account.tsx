@@ -277,7 +277,7 @@ export function AdminPage({ initial }: { initial: SiteData }) {
                     Newest 100 inquiries. Submissions are stored here; email notifications are not
                     currently configured.
                   </p>
-                  {inbox.inquiries.length === 0 ? (
+                  {!inbox || inbox.inquiries.length === 0 ? (
                     <p>No inquiries yet.</p>
                   ) : (
                     inbox.inquiries.map((r) => (

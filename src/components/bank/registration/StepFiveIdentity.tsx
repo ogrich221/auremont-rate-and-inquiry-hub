@@ -130,10 +130,10 @@ export function StepFiveIdentity({ data, updateData, errors }: StepFiveProps) {
               value={data.documentNumber}
               onChange={(e) => updateData({ documentNumber: e.target.value })}
               placeholder="e.g. 548902811"
-              className={errors.documentNumber ? "border-destructive" : ""}
+              className={errors["documentNumber"] ? "border-destructive" : ""}
             />
-            {errors.documentNumber && (
-              <p className="text-xs text-destructive">{errors.documentNumber}</p>
+            {errors["documentNumber"] && (
+              <p className="text-xs text-destructive">{errors["documentNumber"]}</p>
             )}
           </div>
         </div>
@@ -174,10 +174,10 @@ export function StepFiveIdentity({ data, updateData, errors }: StepFiveProps) {
               value={data.documentExpiryDate}
               min={new Date().toISOString().split("T")[0]}
               onChange={(e) => updateData({ documentExpiryDate: e.target.value })}
-              className={errors.documentExpiryDate ? "border-destructive" : ""}
+              className={errors["documentExpiryDate"] ? "border-destructive" : ""}
             />
-            {errors.documentExpiryDate && (
-              <p className="text-xs text-destructive">{errors.documentExpiryDate}</p>
+            {errors["documentExpiryDate"] && (
+              <p className="text-xs text-destructive">{errors["documentExpiryDate"]}</p>
             )}
           </div>
         </div>

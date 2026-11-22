@@ -65,13 +65,13 @@ export function StepFourSecurity({ data, updateData, errors }: StepFourProps) {
     }));
   };
 
-  const updateQuestion = (index: number, question: string) => {
+  const updateQuestion = (index: 0 | 1 | 2, question: string) => {
     const next = [...data.securityQuestions] as ApplicationFormData["securityQuestions"];
     next[index] = { ...next[index], question };
     updateData({ securityQuestions: next });
   };
 
-  const updateAnswer = (index: number, answer: string) => {
+  const updateAnswer = (index: 0 | 1 | 2, answer: string) => {
     const next = [...data.securityQuestions] as ApplicationFormData["securityQuestions"];
     next[index] = { ...next[index], answer };
     updateData({ securityQuestions: next });
@@ -121,7 +121,7 @@ export function StepFourSecurity({ data, updateData, errors }: StepFourProps) {
                 value={data.password}
                 onChange={(e) => updateData({ password: e.target.value })}
                 placeholder="Minimum 12 characters"
-                className={`pr-10 ${errors.password ? "border-destructive" : ""}`}
+                className={`pr-10 ${errors["password"] ? "border-destructive" : ""}`}
                 autoComplete="new-password"
               />
               <button
@@ -235,7 +235,7 @@ export function StepFourSecurity({ data, updateData, errors }: StepFourProps) {
         </p>
 
         <div className="space-y-4">
-          {[0, 1, 2].map((idx) => {
+          {([0, 1, 2] as const).map((idx) => {
             const availableQuestions = getAvailableQuestions(idx);
             const currentItem = data.securityQuestions[idx];
             const isVisible = showAnswers[idx as 0 | 1 | 2];

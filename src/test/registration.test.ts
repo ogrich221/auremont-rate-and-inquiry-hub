@@ -153,9 +153,9 @@ describe("Registration Security and Validation Logic", () => {
 
       expect(updated).not.toBeNull();
       expect(updated?.status).toBe("APPROVED");
-      expect(updated?.auditTrail[0].action).toBe("Status updated to APPROVED");
-      expect(updated?.auditTrail[0].actor).toBe("Compliance Director");
-      expect(updated?.auditTrail[0].note).toContain("Zurich Committee");
+      expect(updated?.auditTrail[0]?.action).toBe("Status updated to APPROVED");
+      expect(updated?.auditTrail[0]?.actor).toBe("Compliance Director");
+      expect(updated?.auditTrail[0]?.note).toContain("Zurich Committee");
     });
   });
 });

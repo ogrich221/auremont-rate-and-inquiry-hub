@@ -136,7 +136,7 @@ export const submitApplicationFn = createServerFn({ method: "POST" })
         issuingCountry: data.issuingCountry,
         expiryDate: data.documentExpiryDate,
         frontDocumentFilename: data.documentFrontFilename,
-        backDocumentFilename: data.documentBackFilename,
+        ...(data.documentBackFilename === undefined ? {} : { backDocumentFilename: data.documentBackFilename }),
         proofOfAddressFilename: data.proofOfAddressFilename,
         aiVerificationStatus: "VERIFIED",
       },

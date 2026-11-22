@@ -45,13 +45,13 @@ export function StepOnePersonal({ data, updateData, errors }: StepOneProps) {
             value={data.firstName}
             onChange={(e) => updateData({ firstName: e.target.value })}
             placeholder="e.g. Jonathan"
-            className={errors.firstName ? "border-destructive focus-visible:ring-destructive" : ""}
-            aria-invalid={!!errors.firstName}
-            aria-describedby={errors.firstName ? "firstName-error" : undefined}
+            className={errors["firstName"] ? "border-destructive focus-visible:ring-destructive" : ""}
+            aria-invalid={!!errors["firstName"]}
+            aria-describedby={errors["firstName"] ? "firstName-error" : undefined}
           />
-          {errors.firstName && (
+          {errors["firstName"] && (
             <p id="firstName-error" className="text-xs text-destructive">
-              {errors.firstName}
+              {errors["firstName"]}
             </p>
           )}
         </div>
@@ -77,13 +77,13 @@ export function StepOnePersonal({ data, updateData, errors }: StepOneProps) {
             value={data.lastName}
             onChange={(e) => updateData({ lastName: e.target.value })}
             placeholder="e.g. Sterling"
-            className={errors.lastName ? "border-destructive focus-visible:ring-destructive" : ""}
-            aria-invalid={!!errors.lastName}
-            aria-describedby={errors.lastName ? "lastName-error" : undefined}
+            className={errors["lastName"] ? "border-destructive focus-visible:ring-destructive" : ""}
+            aria-invalid={!!errors["lastName"]}
+            aria-describedby={errors["lastName"] ? "lastName-error" : undefined}
           />
-          {errors.lastName && (
+          {errors["lastName"] && (
             <p id="lastName-error" className="text-xs text-destructive">
-              {errors.lastName}
+              {errors["lastName"]}
             </p>
           )}
         </div>
@@ -102,16 +102,16 @@ export function StepOnePersonal({ data, updateData, errors }: StepOneProps) {
             value={data.dateOfBirth}
             onChange={(e) => updateData({ dateOfBirth: e.target.value })}
             max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split("T")[0]}
-            className={errors.dateOfBirth ? "border-destructive focus-visible:ring-destructive" : ""}
-            aria-invalid={!!errors.dateOfBirth}
-            aria-describedby={errors.dateOfBirth ? "dob-error" : undefined}
+            className={errors["dateOfBirth"] ? "border-destructive focus-visible:ring-destructive" : ""}
+            aria-invalid={!!errors["dateOfBirth"]}
+            aria-describedby={errors["dateOfBirth"] ? "dob-error" : undefined}
           />
           <p className="text-[11px] text-muted-foreground">
             Applicants must be at least 18 years of age.
           </p>
-          {errors.dateOfBirth && (
+          {errors["dateOfBirth"] && (
             <p id="dob-error" className="text-xs text-destructive">
-              {errors.dateOfBirth}
+              {errors["dateOfBirth"]}
             </p>
           )}
         </div>
@@ -122,7 +122,7 @@ export function StepOnePersonal({ data, updateData, errors }: StepOneProps) {
           </Label>
           <Select
             value={data.gender || ""}
-            onValueChange={(val) => updateData({ gender: val as ApplicationFormData["gender"] })}
+            onValueChange={(val) => updateData({ gender: val as NonNullable<ApplicationFormData["gender"]> })}
           >
             <SelectTrigger id="gender">
               <SelectValue placeholder="Select gender (optional)" />
@@ -148,7 +148,7 @@ export function StepOnePersonal({ data, updateData, errors }: StepOneProps) {
             value={data.nationality}
             onValueChange={(val) => updateData({ nationality: val })}
           >
-            <SelectTrigger id="nationality" className={errors.nationality ? "border-destructive" : ""}>
+            <SelectTrigger id="nationality" className={errors["nationality"] ? "border-destructive" : ""}>
               <SelectValue placeholder="Select primary citizenship" />
             </SelectTrigger>
             <SelectContent>
@@ -159,8 +159,8 @@ export function StepOnePersonal({ data, updateData, errors }: StepOneProps) {
               ))}
             </SelectContent>
           </Select>
-          {errors.nationality && (
-            <p className="text-xs text-destructive">{errors.nationality}</p>
+          {errors["nationality"] && (
+            <p className="text-xs text-destructive">{errors["nationality"]}</p>
           )}
         </div>
 
@@ -173,7 +173,7 @@ export function StepOnePersonal({ data, updateData, errors }: StepOneProps) {
             value={data.countryOfResidence}
             onValueChange={(val) => updateData({ countryOfResidence: val })}
           >
-            <SelectTrigger id="countryOfResidence" className={errors.countryOfResidence ? "border-destructive" : ""}>
+            <SelectTrigger id="countryOfResidence" className={errors["countryOfResidence"] ? "border-destructive" : ""}>
               <SelectValue placeholder="Select tax & residential country" />
             </SelectTrigger>
             <SelectContent>
@@ -184,8 +184,8 @@ export function StepOnePersonal({ data, updateData, errors }: StepOneProps) {
               ))}
             </SelectContent>
           </Select>
-          {errors.countryOfResidence && (
-            <p className="text-xs text-destructive">{errors.countryOfResidence}</p>
+          {errors["countryOfResidence"] && (
+            <p className="text-xs text-destructive">{errors["countryOfResidence"]}</p>
           )}
         </div>
       </div>
@@ -206,10 +206,10 @@ export function StepOnePersonal({ data, updateData, errors }: StepOneProps) {
             value={data.residentialAddress}
             onChange={(e) => updateData({ residentialAddress: e.target.value })}
             placeholder="e.g. 14 Kensington Palace Gardens, Suite 4B"
-            className={errors.residentialAddress ? "border-destructive" : ""}
+            className={errors["residentialAddress"] ? "border-destructive" : ""}
           />
-          {errors.residentialAddress && (
-            <p className="text-xs text-destructive">{errors.residentialAddress}</p>
+          {errors["residentialAddress"] && (
+            <p className="text-xs text-destructive">{errors["residentialAddress"]}</p>
           )}
         </div>
 
@@ -223,9 +223,9 @@ export function StepOnePersonal({ data, updateData, errors }: StepOneProps) {
               value={data.city}
               onChange={(e) => updateData({ city: e.target.value })}
               placeholder="e.g. London"
-              className={errors.city ? "border-destructive" : ""}
+              className={errors["city"] ? "border-destructive" : ""}
             />
-            {errors.city && <p className="text-xs text-destructive">{errors.city}</p>}
+            {errors["city"] && <p className="text-xs text-destructive">{errors["city"]}</p>}
           </div>
 
           <div className="space-y-1.5">
@@ -237,10 +237,10 @@ export function StepOnePersonal({ data, updateData, errors }: StepOneProps) {
               value={data.stateProvince}
               onChange={(e) => updateData({ stateProvince: e.target.value })}
               placeholder="e.g. Greater London"
-              className={errors.stateProvince ? "border-destructive" : ""}
+              className={errors["stateProvince"] ? "border-destructive" : ""}
             />
-            {errors.stateProvince && (
-              <p className="text-xs text-destructive">{errors.stateProvince}</p>
+            {errors["stateProvince"] && (
+              <p className="text-xs text-destructive">{errors["stateProvince"]}</p>
             )}
           </div>
 
@@ -253,10 +253,10 @@ export function StepOnePersonal({ data, updateData, errors }: StepOneProps) {
               value={data.postalCode}
               onChange={(e) => updateData({ postalCode: e.target.value })}
               placeholder="e.g. W8 4QY"
-              className={errors.postalCode ? "border-destructive" : ""}
+              className={errors["postalCode"] ? "border-destructive" : ""}
             />
-            {errors.postalCode && (
-              <p className="text-xs text-destructive">{errors.postalCode}</p>
+            {errors["postalCode"] && (
+              <p className="text-xs text-destructive">{errors["postalCode"]}</p>
             )}
           </div>
         </div>

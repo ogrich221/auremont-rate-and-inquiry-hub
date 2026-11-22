@@ -141,95 +141,95 @@ export function RegistrationPage() {
     const newErrors: Record<string, string> = {};
 
     if (step === 1) {
-      if (!formData.firstName.trim()) newErrors.firstName = "First name is required.";
-      if (!formData.lastName.trim()) newErrors.lastName = "Last name is required.";
+      if (!formData.firstName.trim()) newErrors["firstName"] = "First name is required.";
+      if (!formData.lastName.trim()) newErrors["lastName"] = "Last name is required.";
       if (!formData.dateOfBirth) {
-        newErrors.dateOfBirth = "Date of birth is required.";
+        newErrors["dateOfBirth"] = "Date of birth is required.";
       } else {
         const birthDate = new Date(formData.dateOfBirth);
         const ageDifMs = Date.now() - birthDate.getTime();
         const ageDate = new Date(ageDifMs);
         const age = Math.abs(ageDate.getUTCFullYear() - 1970);
         if (age < 18) {
-          newErrors.dateOfBirth = "Applicant must be at least 18 years of age.";
+          newErrors["dateOfBirth"] = "Applicant must be at least 18 years of age.";
         }
       }
-      if (!formData.nationality) newErrors.nationality = "Nationality is required.";
-      if (!formData.countryOfResidence) newErrors.countryOfResidence = "Residence country is required.";
-      if (!formData.residentialAddress.trim()) newErrors.residentialAddress = "Address is required.";
-      if (!formData.city.trim()) newErrors.city = "City is required.";
-      if (!formData.stateProvince.trim()) newErrors.stateProvince = "State or province is required.";
-      if (!formData.postalCode.trim()) newErrors.postalCode = "Postal code is required.";
+      if (!formData.nationality) newErrors["nationality"] = "Nationality is required.";
+      if (!formData.countryOfResidence) newErrors["countryOfResidence"] = "Residence country is required.";
+      if (!formData.residentialAddress.trim()) newErrors["residentialAddress"] = "Address is required.";
+      if (!formData.city.trim()) newErrors["city"] = "City is required.";
+      if (!formData.stateProvince.trim()) newErrors["stateProvince"] = "State or province is required.";
+      if (!formData.postalCode.trim()) newErrors["postalCode"] = "Postal code is required.";
     }
 
     if (step === 2) {
       if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-        newErrors.email = "A valid email address is required.";
+        newErrors["email"] = "A valid email address is required.";
       }
       if (formData.email !== formData.confirmEmail) {
-        newErrors.confirmEmail = "Email addresses do not match.";
+        newErrors["confirmEmail"] = "Email addresses do not match.";
       }
       if (!formData.mobilePhone.trim() || formData.mobilePhone.replace(/\D/g, "").length < 6) {
-        newErrors.mobilePhone = "A valid mobile telephone number is required.";
+        newErrors["mobilePhone"] = "A valid mobile telephone number is required.";
       }
       if (!formData.emailVerified) {
-        newErrors.email = "Please verify your email address to continue.";
+        newErrors["email"] = "Please verify your email address to continue.";
       }
       if (!formData.phoneVerified) {
-        newErrors.mobilePhone = "Please verify your mobile number via OTP to continue.";
+        newErrors["mobilePhone"] = "Please verify your mobile number via OTP to continue.";
       }
     }
 
     if (step === 3) {
-      if (!formData.occupation.trim()) newErrors.occupation = "Occupation is required.";
-      if (!formData.preferredCurrency) newErrors.preferredCurrency = "Currency is required.";
+      if (!formData.occupation.trim()) newErrors["occupation"] = "Occupation is required.";
+      if (!formData.preferredCurrency) newErrors["preferredCurrency"] = "Currency is required.";
     }
 
     if (step === 4) {
       const strength = evaluatePasswordStrength(formData.password);
       if (strength.score < 3 || formData.password.length < 12) {
-        newErrors.password =
+        newErrors["password"] =
           "Password must be at least 12 characters and contain uppercase, lowercase, numbers, and symbols.";
       }
       if (formData.password !== formData.confirmPassword) {
-        newErrors.confirmPassword = "Passwords do not match.";
+        newErrors["confirmPassword"] = "Passwords do not match.";
       }
 
       // Check unique security questions
       const questions = formData.securityQuestions.map((q) => q.question);
       const unique = new Set(questions);
       if (unique.size < 3) {
-        newErrors.securityQuestions = "Please select 3 different security questions.";
+        newErrors["securityQuestions"] = "Please select 3 different security questions.";
       }
       if (formData.securityQuestions.some((q) => !q.answer.trim())) {
-        newErrors.securityQuestions = "Answers must be entered for all 3 security questions.";
+        newErrors["securityQuestions"] = "Answers must be entered for all 3 security questions.";
       }
 
       // PIN check
       const pinResult = isSequentialOrRepetitivePin(formData.transferPin);
       if (pinResult.invalid) {
-        newErrors.transferPin = pinResult.reason || "Invalid 6-digit transaction PIN.";
+        newErrors["transferPin"] = pinResult.reason || "Invalid 6-digit transaction PIN.";
       }
       if (formData.transferPin !== formData.confirmTransferPin) {
-        newErrors.confirmTransferPin = "Transaction PINs do not match.";
+        newErrors["confirmTransferPin"] = "Transaction PINs do not match.";
       }
     }
 
     if (step === 5) {
       if (!formData.documentNumber.trim()) {
-        newErrors.documentNumber = "Official document number is required.";
+        newErrors["documentNumber"] = "Official document number is required.";
       }
       if (!formData.documentExpiryDate) {
-        newErrors.documentExpiryDate = "Expiry date is required.";
+        newErrors["documentExpiryDate"] = "Expiry date is required.";
       }
       if (!formData.documentFrontUploaded) {
-        newErrors.documentFront = "Please upload the front scan of your identification.";
+        newErrors["documentFront"] = "Please upload the front scan of your identification.";
       }
       if (formData.documentType !== "passport" && !formData.documentBackUploaded) {
-        newErrors.documentBack = "Please upload the back scan of your identification.";
+        newErrors["documentBack"] = "Please upload the back scan of your identification.";
       }
       if (!formData.proofOfAddressUploaded) {
-        newErrors.proofOfAddress = "Please upload proof of residential address.";
+        newErrors["proofOfAddress"] = "Please upload proof of residential address.";
       }
     }
 
