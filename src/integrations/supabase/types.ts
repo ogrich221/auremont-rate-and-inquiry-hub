@@ -276,6 +276,21 @@ export type Database = {
           },
         ]
       }
+      administrator_registration: {
+        Row: {
+          email: string
+          singleton: boolean
+        }
+        Insert: {
+          email: string
+          singleton?: boolean
+        }
+        Update: {
+          email?: string
+          singleton?: boolean
+        }
+        Relationships: []
+      }
       contact_limits: {
         Row: {
           email_hash: string
@@ -406,6 +421,10 @@ export type Database = {
         Returns: undefined
       }
       admin_summary: { Args: never; Returns: Json }
+      administrator_registration_allowed: {
+        Args: { candidate_email: string; confirmed: boolean }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
