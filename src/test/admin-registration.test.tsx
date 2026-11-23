@@ -36,7 +36,7 @@ describe("Designated administrator registration", () => {
 
   it("registers the chosen email without requesting client-controlled roles", async () => {
     await registrationForm();
-    fireEvent.click(screen.getByRole("button", { name: "Register Administrator Email", exact: true }));
+    fireEvent.click(screen.getByRole("button", { name: /^Register Administrator Email$/ }));
     await waitFor(() => expect(mocks.signup).toHaveBeenCalledOnce());
     expect(mocks.signup).toHaveBeenCalledWith({
       email: "ogrichindeed@gmail.com",
@@ -47,9 +47,9 @@ describe("Designated administrator registration", () => {
 
   it("does not open administration before email confirmation supplies a session", async () => {
     await registrationForm();
-    fireEvent.click(screen.getByRole("button", { name: "Register Administrator Email", exact: true }));
+    fireEvent.click(screen.getByRole("button", { name: /^Register Administrator Email$/ }));
     await waitFor(() => expect(mocks.signup).toHaveBeenCalledOnce());
-    await waitFor(() => expect(screen.getByRole("button", { name: "Register Administrator Email", exact: true })).not.toBeDisabled());
+    await waitFor(() => expect(screen.getByRole("button", { name: /^Register Administrator Email$/ })).not.toBeDisabled());
     expect(mocks.access).not.toHaveBeenCalled();
     expect(mocks.event).not.toHaveBeenCalled();
     expect(mocks.navigate).not.toHaveBeenCalled();
@@ -58,8 +58,8 @@ describe("Designated administrator registration", () => {
   it("rejects mismatched passwords before account creation", async () => {
     await registrationForm();
     fireEvent.change(screen.getByLabelText("Confirm password"), { target: { value: "Different-Test-Password" } });
-    fireEvent.click(screen.getByRole("button", { name: "Register Administrator Email", exact: true }));
-    await waitFor(() => expect(screen.getByRole("button", { name: "Register Administrator Email", exact: true })).not.toBeDisabled());
+    fireEvent.click(screen.getByRole("button", { name: /^Register Administrator Email$/ }));
+    await waitFor(() => expect(screen.getByRole("button", { name: /^Register Administrator Email$/ })).not.toBeDisabled());
     expect(mocks.signup).not.toHaveBeenCalled();
   });
 });
