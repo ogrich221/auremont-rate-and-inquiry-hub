@@ -3,6 +3,7 @@ import { pageHead } from "@/lib/bank";
 import { RegistrationPage } from "@/components/bank/registration/RegistrationPage";
 
 export const Route = createFileRoute("/open-account")({
+  staticData: { sitemap: true },
   head: () =>
     pageHead(
       "Open an Account",

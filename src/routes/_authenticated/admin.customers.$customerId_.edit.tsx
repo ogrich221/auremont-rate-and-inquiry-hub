@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { CustomerProfile } from "@/components/bank/admin/customers";
 import { pageHead } from "@/lib/bank";
 export const Route = createFileRoute("/_authenticated/admin/customers/$customerId_/edit")({
+  staticData: { sitemap: false },
   head: () =>
     pageHead(
       "Edit Customer Information",

@@ -9,6 +9,7 @@ export const siteQuery = queryOptions({
   staleTime: 60000,
 });
 export const Route = createFileRoute("/")({
+  staticData: { sitemap: true },
   head: () =>
     pageHead(
       "A Higher Standard of Banking",

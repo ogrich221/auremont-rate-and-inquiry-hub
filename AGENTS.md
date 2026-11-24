@@ -43,3 +43,4 @@ use the editor.
 - Legacy application listing and decision functions must use the same database administrator guard before accessing the file store; decision audit actors come from the verified session, never caller input.
 - Customer and application mutations run through atomic guarded database functions with trigger-written audit history and optimistic customer versions; customer deletion means archival, never audit erasure.
 - Administration clears private query caches before sign-out and signs out after fifteen minutes without browser interaction; sensitive operations still enforce recent MFA in the database.
+- Router-derived sitemap: every route declares staticData.sitemap; private subtrees use "exclude-subtree" so new pages make an explicit search decision.

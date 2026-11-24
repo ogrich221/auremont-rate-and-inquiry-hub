@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { pageHead } from "@/lib/bank";
 import { LegalPage } from "@/components/bank/pages";
 export const Route = createFileRoute("/terms")({
+  staticData: { sitemap: true },
   head: () =>
     pageHead("Terms & Conditions", "Terms & Conditions for the Auremont demonstration website."),
   component: Page,

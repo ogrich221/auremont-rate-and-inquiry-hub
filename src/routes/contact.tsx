@@ -4,6 +4,7 @@ import { pageHead } from "@/lib/bank";
 import { siteQuery } from "./index";
 import { ContactPage } from "@/components/bank/pages";
 export const Route = createFileRoute("/contact")({
+  staticData: { sitemap: true },
   head: () =>
     pageHead(
       "Contact Auremont",

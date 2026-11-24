@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AdminLogin } from "@/components/bank/admin/access";
 import { pageHead } from "@/lib/bank";
 export const Route = createFileRoute("/admin-login")({
+  staticData: { sitemap: false },
   head: () => ({
     ...pageHead(
       "Administrator Access",

@@ -3,6 +3,7 @@ import { AdminWorkspace } from "@/components/bank/admin/workspace";
 import { listSchema } from "@/lib/admin-model";
 import type { z } from "zod";
 export const Route = createFileRoute("/_authenticated/admin")({
+  staticData: { sitemap: false },
   validateSearch: (input: Record<string, unknown>): Partial<z.infer<typeof listSchema>> => {
     const parsed = listSchema.partial().parse(input);
     return {

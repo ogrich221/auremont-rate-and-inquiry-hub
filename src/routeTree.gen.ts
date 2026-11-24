@@ -30,6 +30,7 @@ import { Route as PersonalBankingRouteImport } from './routes/personal-banking'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SecurityRouteImport } from './routes/security'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as UpdatePasswordRouteImport } from './routes/update-password'
 import { Route as WealthManagementRouteImport } from './routes/wealth-management'
@@ -143,6 +144,11 @@ const SecurityRoute = SecurityRouteImport.update({
   path: '/security',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -208,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/security': typeof SecurityRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/update-password': typeof UpdatePasswordRoute
   '/wealth-management': typeof WealthManagementRoute
@@ -238,6 +245,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/security': typeof SecurityRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/update-password': typeof UpdatePasswordRoute
   '/wealth-management': typeof WealthManagementRoute
@@ -269,6 +277,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/security': typeof SecurityRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/update-password': typeof UpdatePasswordRoute
   '/wealth-management': typeof WealthManagementRoute
@@ -301,6 +310,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/reset-password'
     | '/security'
+    | '/sitemap.xml'
     | '/terms'
     | '/update-password'
     | '/wealth-management'
@@ -331,6 +341,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/reset-password'
     | '/security'
+    | '/sitemap.xml'
     | '/terms'
     | '/update-password'
     | '/wealth-management'
@@ -361,6 +372,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/reset-password'
     | '/security'
+    | '/sitemap.xml'
     | '/terms'
     | '/update-password'
     | '/wealth-management'
@@ -393,6 +405,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SecurityRoute: typeof SecurityRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   UpdatePasswordRoute: typeof UpdatePasswordRoute
   WealthManagementRoute: typeof WealthManagementRoute
@@ -547,6 +560,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SecurityRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -658,6 +678,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SecurityRoute: SecurityRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   UpdatePasswordRoute: UpdatePasswordRoute,
   WealthManagementRoute: WealthManagementRoute,
