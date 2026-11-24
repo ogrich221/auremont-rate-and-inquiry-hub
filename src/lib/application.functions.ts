@@ -80,7 +80,10 @@ export const submitApplicationFn = createServerFn({ method: "POST" })
 
     // Generate unique reference number: ATB-2026-XXXXX
     const year = new Date().getFullYear();
-    const randomHex = Math.random().toString(36).substring(2, 7).toUpperCase();
+    const randomBytes = crypto.getRandomValues(new Uint8Array(10));
+    const randomHex = Array.from(randomBytes, (b) => b.toString(16).padStart(2, "0"))
+      .join("")
+      .toUpperCase();
     const referenceNumber = `ATB-${year}-${randomHex}`;
 
     const now = new Date().toISOString();
@@ -138,7 +141,7 @@ export const submitApplicationFn = createServerFn({ method: "POST" })
         frontDocumentFilename: data.documentFrontFilename,
         ...(data.documentBackFilename === undefined ? {} : { backDocumentFilename: data.documentBackFilename }),
         proofOfAddressFilename: data.proofOfAddressFilename,
-        aiVerificationStatus: "VERIFIED",
+        aiVerificationStatus: "PENDING",
       },
       compliance: {
         termsAccepted: data.acceptedTerms,
@@ -150,8 +153,8 @@ export const submitApplicationFn = createServerFn({ method: "POST" })
         {
           timestamp: now,
           actor: "Auremont Digital Onboarding Gateway",
-          action: "Application received and cryptographic KYC package verified",
-          note: "Identity document and contact channels cryptographically validated during intake.",
+          action: "Application received; identity and contact details pending review",
+          note: "Applicant-reported details have not been independently verified.",
         },
       ],
     };

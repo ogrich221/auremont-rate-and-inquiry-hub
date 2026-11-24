@@ -34,7 +34,9 @@ export const submitContact = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => contactSchema.parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const bytes = new TextEncoder().encode(data.email.toLowerCase());
+    const bytes = new TextEncoder().encode(
+      [data.email.toLowerCase(), data.topic, data.message].join("\u0000"),
+    );
     const hash = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", bytes)))
       .map((x) => x.toString(16).padStart(2, "0"))
       .join("");
@@ -44,7 +46,7 @@ export const submitContact = createServerFn({ method: "POST" })
       .eq("email_hash", hash)
       .maybeSingle();
     if (limit && Date.now() - new Date(limit.last_sent).getTime() < 60000)
-      throw new Error("Please wait one minute before sending another inquiry.");
+      throw new Error("This inquiry was just sent. Please wait one minute before resending it.");
     const { error: limitError } = await supabaseAdmin
       .from("contact_limits")
       .upsert({ email_hash: hash, last_sent: new Date().toISOString() });
