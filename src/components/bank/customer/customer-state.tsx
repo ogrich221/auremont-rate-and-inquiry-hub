@@ -551,10 +551,10 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
 
   const [activeSection, setActiveSection] = useState<NavigationSection>("overview");
   const [activeAccountId, setActiveAccountId] = useState<string>(
-    accounts[0]?.id || INITIAL_ACCOUNTS[0].id,
+    accounts[0]?.id || INITIAL_ACCOUNTS[0]!.id,
   );
   const activeAccount =
-    accounts.find((a) => a.id === activeAccountId) || accounts[0] || INITIAL_ACCOUNTS[0];
+    accounts.find((a) => a.id === activeAccountId) || accounts[0] || INITIAL_ACCOUNTS[0]!;
   const setActiveAccount = (acc: CustomerAccount) => setActiveAccountId(acc.id);
   const [isBalanceVisible, setIsBalanceVisible] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>("");

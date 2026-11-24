@@ -88,7 +88,7 @@ describe("Auremont Trust Bank - Customer Online Banking", () => {
     expect(latestState.activeAccount.availableBalance).toBe(initialBalance - 1500);
     expect(latestState.transactions.length).toBe(initialTxCount + 1);
 
-    const latestTx = latestState.transactions[0];
+    const latestTx = latestState.transactions[0]!;
     expect(latestTx.type).toBe("Domestic Transfer");
     expect(latestTx.amount).toBe(1500);
     expect(latestTx.recipientMerchant).toBe("Evelyn Vance");
@@ -135,7 +135,7 @@ describe("Auremont Trust Bank - Customer Online Banking", () => {
     expect(result.reference).toMatch(/^ATB-WIR-/);
     expect(latestState.activeAccount.availableBalance).toBe(initialBalance - (sendAmount + lockedFee));
 
-    const latestTx = latestState.transactions[0];
+    const latestTx = latestState.transactions[0]!;
     expect(latestTx.type).toBe("International Wire");
     expect(latestTx.fee).toBe(25);
     expect(latestTx.swiftRef).toBeDefined();
@@ -164,7 +164,7 @@ describe("Auremont Trust Bank - Customer Online Banking", () => {
     expect(result.reference).toMatch(/^ATB-BIL-/);
     expect(latestState.activeAccount.availableBalance).toBe(initialBalance - paymentAmount);
 
-    const latestTx = latestState.transactions[0];
+    const latestTx = latestState.transactions[0]!;
     expect(latestTx.type).toBe("Bill Payment");
     expect(latestTx.recipientMerchant).toBe("British Gas & Electricity");
   });

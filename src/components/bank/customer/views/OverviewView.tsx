@@ -41,8 +41,8 @@ export function OverviewView({
   } = useCustomerBanking();
 
   const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
-  const savingsAccount = accounts.find((a) => a.type === "Reserve Savings") || accounts[1];
-  const checkingAccount = accounts.find((a) => a.type === "Premier Checking") || accounts[0];
+  const savingsAccount = accounts.find((a) => a.type === "Reserve Savings") || accounts[1]!;
+  const checkingAccount = accounts.find((a) => a.type === "Premier Checking") || accounts[0]!;
 
   // Calculate monthly spending from debits
   const monthlySpending = transactions
@@ -357,7 +357,7 @@ export function OverviewView({
                     return (
                       <tr
                         key={tx.id}
-                        onClick={() => onSelectTransaction(tx)}
+                        onClick={() => onSelectTransaction?.(tx)}
                         className="hover:bg-muted/30 cursor-pointer transition-colors"
                       >
                         <td className="py-3 px-4">

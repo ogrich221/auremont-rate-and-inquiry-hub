@@ -37,6 +37,7 @@ import { DomesticTransferView } from "./views/DomesticTransferView";
 import { InternationalWireView } from "./views/InternationalWireView";
 import { PayBillsView } from "./views/PayBillsView";
 import { BeneficiariesView } from "./views/BeneficiariesView";
+import type { CustomerTransaction } from "./customer-types";
 import { TransactionHistoryView } from "./views/TransactionHistoryView";
 import { StatementsView } from "./views/StatementsView";
 import { ProfileView } from "./views/ProfileView";
@@ -48,7 +49,7 @@ interface NavItem {
   id: NavigationSection;
   label: string;
   icon: React.ReactNode;
-  badge?: number;
+  badge?: number | undefined;
 }
 
 export function CustomerLayout() {
@@ -71,6 +72,7 @@ export function CustomerLayout() {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedTx, setSelectedTx] = useState<CustomerTransaction | null>(null);
 
   // Initial luxury branded loading sequence
   useEffect(() => {
@@ -170,7 +172,7 @@ export function CustomerLayout() {
       case "beneficiaries":
         return <BeneficiariesView />;
       case "transactions":
-        return <TransactionHistoryView />;
+        return <TransactionHistoryView selectedTx={selectedTx} onSelectTx={setSelectedTx} />;
       case "statements":
         return <StatementsView />;
       case "profile":

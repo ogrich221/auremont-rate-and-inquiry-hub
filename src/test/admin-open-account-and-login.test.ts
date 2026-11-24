@@ -133,27 +133,32 @@ describe("Admin Open Account & Login Functional Integrity", () => {
           expectedActivity: "Over $100,000 / month",
         },
         security: {
-          passwordHash: "PBKDF2_MOCKED_HASH_FOR_TEST",
-          pinHash: "PBKDF2_MOCKED_PIN_HASH",
-          securityQuestion1: "What was the name of your first elementary school?",
-          securityAnswer1Hash: "HASH_A1",
-          securityQuestion2: "In what city or town did your parents meet?",
-          securityAnswer2Hash: "HASH_A2",
-          twoFactorMethod: "TOTP_AUTHENTICATOR",
+          passwordHashed: true,
+          pinMasked: "••••••",
+          securityQuestionsSummary: [
+            "What was the name of your first elementary school?",
+            "In what city or town did your parents meet?",
+          ],
         },
         identity: {
           documentType: "Passport",
-          documentNumber: "US987654321",
+          documentNumberMasked: "•••• 4321",
           issuingCountry: "United States",
-          documentExpiryDate: "2032-12-31",
-          documentFrontFileName: "passport_front.jpg",
-          proofOfAddressFileName: "utility_bill.pdf",
-          sourceOfWealthFileName: "tax_return.pdf",
+          expiryDate: "2032-12-31",
+          frontDocumentFilename: "passport_front.jpg",
+          proofOfAddressFilename: "utility_bill.pdf",
+          aiVerificationStatus: "PENDING",
+        },
+        compliance: {
+          termsAccepted: true,
+          privacyAcknowledged: true,
+          kycConsent: true,
+          marketingOptIn: false,
         },
         auditTrail: [
           {
             timestamp: new Date().toISOString(),
-            status: "UNDER_COMPLIANCE_REVIEW",
+            action: "UNDER_COMPLIANCE_REVIEW",
             note: "Applicant completed digital application on onboarding portal.",
             actor: "Applicant",
           },
@@ -174,10 +179,10 @@ describe("Admin Open Account & Login Functional Integrity", () => {
         "Primary Compliance Administrator",
       );
 
-      expect(updated.status).toBe("APPROVED");
-      expect(updated.auditTrail.length).toBe(2);
-      expect(updated.auditTrail[0].actor).toBe("Primary Compliance Administrator");
-      expect(updated.auditTrail[0].action).toContain("APPROVED");
+      expect(updated?.status).toBe("APPROVED");
+      expect(updated?.auditTrail.length).toBe(2);
+      expect(updated?.auditTrail[0]?.actor).toBe("Primary Compliance Administrator");
+      expect(updated?.auditTrail[0]?.action).toContain("APPROVED");
     });
   });
 
