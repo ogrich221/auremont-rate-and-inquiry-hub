@@ -4,7 +4,7 @@ import { LegalPage } from "@/components/bank/pages";
 export const Route = createFileRoute("/terms")({
   staticData: { sitemap: true },
   head: () =>
-    pageHead("Terms & Conditions", "Terms & Conditions for the Auremont demonstration website."),
+    pageHead("Terms & Conditions", "Terms & Conditions of service for Auremont Trust Bank."),
   component: Page,
 });
 function Page() {

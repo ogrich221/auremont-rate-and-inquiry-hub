@@ -4,7 +4,7 @@ import { LegalPage } from "@/components/bank/pages";
 export const Route = createFileRoute("/security")({
   staticData: { sitemap: true },
   head: () =>
-    pageHead("Security Centre", "Security Centre for the Auremont demonstration website."),
+    pageHead("Security Centre", "Security Centre, fraud prevention, and account protection at Auremont Trust Bank."),
   component: Page,
 });
 function Page() {

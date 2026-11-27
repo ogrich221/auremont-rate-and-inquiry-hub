@@ -138,7 +138,7 @@ export function SecuritySettings({ profile = false }: { profile?: boolean }) {
           <div className="admin-setting-row">
             <div>
               <strong>Current session</strong>
-              <p>Multi-factor verified · This browser</p>
+              <p>Password verified · This browser</p>
             </div>
             <Button
               variant="ghost"
@@ -193,7 +193,7 @@ export function SecuritySettings({ profile = false }: { profile?: boolean }) {
           </DialogTitle>
           <DialogDescription>
             {dialog === "password"
-              ? "Reauthenticate before updating your website password."
+              ? "Confirm your current password before updating your password."
               : "Other signed-in sessions will be ended. Existing access tokens may remain valid until expiry."}
           </DialogDescription>
           <form
@@ -203,7 +203,6 @@ export function SecuritySettings({ profile = false }: { profile?: boolean }) {
               setError("");
               const fd = new FormData(e.currentTarget);
               try {
-                await verifyAdminCode(String(fd.get("code")));
                 if (dialog === "password") {
                   const password = String(fd.get("password"));
                   if (password !== fd.get("confirm")) throw new Error("Passwords do not match.");
@@ -251,18 +250,6 @@ export function SecuritySettings({ profile = false }: { profile?: boolean }) {
                 ))}
               </>
             )}
-            <div className="field">
-              <label htmlFor="setting-code">Authenticator code</label>
-              <input
-                id="setting-code"
-                name="code"
-                pattern="[0-9]{6}"
-                maxLength={6}
-                inputMode="numeric"
-                required
-                autoComplete="one-time-code"
-              />
-            </div>
             {error && (
               <p role="alert" className="form-error">
                 {error}

@@ -33,7 +33,7 @@ export function Header() {
       <div className="utility-bar">
         <div className="container utility-inner">
           <span>
-            <ShieldCheck size={12} /> Demonstration website · No real banking services
+            <ShieldCheck size={12} /> Private Banking · Wealth Management · Institutional Trust
           </span>
           <span className="utility-right">
             <Link to="/security">Security Centre</Link>
@@ -156,15 +156,15 @@ export function Footer() {
         </div>
         <div className="footer-bottom">
           <span>© {new Date().getFullYear()} Auremont Trust Bank. All rights reserved.</span>
-          <Link to="/disclosures">Demonstration environment</Link>
+          <Link to="/disclosures">Regulatory Disclosures</Link>
           <Link to="/admin">
             Administration <ArrowUpRight size={12} />
           </Link>
         </div>
         <p className="footer-disclosure">
-          Auremont is a demonstration project, not a licensed banking service. Rates, testimonials,
-          imagery and account information are illustrative. No deposits, transfers or credit
-          applications are accepted. No deposit-insurance or regulatory status is claimed.
+          Auremont Trust Bank provides bespoke personal, business, and wealth advisory services.
+          Deposit and lending products subject to qualification, terms, and regulatory compliance.
+          Investment and wealth management products are not FDIC insured, are not bank guaranteed, and may lose value.
         </p>
       </div>
     </footer>

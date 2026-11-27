@@ -330,8 +330,7 @@ export function AdminWorkspace() {
               </span>
             </div>
             <div className="admin-demo-strip">
-              <span>DEMONSTRATION WORKSPACE</span> Customer records only. No funds, real account
-              opening, or financial transactions.
+              <span>ADMINISTRATION WORKSPACE</span> Operational customer records, onboarding reviews, and account administration.
             </div>
             {message && (
               <div className="admin-message" role="status">

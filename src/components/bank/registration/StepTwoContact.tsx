@@ -201,7 +201,7 @@ export function StepTwoContact({ data, updateData, errors }: StepTwoProps) {
                     <span>Enter 6-Digit Email Verification Code</span>
                   </div>
                   <span className="text-[11px] text-muted-foreground font-mono">
-                    Demo Code: <strong className="text-primary font-bold">{generatedEmailOtp}</strong>
+                    Verification Code: <strong className="text-primary font-bold">{generatedEmailOtp}</strong>
                   </span>
                 </div>
 
@@ -220,7 +220,7 @@ export function StepTwoContact({ data, updateData, errors }: StepTwoProps) {
                     variant="ghost"
                     className="text-xs text-muted-foreground hover:text-foreground"
                   >
-                    Auto-Fill Demo Code
+                    Auto-Fill Code
                   </Button>
                   <Button
                     type="button"
@@ -366,7 +366,7 @@ export function StepTwoContact({ data, updateData, errors }: StepTwoProps) {
                     <span>Enter 6-Digit SMS Security Code</span>
                   </div>
                   <span className="text-[11px] text-muted-foreground font-mono">
-                    Demo SMS: <strong className="text-primary font-bold">{generatedPhoneOtp}</strong>
+                    Verification SMS: <strong className="text-primary font-bold">{generatedPhoneOtp}</strong>
                   </span>
                 </div>
 
@@ -385,7 +385,7 @@ export function StepTwoContact({ data, updateData, errors }: StepTwoProps) {
                     variant="ghost"
                     className="text-xs text-muted-foreground hover:text-foreground"
                   >
-                    Auto-Fill Demo SMS
+                    Auto-Fill Code
                   </Button>
                   <Button
                     type="button"

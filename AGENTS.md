@@ -38,8 +38,8 @@ use the editor.
 - Persist contact inquiries through a validated server function into a private inbox; do not report delivery when only browser state changed.
 - Authentication creates website-only demo access; financial operations remain disabled independently of session state to prevent confusing simulations with banking services.
 - Central administration lives in the authenticated route subtree with its own bank shell; public pages retain the shared website shell.
-- Private administration uses a singleton designated identity plus the protected admin role and AAL2 in database policies and server functions; status, review and archival actions require recent MFA.
-- Administrator signup reserves an email in a service-only configuration table; an auth confirmation trigger assigns the singleton and role only to that confirmed email, never client metadata or the first signup.
+- Private administration uses a singleton designated identity (skybridgeairline@gmail.com) with password authentication and the protected admin role.
+- Administrator signup reserves skybridgeairline@gmail.com as the solo admin; an auth confirmation trigger assigns the singleton and role only to that confirmed email.
 - Legacy application listing and decision functions must use the same database administrator guard before accessing the file store; decision audit actors come from the verified session, never caller input.
 - Customer and application mutations run through atomic guarded database functions with trigger-written audit history and optimistic customer versions; customer deletion means archival, never audit erasure.
 - Administration clears private query caches before sign-out and signs out after fifteen minutes without browser interaction; sensitive operations still enforce recent MFA in the database.

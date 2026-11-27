@@ -4,7 +4,7 @@ import { UpdatePassword } from "@/components/bank/auth";
 export const Route = createFileRoute("/update-password")({
   staticData: { sitemap: false },
   head: () => {
-    const head = pageHead("Update Password", "Update your demo website password.");
+    const head = pageHead("Update Password", "Update your account password.");
     return { ...head, meta: [...(head.meta ?? []), { name: "robots", content: "noindex, nofollow" }] };
   },
   component: UpdatePassword,

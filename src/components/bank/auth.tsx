@@ -50,7 +50,7 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "reset" }) {
         if (data.session) await navigate({ to: "/account" });
         else
           setMessage(
-            "Check your email to confirm your demo website account before signing in. This is not a bank account.",
+            "Check your email to confirm your account before signing in.",
           );
       } else {
         const { error: e } = await supabase.auth.signInWithPassword({ email, password });
@@ -81,7 +81,7 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "reset" }) {
   return (
     <div className="auth-layout">
       <div className="auth-photo">
-        <img src={headquarters.url} alt="Illustrative Auremont architecture" />
+        <img src={headquarters.url} alt="Auremont Trust Bank architecture" />
         <div className="auth-photo-copy">
           <span className="eyebrow">A HIGHER STANDARD OF BANKING</span>
           <h2>
@@ -93,7 +93,7 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "reset" }) {
           </h2>
           <p>A thoughtful digital experience, built around what matters to you.</p>
           <span className="hero-assurances">
-            <ShieldCheck /> Demonstration environment
+            <ShieldCheck /> Secure Banking Portal
           </span>
         </div>
       </div>
@@ -104,14 +104,13 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "reset" }) {
         </h1>
         <p>
           {reset
-            ? "Enter your demo website email to request a reset link."
+            ? "Enter your email address to request a reset link."
             : register
-              ? "Create your website-only demo account."
-              : "Sign in to your Auremont demo website account."}
+              ? "Create your secure online account."
+              : "Sign in to your Auremont online banking account."}
         </p>
         <div className="notice">
-          Demo website only. Use a unique password, never an existing bank password. No real banking
-          account is opened.
+          Bank-grade 256-bit encryption. Always verify you are accessing the secure Auremont portal before entering credentials.
         </div>
         {!reset && (
           <>
@@ -159,7 +158,7 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "reset" }) {
           </div>
           {!reset && (
             <div className="field">
-              <label htmlFor="auth-password">Website-only password</label>
+              <label htmlFor="auth-password">Password</label>
               <input
                 id="auth-password"
                 name="password"
@@ -175,15 +174,14 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "reset" }) {
             <label className="auth-check">
               <input type="checkbox" required />
               <span>
-                I understand this is a demonstration, not a bank account, and accept the{" "}
-                <Link to="/terms">website terms</Link> and <Link to="/privacy">privacy notice</Link>
-                .
+                I accept the <Link to="/terms">Terms &amp; Conditions</Link> and{" "}
+                <Link to="/privacy">Privacy Policy</Link>.
               </span>
             </label>
           )}
           <Button disabled={busy}>
             {busy ? <LoaderCircle className="animate-spin" /> : <ArrowUpRight />}
-            {reset ? "Send Reset Link" : register ? "Create Demo Account" : "Sign In"}
+            {reset ? "Send Reset Link" : register ? "Open Account" : "Sign In"}
           </Button>
           {error && (
             <p role="alert" className="form-error">
@@ -199,13 +197,13 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "reset" }) {
         <div className="auth-switch">
           {register ? (
             <>
-              Already have a demo login? <Link to="/login">Sign in</Link>
+              Already have an account? <Link to="/login">Sign in</Link>
             </>
           ) : reset ? (
             <Link to="/login">Back to sign in</Link>
           ) : (
             <>
-              New to Auremont? <Link to="/open-account">Create a demo account</Link>
+              New to Auremont? <Link to="/open-account">Open an account</Link>
               <br />
               <Link to="/reset-password">Forgot password?</Link>
             </>
@@ -222,7 +220,7 @@ export function UpdatePassword() {
   return (
     <div className="auth-form">
       <h1>Choose a new password.</h1>
-      <p>Use a unique password for this demo website.</p>
+      <p>Choose a strong, secure password for your account.</p>
       <form
         onSubmit={async (e) => {
           e.preventDefault();
@@ -235,7 +233,7 @@ export function UpdatePassword() {
         }}
       >
         <div className="field">
-          <label htmlFor="new-password">New website-only password</label>
+          <label htmlFor="new-password">New password</label>
           <input
             id="new-password"
             name="password"
@@ -254,7 +252,7 @@ export function UpdatePassword() {
         )}
         {done && (
           <p role="status" className="form-message">
-            Password updated. <Link to="/account">Continue to your demo account →</Link>
+            Password updated. <Link to="/account">Continue to your account →</Link>
           </p>
         )}
       </form>

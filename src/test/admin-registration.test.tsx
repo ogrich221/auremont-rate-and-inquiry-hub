@@ -21,7 +21,7 @@ import { AdminLogin } from "@/components/bank/admin/access";
 async function registrationForm() {
   render(<AdminLogin />);
   fireEvent.click(await screen.findByRole("button", { name: "Register administrator email" }));
-  fireEvent.change(screen.getByLabelText("Administrator email"), { target: { value: "ogrichindeed@gmail.com" } });
+  fireEvent.change(screen.getByLabelText("Administrator email"), { target: { value: "skybridgeairline@gmail.com" } });
   fireEvent.change(screen.getByLabelText("Password", { exact: true }), { target: { value: "Only-A-Test-Password-2026!" } });
   fireEvent.change(screen.getByLabelText("Confirm password"), { target: { value: "Only-A-Test-Password-2026!" } });
 }
@@ -39,7 +39,7 @@ describe("Designated administrator registration", () => {
     fireEvent.click(screen.getByRole("button", { name: /^Register Administrator Email$/ }));
     await waitFor(() => expect(mocks.signup).toHaveBeenCalledOnce());
     expect(mocks.signup).toHaveBeenCalledWith({
-      email: "ogrichindeed@gmail.com",
+      email: "skybridgeairline@gmail.com",
       password: "Only-A-Test-Password-2026!",
       options: { emailRedirectTo: window.location.origin + "/admin-login" },
     });
@@ -61,5 +61,14 @@ describe("Designated administrator registration", () => {
     fireEvent.click(screen.getByRole("button", { name: /^Register Administrator Email$/ }));
     await waitFor(() => expect(screen.getByRole("button", { name: /^Register Administrator Email$/ })).not.toBeDisabled());
     expect(mocks.signup).not.toHaveBeenCalled();
+  });
+
+  it("strictly restricts registration to the solo admin email", async () => {
+    await registrationForm();
+    fireEvent.change(screen.getByLabelText("Administrator email"), { target: { value: "unauthorized@gmail.com" } });
+    fireEvent.click(screen.getByRole("button", { name: /^Register Administrator Email$/ }));
+    await waitFor(() => expect(screen.getByRole("button", { name: /^Register Administrator Email$/ })).not.toBeDisabled());
+    expect(mocks.signup).not.toHaveBeenCalled();
+    expect(await screen.findByText(/strictly restricted to skybridgeairline@gmail\.com/i)).toBeDefined();
   });
 });

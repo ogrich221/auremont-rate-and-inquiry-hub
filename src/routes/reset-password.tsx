@@ -6,7 +6,7 @@ export const Route = createFileRoute("/reset-password")({
   head: () => {
     const head = pageHead(
       "Reset Password",
-      "Secure access to the Auremont demo website. No real banking services.",
+      "Secure password recovery for Auremont Trust Bank clients.",
     );
     return { ...head, meta: [...(head.meta ?? []), { name: "robots", content: "noindex, nofollow" }] };
   },

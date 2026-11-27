@@ -3,7 +3,7 @@ import { pageHead } from "@/lib/bank";
 import { LegalPage } from "@/components/bank/pages";
 export const Route = createFileRoute("/cookies")({
   staticData: { sitemap: true },
-  head: () => pageHead("Cookie Policy", "Cookie Policy for the Auremont demonstration website."),
+  head: () => pageHead("Cookie Policy", "Cookie Policy and data privacy for Auremont Trust Bank."),
   component: Page,
 });
 function Page() {

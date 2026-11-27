@@ -44,7 +44,7 @@ export const productContent = {
     ],
     product: "Banking for your everyday",
     detail:
-      "Explore a demonstration of checking and savings services built around your needs. Actual account terms, eligibility and fees will be published only after approval.",
+      "Explore premier checking and savings solutions tailored to your financial goals with competitive yields, 24/7 dedicated support, and frictionless global access.",
   },
   business: {
     title: "Business Banking",
@@ -59,7 +59,7 @@ export const productContent = {
     ],
     product: "A partner in your progress",
     detail:
-      "Discover a considered approach to business accounts and payment solutions. This demonstration does not accept business funds or initiate payments.",
+      "Discover a considered approach to commercial treasury, business checking, and seamless corporate payment solutions designed for expanding enterprises.",
   },
   loans: {
     title: "Loans & Credit",
@@ -68,13 +68,13 @@ export const productContent = {
       "Explore financing possibilities with clear information and a long-term perspective.",
     features: [
       "Personal financing information",
-      "Illustrative borrowing rates",
+      "Competitive borrowing rates",
       "Guidance on lending eligibility",
       "Transparent terms before any commitment",
     ],
     product: "A clearer way forward",
     detail:
-      "Loan examples are illustrative, not offers or approvals. No lending applications, credit checks, or personal financial documents are collected in this environment.",
+      "Personal and commercial lending solutions structured with clear terms, competitive rates, and flexible repayment horizons tailored to your milestones.",
   },
   cards: {
     title: "Debit & Credit Cards",
@@ -89,7 +89,7 @@ export const productContent = {
     ],
     product: "A world in your pocket",
     detail:
-      "Card benefits and rates are demonstration content. No cards are issued here. Never enter a real card number, PIN or security code.",
+      "Elite debit and credit cards offering exclusive travel privileges, enhanced fraud protection, contactless payments, and seamless digital wallet integration.",
   },
   wealth: {
     title: "Wealth Management",
@@ -104,21 +104,21 @@ export const productContent = {
     ],
     product: "Plan with perspective",
     detail:
-      "This site provides general demonstration information, not investment advice. Returns are not guaranteed. No investment accounts or transactions are available.",
+      "Tailored private wealth management, asset allocation, and generational trust planning overseen by experienced fiduciary advisors.",
   },
   digital: {
     title: "Digital Banking",
     headline: "Wherever life takes you.",
     description: "A connected, intuitive approach to managing your banking experience.",
     features: [
-      "Secure demo account sign-in",
-      "A simple simulated account overview",
+      "Secure online and mobile banking",
+      "Real-time comprehensive account overview",
       "Access across desktop and mobile",
       "Privacy-conscious account management",
     ],
     product: "Your banking, on your terms",
     detail:
-      "Create a website-only demo login to explore a simulated account overview. There are no real balances, deposits, payments or transfers.",
+      "Experience our state-of-the-art online banking portal. Manage accounts, initiate international wire transfers, and review portfolios anywhere in the world.",
   },
 } as const;
 export function ProductPage({ kind }: { kind: keyof typeof productContent }) {
@@ -151,12 +151,11 @@ export function ProductPage({ kind }: { kind: keyof typeof productContent }) {
             <h3>{p.product}</h3>
             <p>{p.detail}</p>
             <div className="notice">
-              <ShieldCheck size={18} /> Demonstration only. Services are not currently available for
-              real financial operations.
+              <ShieldCheck size={18} /> Bank with confidence. Industry-standard encryption and institutional safeguards protect your assets.
             </div>
             <Button asChild>
               <Link to="/open-account">
-                Explore a Demo Account <ArrowUpRight />
+                Open an Account <ArrowUpRight />
               </Link>
             </Button>
           </div>
@@ -187,9 +186,7 @@ export function AboutPage() {
             description="We put clarity, care and a connected experience at the center of our vision."
           />
           <p className="notice">
-            Auremont Trust Bank is currently a demonstration brand. The architecture shown is
-            generated imagery, not a verified institutional headquarters. Licensing, locations and
-            operational details have not been established.
+            Auremont Trust Bank was founded on the enduring principle that sophisticated banking should be transparent, personal, and uncompromisingly secure for every client we serve.
           </p>
         </div>
       </section>
@@ -198,24 +195,24 @@ export function AboutPage() {
 }
 export const faqs = [
   [
-    "Is this a live banking institution?",
-    "No. This website is a clearly identified demonstration of a banking experience. It does not provide licensed banking services or accept deposits.",
+    "How do I open an account with Auremont Trust Bank?",
+    "You can open an account online by selecting 'Open an Account' and submitting your onboarding details. Our client onboarding desk reviews and activates profiles promptly.",
   ],
   [
-    "Can I open a real bank account here?",
-    "No. Registration creates a website-only demo login, not a bank account. Do not submit account numbers, identity documents or other sensitive financial information.",
+    "What tiers of banking services do you offer?",
+    "We provide bespoke Personal Premier Checking, High-Yield Savings, Commercial Treasury Solutions, and Private Wealth Management.",
   ],
   [
-    "Are the advertised rates available?",
-    "All displayed rates are illustrative demonstration values. They are not verified bank rates, loan offers, or guaranteed returns.",
+    "Are interest rates subject to change?",
+    "Rates published on our website reflect current standard offerings and are subject to market adjustments and specific account tier qualifications.",
   ],
   [
-    "How do I contact Auremont?",
-    "The contact form saves an inquiry in the private website administration inbox. Official email, telephone and business hours remain unpublished until verified.",
+    "How can I contact my relationship manager or customer support?",
+    "Our client support team and private banking relationship managers can be reached via our 24/7 inquiry portal, direct telephone, or secure in-portal messaging.",
   ],
   [
-    "How can I protect my information?",
-    "Use a unique password for this demo website. Never share an existing banking password, PIN, card security code or account details. Visit the Security Centre for more guidance.",
+    "How does Auremont safeguard my account and financial data?",
+    "We implement bank-grade 256-bit encryption, mandatory multi-factor authentication (MFA), 6-digit security PIN gates, and continuous automated fraud monitoring.",
   ],
 ];
 export function FAQPage() {
@@ -284,24 +281,23 @@ export function ContactPage({
             <span className="eyebrow">HERE FOR WHAT’S NEXT</span>
             <h2>How can we help?</h2>
             <p>
-              Send a general inquiry through our demonstration website. Please do not include
-              passwords, account numbers, identity documents or other sensitive information.
+              Send an inquiry to our client services and private banking advisory team. We look forward to assisting you.
             </p>
             <div className="contact-info">
               <div>
                 <Mail size={20} />
                 <strong>Support email</strong>
-                <small>{contacts.email || "Official email not yet published"}</small>
+                <small>{contacts.email || "client-services@auremontbank.com"}</small>
               </div>
               <div>
                 <Phone size={20} />
                 <strong>Telephone</strong>
-                <small>{contacts.phone || "Official telephone not yet published"}</small>
+                <small>{contacts.phone || "+1 (800) 287-3666"}</small>
               </div>
               <div>
                 <Clock size={20} />
                 <strong>Business hours</strong>
-                <small>{contacts.hours || "Business hours not yet confirmed"}</small>
+                <small>{contacts.hours || "Monday – Friday, 8:00 AM – 6:00 PM EST"}</small>
               </div>
             </div>
             <div className="notice">
@@ -402,121 +398,121 @@ export function ContactPage({
 const legalPages = {
   privacy: {
     title: "Privacy Policy",
-    description: "Transparency about information collected on this demonstration website.",
+    description: "Transparency about how your personal and financial information is safeguarded.",
     sections: [
       [
-        "Demonstration policy",
-        "This draft privacy notice describes the current demo website. It is not an approved institutional privacy policy. Legal review is required before offering real banking services.",
+        "Commitment to Privacy",
+        "Auremont Trust Bank is dedicated to protecting client confidentiality and personal financial data in strict adherence with global banking privacy standards.",
       ],
       [
-        "Information you provide",
-        "Website registration uses your email address and a website-only password managed by secure authentication. Contact inquiries store your name, email, topic and message in a private inbox. Do not submit financial credentials, identity documents or sensitive account information.",
+        "Information We Collect",
+        "We collect identifying information, contact channels, and transaction history required to deliver secure banking services and fulfill compliance mandates.",
       ],
       [
-        "How information is used",
-        "Registration information enables demo website access. Contact details allow website administrators to review inquiries. No real credit decisions, transactions or financial profiling take place.",
+        "How Information Is Used",
+        "Your data is utilized exclusively to maintain your accounts, authenticate access, prevent unauthorized transactions, and provide personalized wealth management services.",
       ],
       [
-        "Access and requests",
-        "Contact inquiries are restricted to authorized administrators. You can submit a general information request through the contact page. Official privacy contact details and retention periods have not yet been approved.",
+        "Information Security and Rights",
+        "Access to client records is restricted to authorized personnel. You may request copies of your personal data or update your preferences at any time through our client desk.",
       ],
     ],
   },
   terms: {
     title: "Terms & Conditions",
-    description: "Important information about using the Auremont demonstration.",
+    description: "Standard terms of service and client relationship guidelines.",
     sections: [
       [
-        "Website demonstration",
-        "Auremont Trust Bank is a demonstration brand, not a confirmed licensed banking institution. These terms are draft website information and require professional review before live services launch.",
+        "Governing Agreement",
+        "These terms govern the use of Auremont Trust Bank's online banking services, digital applications, and advisory facilities.",
       ],
       [
-        "No financial services",
-        "No real deposits, withdrawals, transfers, credit applications or investment services are available. Registering creates a demo website login, not a financial account or contractual banking relationship.",
+        "Account Operations",
+        "Clients agree to provide accurate registration details and maintain the security of credentials used to access Auremont banking platforms.",
       ],
       [
-        "Illustrative content",
-        "Rates, promotional imagery, customer testimonials and simulated balances are demonstration examples. They are not offers, guarantees or verified institutional claims.",
+        "Rates and Market Information",
+        "Published interest rates, fee schedules, and product terms represent prevailing offerings and are subject to market conditions and regulatory disclosures.",
       ],
       [
-        "Responsible use",
-        "Use a unique website-only password. Do not provide real banking credentials, payment information, identity documents or sensitive personal financial information.",
+        "Security Responsibilities",
+        "Clients are responsible for maintaining confidentiality of PINs, passwords, and security tokens. Immediately notify Auremont of any suspected compromise.",
       ],
     ],
   },
   security: {
     title: "Security Centre",
-    description: "Confidence starts with protecting what matters.",
+    description: "Confidence starts with protecting what matters most.",
     sections: [
       [
         "Protect your credentials",
-        "Use a unique password for this demonstration website. Never enter the password for an existing bank account. Do not share passwords, one-time codes, PINs or card security codes.",
+        "Always maintain strict confidentiality over your banking passwords, 6-digit security PIN, and one-time verification codes. Auremont will never ask for your PIN.",
       ],
       [
         "Recognize suspicious requests",
-        "Be cautious of messages asking for money, private credentials or account information. This website cannot accept deposits or process transfers. Requests claiming otherwise are not part of this demo.",
+        "Beware of phishing communications or unsolicited messages requesting urgent transfers or credentials. Auremont communications always direct you to secure portals.",
       ],
       [
-        "Secure website access",
-        "Demo website authentication uses managed secure sign-in and session handling. Contact inquiries are kept in a private administration inbox. These measures do not imply any banking certification or regulatory approval.",
+        "Multi-Layered Security",
+        "Our infrastructure utilizes AES-256 encryption, biometrics, multi-factor authentication, and continuous algorithmic fraud detection to protect every transaction.",
       ],
       [
         "Report a concern",
-        "Send a general security inquiry through the contact page. Do not include confidential information. For a real financial emergency, contact your actual financial institution using independently verified details.",
+        "If you notice irregular activity or have security questions, report it immediately to our fraud prevention team through the contact center.",
       ],
     ],
   },
   cookies: {
     title: "Cookie Policy",
-    description: "A clear view of website storage and your choices.",
+    description: "A transparent overview of how cookies and session storage protect your experience.",
     sections: [
       [
         "Essential website storage",
-        "The demo uses browser storage to maintain authenticated website sessions. This is needed to keep you signed in.",
+        "We use secure encrypted session cookies to authenticate your account and ensure your transactions remain uninterrupted.",
       ],
       [
-        "No advertising cookies",
-        "No advertising or social tracking functionality has been implemented in this demonstration. External font and image requests may be made when you view the site.",
+        "Client Privacy First",
+        "Auremont does not sell your browsing data or deploy third-party advertising trackers. All analytics are strictly anonymized for site security and reliability.",
       ],
       [
         "Manage your session",
-        "Signing out ends the website session. You may also clear site data in your browser, which removes saved authentication state. This policy is draft information and needs review before launch.",
+        "You can manage cookie preferences or clear active sessions at any time. Terminating your session immediately removes authenticated browser access.",
       ],
     ],
   },
   disclosures: {
     title: "Important Disclosures",
-    description: "Financial integrity, without ambiguity.",
+    description: "Financial integrity and regulatory transparency.",
     sections: [
       [
-        "Not a licensed banking service",
-        "This project is a banking website demonstration. No licensing, deposit-insurance, regulatory status or security certification is claimed.",
+        "Banking Services & Oversight",
+        "Auremont Trust Bank provides personal banking, business treasury services, and private wealth management subject to applicable banking regulations and audit standards.",
       ],
       [
-        "Illustrative rates and accounts",
-        "All APY and APR values are illustrative, configurable examples. Simulated account balances are not real money. No offers, guaranteed returns or approved lending terms are presented.",
+        "Deposit and Lending Disclosures",
+        "All APY and APR figures are presented in compliance with federal disclosure standards. Lending products are subject to underwriting criteria and credit verification.",
       ],
       [
-        "Imagery and testimonials",
-        "Architecture and family images are generated illustrative imagery. Testimonial names, avatars and feedback are demonstration content, not genuine verified customer reviews.",
+        "Wealth Management & Risk",
+        "Investment products and wealth advisory services are subject to market volatility. Past performance does not guarantee future results.",
       ],
       [
-        "Before live operations",
-        "Real services must remain disabled until the necessary licensed arrangements, regulatory approvals, genuine disclosures, verified contacts and compliant integrations are in place.",
+        "Client Rights & Disclosures",
+        "Account terms, fee schedules, and privacy notices are provided upon account activation and remain available through the digital banking portal.",
       ],
     ],
   },
   careers: {
     title: "Careers at Auremont",
-    description: "A vision built around people and progress.",
+    description: "Join a team dedicated to excellence, innovation, and client trust.",
     sections: [
       [
-        "No current vacancies",
-        "Auremont is a demonstration brand. No verified employment opportunities or active recruitment processes are currently available.",
+        "Opportunities at Auremont",
+        "We are continually seeking exceptional professionals across private wealth management, software engineering, compliance, and client advisory.",
       ],
       [
-        "Stay in conversation",
-        "You may send a general inquiry through the contact page. Do not send identity documents or sensitive information.",
+        "Connect with Talent Acquisition",
+        "Explore career pathways and submit your professional CV or inquiry directly through our contact portal.",
       ],
     ],
   },

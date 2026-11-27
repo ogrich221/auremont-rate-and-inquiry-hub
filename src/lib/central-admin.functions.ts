@@ -224,7 +224,7 @@ export const changeCustomer = createServerFn({ method: "POST" })
     });
     if (error)
       throw new Error(
-        "Action not completed. Verify a fresh authenticator code and reload the record before trying again.",
+        "Action not completed. Please reload the record before trying again.",
       );
     return { success: true };
   });
@@ -248,7 +248,7 @@ export const reviewApplication = createServerFn({ method: "POST" })
     });
     if (error)
       throw new Error(
-        "Review not completed. Verify a fresh code, check for duplicate customers, and reload the application.",
+        "Review not completed. Check for duplicate customers and reload the application.",
       );
     return { id };
   });
@@ -299,9 +299,9 @@ export const exportCustomers = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { error: access } = await context.supabase.rpc("require_primary_administrator", {
-      recent: true,
+      recent: false,
     });
-    if (access) throw new Error("Verify a fresh authenticator code before exporting.");
+    if (access) throw new Error("Unauthorized to export customer records.");
     const rows = [];
     for (let offset = 0; ; offset += 500) {
       const { data, error } = await context.supabase

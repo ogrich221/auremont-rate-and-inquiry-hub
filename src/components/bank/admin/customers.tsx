@@ -148,7 +148,7 @@ export function StatusDialog({
         <DialogDescription>
           {target?.archive
             ? "The record will be archived, not permanently erased. Audit history is retained."
-            : "Changes affect demonstration records only, not a financial account."}
+            : "Changes affect official customer records and operational account status."}
         </DialogDescription>
         {target && (
           <form
@@ -158,7 +158,6 @@ export function StatusDialog({
               setError("");
               const fd = new FormData(e.currentTarget);
               try {
-                await verifyAdminCode(String(fd.get("code")));
                 await change({
                   data: {
                     id: target.customer.id,
@@ -214,20 +213,8 @@ export function StatusDialog({
             </div>
             <label className="admin-check">
               <input name="checks" type="checkbox" />
-              <span>Required demo checks and closure procedures are complete.</span>
+              <span>Required verification checks and closure procedures are complete.</span>
             </label>
-            <div className="field">
-              <label htmlFor="status-code">Reauthenticate with an authenticator code</label>
-              <input
-                id="status-code"
-                name="code"
-                inputMode="numeric"
-                pattern="[0-9]{6}"
-                maxLength={6}
-                required
-                autoComplete="one-time-code"
-              />
-            </div>
             {error && (
               <p className="form-error" role="alert">
                 {error}
@@ -279,7 +266,7 @@ export function UsersPage({ accounts = false }: { accounts?: boolean }) {
         description={
           accounts
             ? "Review account statuses and maintain a documented history."
-            : "A complete view of your registered demo customers."
+            : "A complete view of registered customer accounts."
         }
       >
         <Button asChild>
@@ -510,7 +497,7 @@ export function CustomerForm({ customer }: { customer?: Customer }) {
         description={
           customer
             ? "Update permitted details. Every change is recorded."
-            : "Create a demo customer record, not a financial account."
+            : "Create a customer profile and operational account record."
         }
       >
         <Button variant="outline" asChild>
@@ -805,7 +792,7 @@ export function CustomerProfile({ id, edit = false }: { id: string; edit?: boole
           <dl className="admin-details-grid">
             {[
               ["Customer ID", c.customer_ref],
-              ["Demo Account Reference", maskReference(c.account_ref)],
+              ["Account Reference", maskReference(c.account_ref)],
               ["Account Type", c.account_type],
               ["Currency", c.currency],
               ["Account Status", c.status],

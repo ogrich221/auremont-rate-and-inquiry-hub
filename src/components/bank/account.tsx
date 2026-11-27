@@ -62,7 +62,7 @@ export function AdminPage({ initial }: { initial: SiteData }) {
     <>
       <PageBanner
         title="Website Administration"
-        description="Manage demonstration content and review website inquiries."
+        description="Manage portal content, client inquiries, and onboarding applications."
       />
       <section className="section">
         <div className="container">

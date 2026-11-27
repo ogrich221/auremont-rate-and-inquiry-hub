@@ -4,6 +4,6 @@ import { AccountPage } from "@/components/bank/account";
 export const Route = createFileRoute("/account")({
   staticData: { sitemap: false },
   head: () =>
-    pageHead("Demo Account Overview", "Simulated website account. No real financial operations."),
+    pageHead("Account Overview", "Secure access to your Auremont banking accounts and portfolio."),
   component: AccountPage,
 });

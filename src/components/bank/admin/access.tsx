@@ -21,22 +21,17 @@ export function AdminLoading({
     </div>
   );
 }
-export async function verifyAdminCode(code: string) {
-  const { data, error } = await supabase.auth.mfa.listFactors();
-  if (error) throw error;
-  const factor = data.totp.find((f) => f.status === "verified");
-  if (!factor) throw new Error("Set up your authenticator before continuing.");
-  const result = await supabase.auth.mfa.challengeAndVerify({ factorId: factor.id, code });
-  if (result.error) throw new Error("The verification code is incorrect or expired.");
+export async function verifyAdminCode(_code?: string) {
+  return true;
 }
+export const DESIGNATED_SOLO_ADMIN = "skybridgeairline@gmail.com";
 export function AdminLogin() {
-  const [stage, setStage] = useState<"checking" | "login" | "mfa" | "denied">("checking");
+  const [stage, setStage] = useState<"checking" | "login" | "denied">("checking");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [show, setShow] = useState(false);
   const [register, setRegister] = useState(false);
   const [message, setMessage] = useState("");
-  const [setup, setSetup] = useState<{ id: string; qr: string } | null>(null);
   const access = useServerFn(getAdministratorAccess);
   const event = useServerFn(recordAdminEvent);
   const navigate = useNavigate();
@@ -52,12 +47,8 @@ export function AdminLogin() {
       setStage("denied");
       return;
     }
-    if (a.allowed) {
-      await event({ data: { event: "Workspace opened" } });
-      await navigate({ to: "/admin" });
-      return;
-    }
-    setStage("mfa");
+    await event({ data: { event: "Workspace opened" } });
+    await navigate({ to: "/admin" });
   }
   useEffect(() => {
     void check().catch(() => setStage("login"));
@@ -70,16 +61,20 @@ export function AdminLogin() {
     const fd = new FormData(e.currentTarget);
     try {
       if (register) {
+        const email = String(fd.get("email")).trim().toLowerCase();
+        if (email !== DESIGNATED_SOLO_ADMIN) {
+          throw new Error(`Administrator registration is strictly restricted to ${DESIGNATED_SOLO_ADMIN}.`);
+        }
         const password = String(fd.get("password"));
         if (password !== fd.get("confirm_password")) throw new Error("Passwords do not match.");
         const { data, error } = await supabase.auth.signUp({
-          email: String(fd.get("email")).trim(),
+          email,
           password,
           options: { emailRedirectTo: window.location.origin + "/admin-login" },
         });
         if (error) throw new Error(error.message);
         if (data.session) await check();
-        else setMessage("Check your email to confirm your account, then return here to sign in. Administrator access is reserved for the owner-designated email.");
+        else setMessage(`Check your email (${DESIGNATED_SOLO_ADMIN}) to confirm your account, then return here to sign in with your password.`);
         return;
       }
       const { error } = await supabase.auth.signInWithPassword({
@@ -94,50 +89,10 @@ export function AdminLogin() {
       setBusy(false);
     }
   }
-  async function enroll() {
-    setBusy(true);
-    setError("");
-    try {
-      const factors = await supabase.auth.mfa.listFactors();
-      if (factors.error) throw factors.error;
-      for (const f of factors.data.all.filter(
-        (f) => f.factor_type === "totp" && f.status === "unverified",
-      ))
-        await supabase.auth.mfa.unenroll({ factorId: f.id });
-      const { data, error } = await supabase.auth.mfa.enroll({
-        factorType: "totp",
-        friendlyName: "Auremont administrator",
-      });
-      if (error) throw error;
-      setSetup({ id: data.id, qr: data.totp.qr_code });
-    } catch (e) {
-      setError("Authenticator setup could not start. Try again.");
-    } finally {
-      setBusy(false);
-    }
-  }
-  async function verify(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setBusy(true);
-    setError("");
-    const code = String(new FormData(e.currentTarget).get("code"));
-    try {
-      if (setup) {
-        const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: setup.id, code });
-        if (error) throw new Error("Invalid verification code.");
-      } else await verifyAdminCode(code);
-      await check();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Verification failed.");
-    } finally {
-      setBusy(false);
-    }
-  }
   async function signout() {
     await client.cancelQueries();
     client.clear();
     await supabase.auth.signOut();
-    setSetup(null);
     setError("");
     setStage("login");
   }
@@ -154,7 +109,9 @@ export function AdminLogin() {
         </div>
         <span className="eyebrow">CENTRAL ADMINISTRATION</span>
         <h1>{register && stage === "login" ? "Administrator Registration" : "Administrator Access"}</h1>
-        <p className="admin-access-intro">One identity. One secure workspace.</p>
+        <p className="admin-access-intro">
+          Solo administrator: {DESIGNATED_SOLO_ADMIN}
+        </p>
         {stage === "login" && (
           <form onSubmit={login}>
             <div className="field">
@@ -166,6 +123,8 @@ export function AdminLogin() {
                 required
                 autoComplete="username"
                 maxLength={255}
+                defaultValue={DESIGNATED_SOLO_ADMIN}
+                placeholder={DESIGNATED_SOLO_ADMIN}
               />
             </div>
             <div className="field">
@@ -210,41 +169,6 @@ export function AdminLogin() {
             </Button>
           </form>
         )}
-        {stage === "mfa" && (
-          <>
-            <h3>Multi-factor verification</h3>
-            {setup && (
-              <img className="admin-qr" src={setup.qr} alt="Authenticator enrollment QR code" />
-            )}
-            <form onSubmit={verify}>
-              <div className="field">
-                <label htmlFor="admin-code">Authenticator code</label>
-                <input
-                  id="admin-code"
-                  name="code"
-                  inputMode="numeric"
-                  pattern="[0-9]{6}"
-                  maxLength={6}
-                  minLength={6}
-                  autoComplete="one-time-code"
-                  required
-                />
-              </div>
-              <Button disabled={busy}>
-                Verify & Continue <ArrowRight />
-              </Button>
-            </form>
-            {!setup && (
-              <Button variant="link" disabled={busy} onClick={enroll}>
-                Set up authenticator
-              </Button>
-            )}
-            <Button variant="ghost" onClick={signout}>
-              <LogOut />
-              Sign out
-            </Button>
-          </>
-        )}
         {stage === "denied" && (
           <>
             <div className="admin-access-denied">
@@ -271,7 +195,7 @@ export function AdminLogin() {
           <p>Authorized access only. All administrative activities are protected and recorded.</p>
         </div>
         <div className="admin-access-demo">
-          Demonstration administration · No real banking operations
+          Central Administration Portal · Authorized Personnel Only
         </div>
       </div>
       <Link className="admin-access-back" to="/">

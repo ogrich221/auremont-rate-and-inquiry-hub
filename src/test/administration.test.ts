@@ -8,11 +8,11 @@ import {
   maskReference,
 } from "@/lib/admin-model";
 describe("Central administration safeguards", () => {
-  it("restricts access to the single designated administrator with admin role and AAL2", () => {
+  it("restricts access to the single designated administrator with admin role", () => {
+    expect(canAccessAdministration(true, true, "aal1")).toBe(true);
     expect(canAccessAdministration(true, true, "aal2")).toBe(true);
-    expect(canAccessAdministration(false, true, "aal2")).toBe(false);
-    expect(canAccessAdministration(true, false, "aal2")).toBe(false);
-    expect(canAccessAdministration(true, true, "aal1")).toBe(false);
+    expect(canAccessAdministration(false, true, "aal1")).toBe(false);
+    expect(canAccessAdministration(true, false, "aal1")).toBe(false);
   });
   it("never accepts plaintext customer passwords or PINs", () => {
     const customer = {

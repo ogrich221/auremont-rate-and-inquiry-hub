@@ -4,7 +4,7 @@ import { FAQPage } from "@/components/bank/pages";
 export const Route = createFileRoute("/faq")({
   staticData: { sitemap: true },
   head: () =>
-    pageHead("Frequently Asked Questions", "Clear answers about the Auremont demonstration."),
+    pageHead("Frequently Asked Questions", "Clear answers about Auremont Trust Bank services."),
   component: Page,
 });
 function Page() {

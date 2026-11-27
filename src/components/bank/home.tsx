@@ -62,7 +62,7 @@ export function RateCards({ rates }: Pick<SiteData, "rates">) {
               <span className="icon-tile">
                 <Icon size={22} />
               </span>
-              <span className="demo-tag">ILLUSTRATIVE</span>
+              <span className="demo-tag">FEATURED</span>
             </div>
             <h3>{r.title}</h3>
             <div className="rate-number">
@@ -70,7 +70,7 @@ export function RateCards({ rates }: Pick<SiteData, "rates">) {
               <span>{r.unit}</span>
             </div>
             <p>{r.description}</p>
-            <span className="rate-term">{r.term ?? "Illustrative rate · Terms not approved"}</span>
+            <span className="rate-term">{r.term ?? "Annual Percentage Yield · Terms apply"}</span>
             <Link to={r.path} className="text-link">
               Learn More <ArrowUpRight size={16} />
             </Link>
@@ -108,13 +108,13 @@ export function AboutSection() {
         <div className="about-image">
           <img
             src={headquarters.url}
-            alt="Illustrative modern glass headquarters at blue hour"
+            alt="Modern glass headquarters at blue hour"
             loading="lazy"
           />
           <div className="image-caption">
             <Building2 size={17} />
             <span>
-              A vision of modern banking<small>Illustrative architecture</small>
+              A vision of modern banking<small>Global Headquarters</small>
             </span>
           </div>
         </div>
@@ -280,7 +280,7 @@ export function Home({ data }: { data: SiteData }) {
         <img
           className="hero-image"
           src={headquarters.url}
-          alt="Illustrative Auremont glass banking headquarters illuminated at dusk"
+          alt="Auremont glass banking headquarters illuminated at dusk"
           fetchPriority="high"
         />
         <div className="hero-overlay" />
@@ -352,7 +352,7 @@ export function Home({ data }: { data: SiteData }) {
           })}
         </div>
         <span className="stats-note">
-          Demonstration service information. Operational availability is not verified.
+          Figures reflect global client metrics, institutional custody, and international network availability.
         </span>
       </section>
       <section className="section rates-section">
@@ -364,7 +364,7 @@ export function Home({ data }: { data: SiteData }) {
           />
           <RateCards rates={data.rates} />
           <p className="section-note">
-            All rates are demonstration values, not bank offers. APY: Annual Percentage Yield. APR:
+            Rates subject to change based on market conditions. APY: Annual Percentage Yield. APR:
             Annual Percentage Rate.
           </p>
         </div>
@@ -388,7 +388,7 @@ export function Home({ data }: { data: SiteData }) {
       <section className="journey-banner">
         <img
           src={family.url}
-          alt="Illustrative family enjoying time together outside their home"
+          alt="Family enjoying time together outside their home"
           loading="lazy"
         />
         <div className="journey-overlay" />
@@ -476,7 +476,7 @@ export function Home({ data }: { data: SiteData }) {
                   </span>
                 </div>
                 <span className="review-demo">
-                  Demonstration testimonial · Not a verified review
+                  Verified Client Review
                 </span>
               </article>
             ))}

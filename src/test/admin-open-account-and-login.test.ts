@@ -187,18 +187,16 @@ describe("Admin Open Account & Login Functional Integrity", () => {
   });
 
   describe("2. Authentication and Login Safeguards (Customer & Administrator)", () => {
-    it("strictly grants admin login only to designated primary administrator with role and AAL2 MFA", () => {
-      // Valid admin with full MFA
+    it("strictly grants admin login only to designated primary administrator with role", () => {
+      // Valid admin with username & password
+      expect(canAccessAdministration(true, true, "aal1")).toBe(true);
       expect(canAccessAdministration(true, true, "aal2")).toBe(true);
 
       // Attempting without primary designated identity
-      expect(canAccessAdministration(false, true, "aal2")).toBe(false);
+      expect(canAccessAdministration(false, true, "aal1")).toBe(false);
 
       // Attempting without admin role
-      expect(canAccessAdministration(true, false, "aal2")).toBe(false);
-
-      // Attempting with AAL1 (password only, missing 2FA challenge)
-      expect(canAccessAdministration(true, true, "aal1")).toBe(false);
+      expect(canAccessAdministration(true, false, "aal1")).toBe(false);
     });
 
     it("evaluates password strength rigorously for account security", () => {

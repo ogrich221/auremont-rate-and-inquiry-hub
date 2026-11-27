@@ -6,7 +6,7 @@ export const Route = createFileRoute("/disclosures")({
   head: () =>
     pageHead(
       "Important Disclosures",
-      "Important Disclosures for the Auremont demonstration website.",
+      "Important Disclosures and regulatory transparency for Auremont Trust Bank.",
     ),
   component: Page,
 });

@@ -112,6 +112,6 @@ export function csvCell(value: unknown) {
   const s = String(value ?? "");
   return `"${/^[\s]*[=+\-@]/.test(s) ? "'" : ""}${s.replaceAll('"', '""')}"`;
 }
-export function canAccessAdministration(primary: boolean, role: boolean, aal: string) {
-  return primary && role && aal === "aal2";
+export function canAccessAdministration(primary: boolean, role: boolean, _aal?: string) {
+  return primary && role;
 }

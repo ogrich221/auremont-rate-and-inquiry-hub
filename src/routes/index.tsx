@@ -13,7 +13,7 @@ export const Route = createFileRoute("/")({
   head: () =>
     pageHead(
       "A Higher Standard of Banking",
-      "Explore Auremont’s personal, business and digital banking demonstration. Your Wealth. Your Future. Our Commitment.",
+      "Explore Auremont’s personal, business, and wealth banking solutions. Your Wealth. Your Future. Our Commitment.",
     ),
   loader: ({ context }) => context.queryClient.ensureQueryData(siteQuery),
   component: Index,

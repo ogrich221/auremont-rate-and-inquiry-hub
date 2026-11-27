@@ -6,7 +6,7 @@ export const Route = createFileRoute("/login")({
   head: () =>
     pageHead(
       "Online Banking Login",
-      "Secure access to the Auremont demo website. No real banking services.",
+      "Secure online banking access for Auremont Trust Bank clients.",
     ),
   component: Page,
 });

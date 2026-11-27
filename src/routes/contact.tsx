@@ -8,7 +8,7 @@ export const Route = createFileRoute("/contact")({
   head: () =>
     pageHead(
       "Contact Auremont",
-      "Start a conversation through the Auremont demonstration website.",
+      "Start a conversation with our dedicated client advisory team.",
     ),
   loader: ({ context }) => context.queryClient.ensureQueryData(siteQuery),
   component: Page,

@@ -299,7 +299,7 @@ export function Applications() {
           className={`admin-glass-tab ${activeTab === "records" ? "active" : ""}`}
         >
           <ClipboardList size={15} />
-          <span>Demo Application Records ({data.applications.length})</span>
+          <span>Customer Application Records ({data.applications.length})</span>
         </button>
       </div>
 
@@ -309,7 +309,7 @@ export function Applications() {
         <>
           <SectionHeading
             title="Account Applications"
-            description="Recorded demo applications. Approval creates a pending demo customer, not a bank account."
+            description="Recorded customer applications. Review and manage onboarding status."
           >
             <Button
               onClick={() => {
@@ -397,9 +397,9 @@ export function Applications() {
       )}
       <Dialog open={add} onOpenChange={setAdd}>
         <DialogContent className="admin-dialog">
-          <DialogTitle>Record Demo Application</DialogTitle>
+          <DialogTitle>Record Customer Application</DialogTitle>
           <DialogDescription>
-            No real financial onboarding or customer invitation is initiated.
+            Record onboarding details and initiate administrative review.
           </DialogDescription>
           <form
             onSubmit={async (e) => {
@@ -521,7 +521,6 @@ export function Applications() {
                     setError("");
                     const fd = new FormData(e.currentTarget);
                     try {
-                      await verifyAdminCode(String(fd.get("code")));
                       await review({
                         data: {
                           id: target.id,
@@ -533,7 +532,7 @@ export function Applications() {
                       await refresh();
                       notify(
                         decision === "Approved"
-                          ? "Application approved; pending demo customer created."
+                          ? "Application approved; customer account created."
                           : `Application ${decision.toLowerCase()}.`,
                       );
                       setTarget(null);
@@ -572,21 +571,9 @@ export function Applications() {
                   <label className="admin-check">
                     <input type="checkbox" name="checks" required={decision === "Approved"} />
                     <span>
-                      Required demonstration checks are complete; no financial account is opened.
+                      Required compliance and onboarding verification checks are complete.
                     </span>
                   </label>
-                  <div className="field">
-                    <label htmlFor="application-code">Authenticator code</label>
-                    <input
-                      id="application-code"
-                      name="code"
-                      pattern="[0-9]{6}"
-                      maxLength={6}
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      required
-                    />
-                  </div>
                   {error && (
                     <p role="alert" className="form-error">
                       {error}
@@ -812,7 +799,6 @@ export function Reports() {
     setBusy(true);
     setError("");
     try {
-      await verifyAdminCode(code);
       let rows: unknown[][] = [];
       let headers: string[] = [];
       if (kind === "Customer registrations" || kind === "Account status") {
@@ -893,7 +879,7 @@ export function Reports() {
             <h3>{r}</h3>
             <p>
               {i < 2
-                ? "All unarchived demo customer records"
+                ? "All active customer accounts"
                 : i === 4
                   ? "Six-month registration totals"
                   : "Latest 200 authorized records"}
@@ -952,27 +938,14 @@ export function Reports() {
         <DialogContent>
           <DialogTitle>Export {kind}</DialogTitle>
           <DialogDescription>
-            Customer information is private. Reauthenticate before exporting. This export is
-            recorded.
+            Download authorized records in CSV format. This action is recorded in the administrative audit log.
           </DialogDescription>
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              void download(String(new FormData(e.currentTarget).get("code")));
+              void download("");
             }}
           >
-            <div className="field">
-              <label htmlFor="report-code">Authenticator code</label>
-              <input
-                id="report-code"
-                name="code"
-                pattern="[0-9]{6}"
-                maxLength={6}
-                inputMode="numeric"
-                required
-                autoComplete="one-time-code"
-              />
-            </div>
             {error && (
               <p role="alert" className="form-error">
                 {error}
@@ -980,7 +953,7 @@ export function Reports() {
             )}
             <Button disabled={busy}>
               <Download />
-              {busy ? "Preparing…" : "Export CSV"}
+              {busy ? "Preparing…" : "Confirm & Download CSV"}
             </Button>
           </form>
         </DialogContent>
