@@ -45,3 +45,4 @@ use the editor.
 - Administration clears private query caches before sign-out and signs out after fifteen minutes without browser interaction; sensitive operations still enforce recent MFA in the database.
 - Router-derived sitemap: every route declares staticData.sitemap; private subtrees use "exclude-subtree" so new pages make an explicit search decision.
 - Customer profile is protected by a 6-digit security PIN (hashed in the database, 5 tries then a 15-minute lock); unlock lasts for the browser session.
+- Homepage uses the editorial "Ledger" layout in home-editorial.tsx with ed-* styles; the older home.tsx sections stay as reusable pieces.
