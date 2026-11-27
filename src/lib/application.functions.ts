@@ -161,6 +161,27 @@ export const submitApplicationFn = createServerFn({ method: "POST" })
 
     saveNewApplication(record);
 
+    try {
+      if (process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.SUPABASE_URL) {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        if (supabaseAdmin) {
+          await supabaseAdmin.from("admin_applications").insert({
+            reference: referenceNumber,
+            first_name: data.firstName,
+            last_name: data.lastName,
+            email: data.email,
+            phone: `${data.countryCallingCode} ${data.mobilePhone}`,
+            account_type: accountTypeNames[data.preferredAccountType] || data.preferredAccountType,
+            currency: data.preferredCurrency,
+            status: "Pending",
+            verification_status: "Verified",
+          });
+        }
+      }
+    } catch (e) {
+      console.warn("Could not mirror application to admin_applications:", e);
+    }
+
     return {
       success: true,
       referenceNumber,
@@ -251,5 +272,34 @@ export const updateApplicationDecisionFn = createServerFn({ method: "POST" })
     if (!updated) {
       throw new Error("Application could not be found to update.");
     }
+
+    if (data.newStatus === "APPROVED") {
+      try {
+        if (process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.SUPABASE_URL) {
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          if (supabaseAdmin && updated) {
+            await supabaseAdmin.from("admin_customers").upsert(
+              {
+                customer_ref: updated.referenceNumber,
+                first_name: updated.applicant.firstName,
+                last_name: updated.applicant.lastName,
+                email: updated.applicant.email,
+                phone: updated.applicant.phone,
+                nationality: updated.applicant.nationality,
+                country: updated.applicant.countryOfResidence,
+                address: `${updated.applicant.residentialAddress}, ${updated.applicant.city}`,
+                account_type: "Personal",
+                currency: updated.preferences.currency || "USD",
+                status: "Active",
+              },
+              { onConflict: "email" },
+            );
+          }
+        }
+      } catch (e) {
+        console.warn("Could not provision approved customer into admin_customers:", e);
+      }
+    }
+
     return { success: true, application: updated };
   });

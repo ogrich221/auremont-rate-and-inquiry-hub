@@ -210,7 +210,7 @@ export function OverviewView({
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">
                 <CheckCircle2 className="h-3 w-3" /> Active
               </span>
-              <span className="text-xs font-medium text-foreground">Verified AAL2</span>
+              <span className="text-xs font-medium text-foreground">Secure & Active</span>
             </div>
             <span className="text-xs text-muted-foreground block mt-1.5 font-medium truncate">
               {profile.accountType}
@@ -405,6 +405,41 @@ export function OverviewView({
                 </tbody>
               </table>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* PRIVATE WEALTH ADVISORY & CONCIERGE BANNER */}
+      <div className="relative overflow-hidden rounded-2xl border border-[#C6A66B]/30 bg-gradient-to-r from-[#101D32] via-[#15253F] to-[#101D32] text-white p-6 shadow-md">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-xl">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-wider uppercase bg-[#C6A66B]/20 text-[#C6A66B] border border-[#C6A66B]/30">
+              <Sparkles className="h-3 w-3" /> Dedicated Wealth Advisory
+            </span>
+            <h3 className="text-xl font-serif font-bold text-white tracking-tight">
+              Auremont Private Concierge & Liquidity Services
+            </h3>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Your dedicated private wealth director, <strong>Lord Julian Vance</strong>, is on call for bespoke foreign exchange executions, syndicated asset finance, and private portfolio allocations.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <Button
+              onClick={() => setActiveSection("help-support")}
+              className="bg-[#C6A66B] hover:bg-[#b5955a] text-[#101D32] font-semibold text-xs gap-1.5 shadow-sm"
+            >
+              <Send className="h-3.5 w-3.5" />
+              <span>Contact Private Advisor</span>
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setActiveSection("statements")}
+              className="border-white/20 text-white hover:bg-white/10 text-xs gap-1.5"
+            >
+              <FileText className="h-3.5 w-3.5 text-[#C6A66B]" />
+              <span>Institutional Reports</span>
+            </Button>
           </div>
         </div>
       </div>

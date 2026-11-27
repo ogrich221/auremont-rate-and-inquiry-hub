@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import type {
   CustomerAccount,
   CustomerTransaction,
@@ -36,7 +37,7 @@ const INITIAL_PROFILE: CustomerProfile = {
   accountType: "Premier Private Reserve Client",
   memberSince: "October 2021",
   kycStatus: "Verified",
-  mfaEnabled: true,
+  mfaEnabled: false,
   emailVerified: true,
   phoneVerified: true,
   lastLogin: "Today at 21:40 GMT (London, UK)",
@@ -317,7 +318,7 @@ const INITIAL_NOTIFICATIONS: CustomerNotification[] = [
   {
     id: "notif-2",
     title: "Security Verification Active",
-    message: "AAL2 Multi-Factor Authentication successfully verified on primary registered device.",
+    message: "Password and Security PIN successfully verified for your session.",
     category: "Security Alerts",
     date: "Nov 20, 2026 at 09:12 GMT",
     read: false,
@@ -558,6 +559,30 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
   const setActiveAccount = (acc: CustomerAccount) => setActiveAccountId(acc.id);
   const [isBalanceVisible, setIsBalanceVisible] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>("");
+
+  // Sync with authenticated Supabase user
+  useEffect(() => {
+    void (async () => {
+      try {
+        const { data } = await supabase.auth.getUser();
+        if (data?.user?.email) {
+          setProfile((prev) => {
+            if (prev.email === "arthur.sterling@auremont-client.co.uk") {
+              const userEmail = data.user.email!;
+              const namePart = userEmail.split("@")[0] || "Client";
+              const capitalized = namePart.charAt(0).toUpperCase() + namePart.slice(1);
+              return {
+                ...prev,
+                email: userEmail,
+                firstName: prev.firstName === "Arthur" ? capitalized : prev.firstName,
+              };
+            }
+            return prev;
+          });
+        }
+      } catch {}
+    })();
+  }, []);
 
   // Sync to local storage
   useEffect(() => {

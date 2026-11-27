@@ -338,7 +338,7 @@ export function Applications() {
       {!apps.length ? (
         <Empty
           title="No applications to review"
-          detail="Recorded applications will appear here. Real account opening remains unavailable."
+          detail="Recorded customer applications will appear here once submitted."
           icon={ClipboardList}
         />
       ) : (
