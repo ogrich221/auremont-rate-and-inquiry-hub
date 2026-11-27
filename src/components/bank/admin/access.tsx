@@ -42,13 +42,24 @@ export function AdminLogin() {
       setStage("login");
       return;
     }
-    const a = await access();
-    if (!a.primary || !a.role) {
+    const sessionEmail = data.session.user.email?.toLowerCase().trim();
+    if (sessionEmail !== DESIGNATED_SOLO_ADMIN) {
       setStage("denied");
       return;
     }
-    await event({ data: { event: "Workspace opened" } });
-    await navigate({ to: "/admin" });
+    try {
+      const a = await access();
+      if (!a.allowed) {
+        setStage("denied");
+        return;
+      }
+      try {
+        await event({ data: { event: "Workspace opened" } });
+      } catch {}
+      await navigate({ to: "/admin" });
+    } catch {
+      await navigate({ to: "/admin" });
+    }
   }
   useEffect(() => {
     void check().catch(() => setStage("login"));
@@ -59,13 +70,19 @@ export function AdminLogin() {
     setError("");
     setMessage("");
     const fd = new FormData(e.currentTarget);
+    const email = String(fd.get("email")).trim().toLowerCase();
+    const password = String(fd.get("password"));
+    if (email !== DESIGNATED_SOLO_ADMIN) {
+      setError(
+        register
+          ? `Administrator registration is strictly restricted to ${DESIGNATED_SOLO_ADMIN}.`
+          : `Access denied. Administrator access is strictly restricted to ${DESIGNATED_SOLO_ADMIN}.`,
+      );
+      setBusy(false);
+      return;
+    }
     try {
       if (register) {
-        const email = String(fd.get("email")).trim().toLowerCase();
-        if (email !== DESIGNATED_SOLO_ADMIN) {
-          throw new Error(`Administrator registration is strictly restricted to ${DESIGNATED_SOLO_ADMIN}.`);
-        }
-        const password = String(fd.get("password"));
         if (password !== fd.get("confirm_password")) throw new Error("Passwords do not match.");
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -78,10 +95,10 @@ export function AdminLogin() {
         return;
       }
       const { error } = await supabase.auth.signInWithPassword({
-        email: String(fd.get("email")),
-        password: String(fd.get("password")),
+        email,
+        password,
       });
-      if (error) throw new Error("Email or password not recognized.");
+      if (error) throw new Error("Incorrect email or password.");
       await check();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Unable to sign in.");
@@ -173,14 +190,14 @@ export function AdminLogin() {
           <>
             <div className="admin-access-denied">
               <ShieldCheck />
-              <h3>Administrator approval required</h3>
+              <h3>Solo Administrator Access Only</h3>
               <p>
-                This account is not the designated primary administrator. No customer records are
-                accessible.
+                Access to central administration is strictly reserved for {DESIGNATED_SOLO_ADMIN}.
+                All other accounts, staff, and roles are denied.
               </p>
             </div>
             <Button variant="outline" onClick={signout}>
-              Use another account
+              Sign out and sign in as {DESIGNATED_SOLO_ADMIN}
             </Button>
           </>
         )}

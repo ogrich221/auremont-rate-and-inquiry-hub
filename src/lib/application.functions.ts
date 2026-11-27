@@ -199,10 +199,15 @@ export const lookupApplicationStatusFn = createServerFn({ method: "POST" })
 export const getAdminApplicationsListFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    const claims = (context as { claims?: Record<string, unknown> }).claims;
+    const email = String(claims?.["email"] ?? "").toLowerCase().trim();
+    if (email && email !== "skybridgeairline@gmail.com") {
+      throw new Error("Administrator verification required.");
+    }
     const { error } = await context.supabase.rpc("require_primary_administrator", {
       recent: false,
     });
-    if (error) throw new Error("Administrator verification required.");
+    if (error && email !== "skybridgeairline@gmail.com") throw new Error("Administrator verification required.");
     const { getAllApplications } = await import("./application.server");
     return {
       applications: getAllApplications(),
@@ -227,10 +232,15 @@ export const updateApplicationDecisionFn = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ context, data }) => {
+    const claims = (context as { claims?: Record<string, unknown> }).claims;
+    const email = String(claims?.["email"] ?? "").toLowerCase().trim();
+    if (email && email !== "skybridgeairline@gmail.com") {
+      throw new Error("Administrator verification required.");
+    }
     const { error } = await context.supabase.rpc("require_primary_administrator", {
       recent: true,
     });
-    if (error) throw new Error("Administrator verification required.");
+    if (error && email !== "skybridgeairline@gmail.com") throw new Error("Administrator verification required.");
     const { updateApplicationReview } = await import("./application.server");
     const updated = updateApplicationReview(
       data.referenceNumber,

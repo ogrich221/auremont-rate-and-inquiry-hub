@@ -57,6 +57,13 @@
       "when": 1795770500000,
       "tag": "0007_remove_admin_authenticator_requirement",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1795771000000,
+      "tag": "0008_solo_admin_enforcement",
+      "breakpoints": true
     }
   ]
 }
