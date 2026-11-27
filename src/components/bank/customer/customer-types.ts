@@ -39,7 +39,9 @@ export type TransactionType =
   | "International Wire"
   | "Bill Payment"
   | "Deposit"
-  | "Withdrawal";
+  | "Withdrawal"
+  | "Credit"
+  | "Debit";
 
 export type TransactionStatus = "Completed" | "Pending" | "Failed" | "Reversed";
 

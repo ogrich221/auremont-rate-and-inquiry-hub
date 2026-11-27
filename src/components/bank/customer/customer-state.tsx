@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { getCustomerTransactions } from "@/lib/central-admin.functions";
 import type {
   CustomerAccount,
   CustomerTransaction,
@@ -470,6 +472,7 @@ interface CustomerContextType {
   markNotificationAsRead: (id: string) => void;
   markAllNotificationsAsRead: () => void;
   submitSupportTicket: (ticket: Omit<CustomerSupportTicket, "id" | "referenceNumber" | "date" | "status">) => string;
+  refreshTransactions: () => Promise<void>;
 }
 
 const CustomerContext = createContext<CustomerContextType | null>(null);
@@ -583,6 +586,70 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
       } catch {}
     })();
   }, []);
+
+  const fetchTransactions = useServerFn(getCustomerTransactions);
+
+  const syncTransactions = useCallback(async () => {
+    try {
+      const res = await fetchTransactions({
+        data: {
+          email: profile.email,
+        },
+      });
+      if (res?.transactions && res.transactions.length > 0) {
+        setTransactions((prev) => {
+          const serverMap = new Map(res.transactions.map((tx: any) => [tx.id, tx]));
+          const refMap = new Map(res.transactions.map((tx: any) => [tx.reference, tx]));
+
+          const updated = prev.map((localTx) => {
+            if (serverMap.has(localTx.id)) return serverMap.get(localTx.id)!;
+            if (refMap.has(localTx.reference)) return refMap.get(localTx.reference)!;
+            return localTx;
+          });
+
+          const existingIds = new Set(updated.map((t) => t.id));
+          const existingRefs = new Set(updated.map((t) => t.reference));
+          const toAdd = res.transactions.filter(
+            (t: any) => !existingIds.has(t.id) && !existingRefs.has(t.reference),
+          );
+
+          const combined = [...toAdd, ...updated];
+          return combined.sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+          );
+        });
+
+        const adminCredits = res.transactions
+          .filter((t: any) => (t.type === "Deposit" || t.type === "Credit") && t.status === "Completed")
+          .reduce((sum: number, t: any) => sum + t.amount, 0);
+
+        const adminDebits = res.transactions
+          .filter((t: any) => t.type !== "Deposit" && t.type !== "Credit" && t.status === "Completed")
+          .reduce((sum: number, t: any) => sum + t.amount, 0);
+
+        if (adminCredits > 0 || adminDebits > 0) {
+          setAccounts((prev) =>
+            prev.map((acc, idx) => {
+              if (idx === 0) {
+                const baseBalance = INITIAL_ACCOUNTS[0]!.balance;
+                const newBal = Math.max(0, baseBalance + adminCredits - adminDebits);
+                return {
+                  ...acc,
+                  balance: newBal,
+                  availableBalance: Math.max(0, newBal - 3250),
+                };
+              }
+              return acc;
+            }),
+          );
+        }
+      }
+    } catch {}
+  }, [fetchTransactions, profile.email]);
+
+  useEffect(() => {
+    void syncTransactions();
+  }, [syncTransactions]);
 
   // Sync to local storage
   useEffect(() => {
@@ -938,6 +1005,7 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
         markNotificationAsRead,
         markAllNotificationsAsRead,
         submitSupportTicket,
+        refreshTransactions: syncTransactions,
       }}
     >
       {children}

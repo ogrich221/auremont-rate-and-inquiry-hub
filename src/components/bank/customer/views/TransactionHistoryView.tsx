@@ -31,7 +31,11 @@ export function TransactionHistoryView({
   selectedTx: CustomerTransaction | null;
   onSelectTx: (tx: CustomerTransaction | null) => void;
 }) {
-  const { transactions } = useCustomerBanking();
+  const { transactions, refreshTransactions } = useCustomerBanking();
+
+  React.useEffect(() => {
+    void refreshTransactions();
+  }, [refreshTransactions]);
 
   const [activeFilter, setActiveFilter] = useState<"ALL" | TransactionType>("ALL");
   const [search, setSearch] = useState("");
@@ -41,11 +45,13 @@ export function TransactionHistoryView({
 
   const filters: ("ALL" | TransactionType)[] = [
     "ALL",
+    "Credit",
+    "Debit",
+    "Deposit",
+    "Withdrawal",
     "Domestic Transfer",
     "International Wire",
     "Bill Payment",
-    "Deposit",
-    "Withdrawal",
   ];
 
   const filteredTransactions = useMemo(() => {
@@ -209,7 +215,7 @@ export function TransactionHistoryView({
                 </tr>
               ) : (
                 paginatedTransactions.map((tx) => {
-                  const isCredit = tx.type === "Deposit";
+                  const isCredit = tx.type === "Deposit" || tx.type === "Credit";
                   return (
                     <tr
                       key={tx.id}

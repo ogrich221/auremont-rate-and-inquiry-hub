@@ -353,7 +353,7 @@ export function OverviewView({
                 </thead>
                 <tbody className="divide-y divide-border/30">
                   {recentTransactions.map((tx) => {
-                    const isCredit = tx.type === "Deposit";
+                    const isCredit = tx.type === "Deposit" || tx.type === "Credit";
                     return (
                       <tr
                         key={tx.id}

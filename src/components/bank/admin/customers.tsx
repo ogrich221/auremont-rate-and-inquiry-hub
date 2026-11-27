@@ -23,6 +23,10 @@ import {
   History,
   Landmark,
   UserRound,
+  Trash2,
+  ArrowDownLeft,
+  ArrowUpRight,
+  Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -38,6 +42,7 @@ import {
   getCustomer,
   saveCustomer,
   changeCustomer,
+  deleteCustomer,
 } from "@/lib/central-admin.functions";
 import {
   listSchema,
@@ -51,12 +56,20 @@ import {
 } from "@/lib/admin-model";
 import { useAdmin, SectionHeading, Empty, Status } from "./workspace";
 import { AdminLoading, verifyAdminCode } from "./access";
+import {
+  CreditDebitDialog,
+  EditTransactionDialog,
+  DeleteTransactionDialog,
+  type AdminTransaction,
+} from "./TransactionDialogs";
 export function CustomerActions({
   customer,
   onStatus,
+  onDelete,
 }: {
   customer: Customer;
   onStatus: (c: Customer, status: Customer["status"], archive?: boolean) => void;
+  onDelete?: (c: Customer) => void;
 }) {
   return (
     <DropdownMenu>
@@ -90,32 +103,139 @@ export function CustomerActions({
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => onStatus(customer, customer.status)}>
               <Landmark />
-              Manage Account
+              Manage Status
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={() => onStatus(customer, "Suspended")}>
-              <Pause />
-              Suspend Account
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => onStatus(customer, "Active")}>
-              <Play />
-              Reactivate Account
-            </DropdownMenuItem>
+            {customer.status !== "Suspended" ? (
+              <DropdownMenuItem onSelect={() => onStatus(customer, "Suspended")}>
+                <Pause />
+                Suspend Account
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem onSelect={() => onStatus(customer, "Active")}>
+                <Play />
+                Reactivate Account
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onSelect={() => onStatus(customer, "Closed")}>
               <LockKeyhole />
               Close Account
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="text-destructive"
-              onSelect={() => onStatus(customer, "Closed", true)}
+              className="text-destructive font-medium"
+              onSelect={() => (onDelete ? onDelete(customer) : onStatus(customer, "Closed", true))}
             >
-              <Archive />
-              Delete Record (archive)
+              <Trash2 />
+              Delete User
             </DropdownMenuItem>
           </>
         )}
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+export function DeleteCustomerDialog({
+  customer,
+  onClose,
+  onDeleted,
+}: {
+  customer: Customer | null;
+  onClose: () => void;
+  onDeleted?: () => void;
+}) {
+  const { refresh, notify } = useAdmin();
+  const remove = useServerFn(deleteCustomer);
+  const [permanent, setPermanent] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  if (!customer) return null;
+
+  return (
+    <Dialog open={!!customer} onOpenChange={(open) => !open && !busy && onClose()}>
+      <DialogContent className="admin-dialog">
+        <DialogTitle className="text-destructive flex items-center gap-2">
+          <Trash2 className="h-5 w-5" />
+          Delete Customer Account
+        </DialogTitle>
+        <DialogDescription>
+          Are you sure you want to delete <strong>{fullName(customer)}</strong> ({customer.email})?
+        </DialogDescription>
+        <div className="space-y-4 py-2">
+          <div className="p-3 rounded-lg border border-border/60 bg-muted/30 text-xs space-y-2">
+            <label className="flex items-start gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="delete_mode"
+                checked={permanent}
+                onChange={() => setPermanent(true)}
+                className="mt-0.5"
+              />
+              <div>
+                <strong className="block text-foreground font-semibold">Permanently Delete User</strong>
+                <span className="text-muted-foreground text-[11px]">
+                  Erases customer records, linked transactions, and access. This action cannot be undone.
+                </span>
+              </div>
+            </label>
+            <label className="flex items-start gap-2 cursor-pointer pt-2 border-t border-border/40">
+              <input
+                type="radio"
+                name="delete_mode"
+                checked={!permanent}
+                onChange={() => setPermanent(false)}
+                className="mt-0.5"
+              />
+              <div>
+                <strong className="block text-foreground font-semibold">Archive Record (Soft Delete)</strong>
+                <span className="text-muted-foreground text-[11px]">
+                  Closes the account and archives customer data while preserving audit history.
+                </span>
+              </div>
+            </label>
+          </div>
+
+          {error && (
+            <p className="form-error" role="alert">
+              {error}
+            </p>
+          )}
+
+          <div className="admin-form-actions">
+            <Button variant="outline" type="button" disabled={busy} onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={busy}
+              onClick={async () => {
+                setBusy(true);
+                setError("");
+                try {
+                  await remove({ data: { id: customer.id, permanent } });
+                  await refresh();
+                  notify(
+                    permanent
+                      ? "Customer record permanently deleted."
+                      : "Customer record archived successfully.",
+                  );
+                  onClose();
+                  onDeleted?.();
+                } catch (err) {
+                  setError(err instanceof Error ? err.message : "Deletion failed.");
+                } finally {
+                  setBusy(false);
+                }
+              }}
+            >
+              {busy ? "Deleting…" : permanent ? "Permanently Delete" : "Archive Customer"}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 export function StatusDialog({
@@ -243,6 +363,7 @@ export function UsersPage({ accounts = false }: { accounts?: boolean }) {
     status: Customer["status"];
     archive: boolean;
   } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Customer | null>(null);
   const [q, setQ] = useState(search.q);
   const query = useQuery({
     queryKey: ["admin", "customers", search],
@@ -430,6 +551,7 @@ export function UsersPage({ accounts = false }: { accounts?: boolean }) {
                       onStatus={(customer, status, archive = false) =>
                         setTarget({ customer, status, archive })
                       }
+                      onDelete={(customer) => setDeleteTarget(customer)}
                     />
                   </td>
                 </tr>
@@ -469,6 +591,10 @@ export function UsersPage({ accounts = false }: { accounts?: boolean }) {
         </div>
       </div>
       <StatusDialog target={target} onClose={() => setTarget(null)} />
+      <DeleteCustomerDialog
+        customer={deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+      />
     </>
   );
 }
@@ -636,10 +762,18 @@ export function CustomerForm({ customer }: { customer?: Customer }) {
               />
             </div>
             <div className="field">
-              <label>Account Status</label>
-              <div className="admin-field-static">
-                <Status value={customer?.status ?? "Pending"} />
-              </div>
+              <label htmlFor="customer-status">Account Status</label>
+              <select
+                id="customer-status"
+                name="status"
+                defaultValue={customer?.status ?? "Active"}
+              >
+                {statuses.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="field admin-field-wide">
               <label htmlFor="customer-notes">Administrative Notes</label>
@@ -654,8 +788,7 @@ export function CustomerForm({ customer }: { customer?: Customer }) {
           </div>
           <div className="admin-form-notice">
             <LockKeyhole />
-            New records start pending. No bank account or customer credentials are created.
-            Invitations await a verified activation service.
+            Administrative customer profiles and permissions are managed directly within the Auremont private banking workspace.
           </div>
         </section>
         {error && (
@@ -687,6 +820,7 @@ export function CustomerForm({ customer }: { customer?: Customer }) {
   );
 }
 export function CustomerProfile({ id, edit = false }: { id: string; edit?: boolean }) {
+  const navigate = useNavigate();
   const read = useServerFn(getCustomer);
   const query = useQuery({
     queryKey: ["admin", "customer", id],
@@ -698,6 +832,11 @@ export function CustomerProfile({ id, edit = false }: { id: string; edit?: boole
     status: Customer["status"];
     archive: boolean;
   } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Customer | null>(null);
+  const [creditDebitOpen, setCreditDebitOpen] = useState(false);
+  const [creditDebitType, setCreditDebitType] = useState<"Credit" | "Debit">("Credit");
+  const [editingTx, setEditingTx] = useState<AdminTransaction | null>(null);
+  const [deletingTx, setDeletingTx] = useState<AdminTransaction | null>(null);
   if (query.isPending) return <AdminLoading text="Loading Customer Record…" />;
   if (query.isError || !query.data)
     return (
@@ -734,10 +873,61 @@ export function CustomerProfile({ id, edit = false }: { id: string; edit?: boole
           </Link>
         </Button>
         {!c.archived_at && (
-          <Button onClick={() => setTarget({ customer: c, status: c.status, archive: false })}>
-            <Landmark />
-            Manage Account
-          </Button>
+          <>
+            <Button
+              variant="outline"
+              className="border-emerald-600/40 text-emerald-600 hover:bg-emerald-500/10 gap-1.5"
+              onClick={() => {
+                setCreditDebitType("Credit");
+                setCreditDebitOpen(true);
+              }}
+            >
+              <ArrowDownLeft className="h-4 w-4" />
+              Credit Account
+            </Button>
+            <Button
+              variant="outline"
+              className="border-rose-600/40 text-rose-600 hover:bg-rose-500/10 gap-1.5"
+              onClick={() => {
+                setCreditDebitType("Debit");
+                setCreditDebitOpen(true);
+              }}
+            >
+              <ArrowUpRight className="h-4 w-4" />
+              Debit Account
+            </Button>
+            {c.status !== "Suspended" ? (
+              <Button
+                variant="outline"
+                onClick={() => setTarget({ customer: c, status: "Suspended", archive: false })}
+              >
+                <Pause />
+                Suspend Account
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                onClick={() => setTarget({ customer: c, status: "Active", archive: false })}
+              >
+                <Play />
+                Reactivate Account
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              onClick={() => setTarget({ customer: c, status: c.status, archive: false })}
+            >
+              <Landmark />
+              Manage Status
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => setDeleteTarget(c)}
+            >
+              <Trash2 />
+              Delete User
+            </Button>
+          </>
         )}
       </SectionHeading>
       <div className="admin-profile-summary">
@@ -806,19 +996,152 @@ export function CustomerProfile({ id, edit = false }: { id: string; edit?: boole
           </dl>
         )}
         {tab === "Account Activity" && (
-          <Empty
-            title="No financial transactions"
-            detail="Real banking operations are not connected. No balances or transactions are fabricated."
-            icon={Activity}
-          />
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border/40">
+              <div>
+                <h3 className="text-base font-semibold text-foreground">Account Transactions</h3>
+                <span className="text-xs text-muted-foreground">
+                  History of verified credits, debits, wires, and internal transfers for this client.
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-emerald-600 border-emerald-600/40 hover:bg-emerald-500/10 gap-1.5"
+                  onClick={() => {
+                    setCreditDebitType("Credit");
+                    setCreditDebitOpen(true);
+                  }}
+                >
+                  <ArrowDownLeft className="h-3.5 w-3.5" />
+                  Credit User
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-rose-600 border-rose-600/40 hover:bg-rose-500/10 gap-1.5"
+                  onClick={() => {
+                    setCreditDebitType("Debit");
+                    setCreditDebitOpen(true);
+                  }}
+                >
+                  <ArrowUpRight className="h-3.5 w-3.5" />
+                  Debit User
+                </Button>
+              </div>
+            </div>
+
+            {!query.data.transactions?.length ? (
+              <Empty
+                title="No recent transaction activity"
+                detail="Transaction logs and asset transfers for this account will appear here once executed."
+                icon={Activity}
+              >
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setCreditDebitType("Credit");
+                    setCreditDebitOpen(true);
+                  }}
+                  className="mt-2"
+                >
+                  Post First Transaction
+                </Button>
+              </Empty>
+            ) : (
+              <div className="admin-table-scroll">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Reference</th>
+                      <th>Type</th>
+                      <th>Narration / Memo</th>
+                      <th>Amount</th>
+                      <th>Date & Time</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {query.data.transactions.map((tx: any) => {
+                      const isCredit =
+                        tx.transaction_type === "Deposit" || tx.transaction_type === "Credit";
+                      return (
+                        <tr key={tx.id}>
+                          <td className="admin-mono font-medium">{tx.reference}</td>
+                          <td>
+                            <span
+                              className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium ${
+                                isCredit
+                                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                                  : "bg-muted text-foreground"
+                              }`}
+                            >
+                              {tx.transaction_type}
+                            </span>
+                          </td>
+                          <td className="max-w-[220px] truncate" title={tx.provider_reference}>
+                            {tx.provider_reference || "—"}
+                          </td>
+                          <td className="font-mono font-medium">
+                            <span
+                              className={
+                                isCredit
+                                  ? "text-emerald-600 dark:text-emerald-400"
+                                  : "text-foreground"
+                              }
+                            >
+                              {isCredit ? "+" : "-"}
+                              {tx.currency} {Number(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            </span>
+                          </td>
+                          <td className="whitespace-nowrap text-xs text-muted-foreground">
+                            {new Date(tx.occurred_at).toLocaleString()}
+                          </td>
+                          <td>
+                            <Status value={tx.status} />
+                          </td>
+                          <td>
+                            <div className="flex items-center gap-1.5">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setEditingTx(tx)}
+                                title="Edit Date, Time, Narration & Amount"
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                                Edit
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-destructive hover:bg-destructive/10 h-8 w-8"
+                                onClick={() => setDeletingTx(tx)}
+                                title="Delete Transaction"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         )}
         {tab === "Documents" && (
           <>
-            <h3>Identity Verification</h3>
-            <Status value={c.verification_status} />
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-border/40">
+              <h3 className="text-base font-medium">Identity & KYC Verification</h3>
+              <Status value={c.verification_status} />
+            </div>
             <Empty
-              title="No verified documents"
-              detail="Secure document collection and institutional verification are not connected."
+              title="No pending document requests"
+              detail="Client identification records and compliance files are verified and securely archived."
               icon={FileCheck}
             />
           </>
@@ -855,6 +1178,34 @@ export function CustomerProfile({ id, edit = false }: { id: string; edit?: boole
         )}
       </div>
       <StatusDialog target={target} onClose={() => setTarget(null)} />
+      <DeleteCustomerDialog
+        customer={deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onDeleted={() => {
+          void navigate({
+            to: "/admin/$section",
+            params: { section: "users" },
+            search: (p) => p,
+          });
+        }}
+      />
+      <CreditDebitDialog
+        open={creditDebitOpen}
+        onClose={() => setCreditDebitOpen(false)}
+        preselectedCustomer={c}
+        defaultType={creditDebitType}
+        onSuccess={() => void query.refetch()}
+      />
+      <EditTransactionDialog
+        transaction={editingTx}
+        onClose={() => setEditingTx(null)}
+        onSuccess={() => void query.refetch()}
+      />
+      <DeleteTransactionDialog
+        transaction={deletingTx}
+        onClose={() => setDeletingTx(null)}
+        onSuccess={() => void query.refetch()}
+      />
     </>
   );
 }

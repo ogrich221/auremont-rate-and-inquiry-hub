@@ -22,6 +22,10 @@ import {
   Mail,
   Globe,
   FileText,
+  Plus,
+  Pencil,
+  Trash2,
+  ArrowDownLeft,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -54,6 +58,11 @@ import {
 } from "@/lib/admin-model";
 import { useAdmin, SectionHeading, Empty, Status, RecentCustomers } from "./workspace";
 import { UsersPage, CustomerForm } from "./customers";
+import {
+  CreditDebitDialog,
+  EditTransactionDialog,
+  DeleteTransactionDialog,
+} from "./TransactionDialogs";
 import { AdminApplicationsTab } from "./AdminApplicationsTab";
 import { SecuritySettings } from "./settings";
 import { verifyAdminCode } from "./access";
@@ -599,17 +608,26 @@ export function Transactions() {
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Tables<"admin_transactions"> | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editingTx, setEditingTx] = useState<Tables<"admin_transactions"> | null>(null);
+  const [deletingTx, setDeletingTx] = useState<Tables<"admin_transactions"> | null>(null);
+
   const rows = data.transactions.filter(
     (t) =>
       (filter === "All" || t.status === filter) &&
-      `${t.reference} ${t.customer_id}`.toLowerCase().includes(search.toLowerCase()),
+      `${t.reference} ${t.customer_id} ${t.provider_reference}`.toLowerCase().includes(search.toLowerCase()),
   );
   return (
     <>
       <SectionHeading
-        title="Transactions"
-        description="Read-only authorized transaction records. Banking and reversal services are not connected."
-      />
+        title="Transactions Ledger"
+        description="Credit and debit user accounts. Modify transaction dates, times, narrations, and execution statuses."
+      >
+        <Button onClick={() => setCreateOpen(true)} className="gap-2">
+          <Plus className="h-4 w-4" />
+          Credit / Debit User
+        </Button>
+      </SectionHeading>
       <div className="admin-list-toolbar">
         <label className="admin-list-search">
           <Search />
@@ -617,7 +635,7 @@ export function Transactions() {
             aria-label="Search transactions"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Transaction reference or customer ID"
+            placeholder="Search reference, customer ID, or narration..."
           />
         </label>
         <label className="admin-filter">
@@ -636,9 +654,14 @@ export function Transactions() {
       {!rows.length ? (
         <Empty
           title="No authorized transactions"
-          detail="There is no connected banking provider. No balances, deposits or payment confirmations are fabricated."
+          detail="Post a new credit or debit to record institutional transactions."
           icon={Activity}
-        />
+        >
+          <Button onClick={() => setCreateOpen(true)} className="gap-2 mt-2">
+            <Plus className="h-4 w-4" />
+            Post First Transaction
+          </Button>
+        </Empty>
       ) : (
         <div className="admin-table-scroll">
           <table className="admin-table">
@@ -647,29 +670,74 @@ export function Transactions() {
                 <th>Reference</th>
                 <th>Customer ID</th>
                 <th>Type</th>
+                <th>Narration / Memo</th>
                 <th>Amount</th>
-                <th>Date</th>
+                <th>Date & Time</th>
                 <th>Status</th>
-                <th />
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((t) => (
                 <tr key={t.id}>
-                  <td>{t.reference}</td>
-                  <td>{t.customer_id.slice(0, 8)}</td>
-                  <td>{t.transaction_type}</td>
+                  <td className="admin-mono font-medium">{t.reference}</td>
+                  <td className="admin-mono">{t.customer_id.slice(0, 8)}…</td>
                   <td>
-                    {t.currency} {t.amount.toLocaleString()}
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                        t.transaction_type === "Deposit" || t.transaction_type === "Credit"
+                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                          : "bg-muted text-foreground"
+                      }`}
+                    >
+                      {t.transaction_type}
+                    </span>
                   </td>
-                  <td>{new Date(t.occurred_at).toLocaleString()}</td>
+                  <td className="max-w-[200px] truncate" title={t.provider_reference}>
+                    {t.provider_reference || "—"}
+                  </td>
+                  <td className="font-mono font-medium">
+                    <span
+                      className={
+                        t.transaction_type === "Deposit" || t.transaction_type === "Credit"
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-foreground"
+                      }
+                    >
+                      {t.transaction_type === "Deposit" || t.transaction_type === "Credit" ? "+" : "-"}
+                      {t.currency} {t.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </span>
+                  </td>
+                  <td className="whitespace-nowrap text-xs text-muted-foreground">
+                    {new Date(t.occurred_at).toLocaleString()}
+                  </td>
                   <td>
                     <Status value={t.status} />
                   </td>
                   <td>
-                    <Button variant="outline" onClick={() => setSelected(t)}>
-                      Review
-                    </Button>
+                    <div className="flex items-center gap-1.5">
+                      <Button variant="outline" size="sm" onClick={() => setSelected(t)}>
+                        Review
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setEditingTx(t)}
+                        title="Edit Date, Time, Narration & Amount"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:bg-destructive/10 h-8 w-8"
+                        onClick={() => setDeletingTx(t)}
+                        title="Delete Transaction"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -686,7 +754,7 @@ export function Transactions() {
         <DialogContent>
           <DialogTitle>Transaction Review</DialogTitle>
           <DialogDescription>
-            Read-only provider record. Reversal and adjustment operations are unavailable.
+            Audit and verified transaction record details.
           </DialogDescription>
           {selected && (
             <dl className="admin-details-grid">
@@ -702,6 +770,19 @@ export function Transactions() {
           )}
         </DialogContent>
       </Dialog>
+
+      <CreditDebitDialog
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+      />
+      <EditTransactionDialog
+        transaction={editingTx}
+        onClose={() => setEditingTx(null)}
+      />
+      <DeleteTransactionDialog
+        transaction={deletingTx}
+        onClose={() => setDeletingTx(null)}
+      />
     </>
   );
 }

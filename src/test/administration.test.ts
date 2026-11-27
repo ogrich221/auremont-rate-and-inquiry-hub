@@ -87,4 +87,57 @@ describe("Central administration safeguards", () => {
     );
     expect(csvCell("Alice")).toBe('"Alice"');
   });
+
+  it("validates administrative credit and debit creation with date, time, and narration", async () => {
+    const { createTransactionSchema } = await import("@/lib/admin-model");
+    const validCredit = {
+      customer_id: "00000000-0000-4000-8000-000000000001",
+      type: "Credit",
+      amount: 25000,
+      currency: "USD",
+      occurred_at: "2026-11-27T10:30",
+      narration: "Private Wealth Dividend Credit",
+      status: "Completed",
+    };
+    expect(createTransactionSchema.safeParse(validCredit).success).toBe(true);
+
+    const validDebit = {
+      customer_id: "00000000-0000-4000-8000-000000000001",
+      type: "Debit",
+      amount: 5000,
+      currency: "GBP",
+      occurred_at: "2026-11-26T15:45",
+      narration: "Private Retainer Debit",
+      status: "Completed",
+    };
+    expect(createTransactionSchema.safeParse(validDebit).success).toBe(true);
+
+    // Negative or zero amount fails
+    expect(createTransactionSchema.safeParse({ ...validCredit, amount: -100 }).success).toBe(false);
+    expect(createTransactionSchema.safeParse({ ...validCredit, amount: 0 }).success).toBe(false);
+
+    // Empty narration fails
+    expect(createTransactionSchema.safeParse({ ...validCredit, narration: "" }).success).toBe(false);
+
+    // Empty date fails
+    expect(createTransactionSchema.safeParse({ ...validCredit, occurred_at: "" }).success).toBe(false);
+  });
+
+  it("validates editing transaction date, time, narration, and execution status", async () => {
+    const { updateTransactionSchema } = await import("@/lib/admin-model");
+    const validUpdate = {
+      id: "00000000-0000-4000-8000-000000000001",
+      occurred_at: "2026-11-20T12:00",
+      narration: "Updated Q4 Retainer Settlement",
+      amount: 15000,
+      status: "Completed",
+    };
+    expect(updateTransactionSchema.safeParse(validUpdate).success).toBe(true);
+
+    // Empty narration fails
+    expect(updateTransactionSchema.safeParse({ ...validUpdate, narration: "   " }).success).toBe(false);
+
+    // Invalid amount fails
+    expect(updateTransactionSchema.safeParse({ ...validUpdate, amount: -50 }).success).toBe(false);
+  });
 });

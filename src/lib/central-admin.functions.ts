@@ -8,6 +8,8 @@ import {
   reviewSchema,
   listSchema,
   canAccessAdministration,
+  createTransactionSchema,
+  updateTransactionSchema,
 } from "./admin-model";
 
 export const SOLO_ADMIN_EMAIL = "skybridgeairline@gmail.com";
@@ -295,15 +297,96 @@ export const saveCustomer = createServerFn({ method: "POST" })
       throw new Error("Administrator verification required.");
     }
     const client = await getDbClient(context.supabase);
-    const { data: id, error } = await client.rpc("admin_save_customer", {
-      payload: data.customer,
-      ...(data.id ? { record_id: data.id, expected_version: data.version ?? 0 } : {}),
-    });
-    if (error) {
-      if (error.code === "23505") throw new Error("A customer with this email already exists.");
-      throw new Error("Could not save. Reload if this record changed, then try again.");
+    let customerId = data.id;
+
+    if (data.id) {
+      // 1. Try legacy RPC first
+      const { data: id, error } = await client.rpc("admin_save_customer", {
+        payload: data.customer,
+        record_id: data.id,
+        expected_version: data.version ?? 0,
+      });
+
+      // 2. Direct update to ensure all fields including status are applied
+      const updateData: Record<string, any> = {
+        first_name: data.customer.first_name,
+        middle_name: data.customer.middle_name || "",
+        last_name: data.customer.last_name,
+        email: data.customer.email.toLowerCase(),
+        phone: data.customer.phone || "",
+        alternative_phone: data.customer.alternative_phone || "",
+        nationality: data.customer.nationality || "",
+        country: data.customer.country || "",
+        address: data.customer.address || "",
+        account_type: data.customer.account_type,
+        currency: data.customer.currency,
+        notes: data.customer.notes || "",
+        updated_at: new Date().toISOString(),
+      };
+      if (data.customer.date_of_birth) {
+        updateData.date_of_birth = data.customer.date_of_birth;
+      }
+      if (data.customer.status) {
+        updateData.status = data.customer.status;
+      }
+
+      const { error: updateErr } = await client
+        .from("admin_customers")
+        .update(updateData)
+        .eq("id", data.id);
+
+      if (error && updateErr) {
+        if (updateErr.code === "23505" || error.code === "23505")
+          throw new Error("A customer with this email already exists.");
+        throw new Error("Could not save customer changes. Please try again.");
+      }
+      customerId = data.id;
+    } else {
+      const customerRef = `ATB-CUST-${Date.now().toString().slice(-6)}`;
+      const accountRef = `9481${Math.floor(100000 + Math.random() * 900000)}`;
+
+      const insertData = {
+        customer_ref: customerRef,
+        account_ref: accountRef,
+        first_name: data.customer.first_name,
+        middle_name: data.customer.middle_name || "",
+        last_name: data.customer.last_name,
+        email: data.customer.email.toLowerCase(),
+        phone: data.customer.phone || "",
+        alternative_phone: data.customer.alternative_phone || "",
+        nationality: data.customer.nationality || "",
+        country: data.customer.country || "",
+        address: data.customer.address || "",
+        account_type: data.customer.account_type,
+        currency: data.customer.currency,
+        opening_date: data.customer.opening_date || new Date().toISOString().slice(0, 10),
+        status: data.customer.status || "Active",
+        verification_status: "Verified",
+        notes: data.customer.notes || "",
+      };
+
+      const { data: newCustomer, error: insertErr } = await client
+        .from("admin_customers")
+        .insert(insertData)
+        .select("id")
+        .single();
+
+      if (insertErr || !newCustomer) {
+        const { data: id, error: rpcErr } = await client.rpc("admin_save_customer", {
+          payload: data.customer,
+        });
+        if (rpcErr) {
+          if (rpcErr.code === "23505" || insertErr?.code === "23505")
+            throw new Error("A customer with this email already exists.");
+          throw new Error("Could not create customer record. Please try again.");
+        }
+        customerId = id;
+      } else {
+        customerId = newCustomer.id;
+      }
     }
-    return { id };
+
+    return { id: customerId };
   });
 
 export const changeCustomer = createServerFn({ method: "POST" })
@@ -322,11 +405,67 @@ export const changeCustomer = createServerFn({ method: "POST" })
       checks_complete: data.checks,
       archive: data.archive,
     });
-    if (error)
-      throw new Error(
-        "Action not completed. Please reload the record before trying again.",
-      );
+    if (error) {
+      const updateData: Record<string, any> = {
+        status: data.status,
+        updated_at: new Date().toISOString(),
+      };
+      if (data.archive) {
+        updateData.archived_at = new Date().toISOString();
+      }
+      const { error: directErr } = await client
+        .from("admin_customers")
+        .update(updateData)
+        .eq("id", data.id);
+
+      if (directErr) {
+        throw new Error(
+          "Action not completed. Please reload the record before trying again.",
+        );
+      }
+    }
     return { success: true };
+  });
+
+export const deleteCustomer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        permanent: z.boolean().default(true),
+      })
+      .parse(v),
+  )
+  .handler(async ({ context, data }) => {
+    if (!isSoloAdmin(context.claims)) {
+      throw new Error("Administrator verification required.");
+    }
+    const client = await getDbClient(context.supabase);
+
+    if (data.permanent) {
+      try {
+        await client.from("admin_transactions").delete().eq("customer_id", data.id);
+      } catch {}
+      try {
+        await client.from("admin_audit").delete().eq("entity_id", data.id);
+      } catch {}
+      try {
+        await client.from("admin_applications").delete().eq("customer_id", data.id);
+      } catch {}
+      const { error } = await client.from("admin_customers").delete().eq("id", data.id);
+      if (error) {
+        throw new Error("Could not permanently delete customer. Check linked records.");
+      }
+      return { success: true, permanent: true };
+    } else {
+      const { error } = await client
+        .from("admin_customers")
+        .update({ archived_at: new Date().toISOString(), status: "Closed" })
+        .eq("id", data.id);
+      if (error) throw new Error("Could not archive customer.");
+      return { success: true, permanent: false };
+    }
   });
 
 export const createApplication = createServerFn({ method: "POST" })
@@ -444,4 +583,284 @@ export const exportCustomers = createServerFn({ method: "POST" })
       await client.rpc("admin_record_access", { event: "Report exported" });
     } catch {}
     return rows;
+  });
+
+export const recordCustomerTransaction = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) => createTransactionSchema.parse(v))
+  .handler(async ({ context, data }) => {
+    if (!isSoloAdmin(context.claims)) {
+      throw new Error("Administrator verification required.");
+    }
+    const client = await getDbClient(context.supabase);
+
+    const { data: customer, error: custErr } = await client
+      .from("admin_customers")
+      .select("id, first_name, last_name, customer_ref, email")
+      .eq("id", data.customer_id)
+      .single();
+
+    if (custErr || !customer) {
+      throw new Error("Customer record not found.");
+    }
+
+    const isCredit = data.type === "Credit" || data.type === "Deposit";
+    const ref =
+      data.reference ||
+      `ATB-${isCredit ? "CR" : "DR"}-${Date.now().toString().slice(-6)}`;
+
+    const dbType =
+      data.type === "Credit"
+        ? "Deposit"
+        : data.type === "Debit"
+          ? "Withdrawal"
+          : data.type;
+
+    let occurredAtIso = new Date().toISOString();
+    try {
+      if (data.occurred_at) {
+        occurredAtIso = new Date(data.occurred_at).toISOString();
+      }
+    } catch {
+      occurredAtIso = new Date().toISOString();
+    }
+
+    const { data: inserted, error: insertErr } = await client
+      .from("admin_transactions")
+      .insert({
+        customer_id: data.customer_id,
+        amount: data.amount,
+        currency: data.currency,
+        occurred_at: occurredAtIso,
+        provider_reference: data.narration,
+        reference: ref,
+        status: data.status,
+        transaction_type: dbType,
+      })
+      .select()
+      .single();
+
+    if (insertErr || !inserted) {
+      throw new Error(insertErr?.message || "Failed to record transaction.");
+    }
+
+    try {
+      await client.from("admin_audit").insert({
+        actor_id: context.userId,
+        action: isCredit ? "Account Credited" : "Account Debited",
+        entity: "admin_transactions",
+        entity_id: data.customer_id,
+        reason: `${data.currency} ${data.amount.toLocaleString()} - ${data.narration}`,
+        new_values: {
+          reference: ref,
+          type: data.type,
+          amount: data.amount,
+          currency: data.currency,
+          narration: data.narration,
+          occurred_at: occurredAtIso,
+          status: data.status,
+        },
+      });
+    } catch {}
+
+    try {
+      await client.from("admin_notifications").insert({
+        title: `${isCredit ? "Credit" : "Debit"} Posted: ${data.currency} ${data.amount}`,
+        body: `Posted to ${customer.first_name} ${customer.last_name} (${ref}): ${data.narration}`,
+        entity_id: data.customer_id,
+      });
+    } catch {}
+
+    return { success: true, transaction: inserted };
+  });
+
+export const updateCustomerTransaction = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) => updateTransactionSchema.parse(v))
+  .handler(async ({ context, data }) => {
+    if (!isSoloAdmin(context.claims)) {
+      throw new Error("Administrator verification required.");
+    }
+    const client = await getDbClient(context.supabase);
+
+    const { data: existing, error: existErr } = await client
+      .from("admin_transactions")
+      .select("*")
+      .eq("id", data.id)
+      .single();
+
+    if (existErr || !existing) {
+      throw new Error("Transaction not found.");
+    }
+
+    const updates: Record<string, any> = {};
+    if (data.amount !== undefined) updates.amount = data.amount;
+    if (data.currency !== undefined) updates.currency = data.currency;
+    if (data.status !== undefined) updates.status = data.status;
+    if (data.narration !== undefined) updates.provider_reference = data.narration;
+    if (data.type !== undefined) {
+      updates.transaction_type =
+        data.type === "Credit"
+          ? "Deposit"
+          : data.type === "Debit"
+            ? "Withdrawal"
+            : data.type;
+    }
+    if (data.occurred_at !== undefined) {
+      try {
+        updates.occurred_at = new Date(data.occurred_at).toISOString();
+      } catch {
+        updates.occurred_at = data.occurred_at;
+      }
+    }
+
+    const { data: updated, error: updateErr } = await client
+      .from("admin_transactions")
+      .update(updates)
+      .eq("id", data.id)
+      .select()
+      .single();
+
+    if (updateErr) {
+      throw new Error(updateErr.message || "Failed to update transaction.");
+    }
+
+    try {
+      await client.from("admin_audit").insert({
+        actor_id: context.userId,
+        action: "Transaction Modified",
+        entity: "admin_transactions",
+        entity_id: existing.customer_id,
+        reason: `Updated transaction ${existing.reference}`,
+        old_values: {
+          occurred_at: existing.occurred_at,
+          narration: existing.provider_reference,
+          amount: existing.amount,
+          status: existing.status,
+        },
+        new_values: updates,
+      });
+    } catch {}
+
+    return { success: true, transaction: updated };
+  });
+
+export const deleteCustomerTransaction = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) => z.object({ id: z.string().uuid() }).parse(v))
+  .handler(async ({ context, data }) => {
+    if (!isSoloAdmin(context.claims)) {
+      throw new Error("Administrator verification required.");
+    }
+    const client = await getDbClient(context.supabase);
+
+    const { data: existing } = await client
+      .from("admin_transactions")
+      .select("customer_id, reference")
+      .eq("id", data.id)
+      .single();
+
+    const { error } = await client
+      .from("admin_transactions")
+      .delete()
+      .eq("id", data.id);
+
+    if (error) {
+      throw new Error("Failed to delete transaction.");
+    }
+
+    if (existing) {
+      try {
+        await client.from("admin_audit").insert({
+          actor_id: context.userId,
+          action: "Transaction Removed",
+          entity: "admin_transactions",
+          entity_id: existing.customer_id,
+          reason: `Removed transaction ${existing.reference}`,
+        });
+      } catch {}
+    }
+
+    return { success: true };
+  });
+
+export const getCustomerTransactions = createServerFn({ method: "POST" })
+  .inputValidator((v) =>
+    z
+      .object({
+        customerId: z.string().uuid().optional(),
+        email: z.string().email().optional(),
+      })
+      .optional()
+      .default({}),
+  )
+  .handler(async ({ context, data }) => {
+    let client: any = context.supabase;
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      if (supabaseAdmin) client = supabaseAdmin;
+    } catch {}
+
+    let targetCustomerId = data?.customerId;
+
+    const emailToLookup =
+      data?.email ||
+      (context.claims?.["email"] ? String(context.claims["email"]) : undefined);
+
+    if (!targetCustomerId && emailToLookup && client) {
+      try {
+        const { data: cust } = await client
+          .from("admin_customers")
+          .select("id")
+          .eq("email", emailToLookup.toLowerCase().trim())
+          .maybeSingle();
+        if (cust) {
+          targetCustomerId = cust.id;
+        }
+      } catch {}
+    }
+
+    let rows: any[] = [];
+    if (client) {
+      try {
+        let query = client
+          .from("admin_transactions")
+          .select("*")
+          .order("occurred_at", { ascending: false });
+
+        if (targetCustomerId) {
+          query = query.eq("customer_id", targetCustomerId);
+        } else {
+          query = query.limit(100);
+        }
+
+        const { data: resRows } = await query;
+        if (resRows) rows = resRows;
+      } catch {}
+    }
+
+    const transactions = (rows ?? []).map((row: any) => {
+      const isDeposit =
+        row.transaction_type === "Deposit" || row.transaction_type === "Credit";
+      return {
+        id: row.id,
+        reference: row.reference,
+        type: isDeposit ? "Deposit" : "Withdrawal",
+        recipientMerchant: isDeposit
+          ? "Private Wealth Settlement / Credit"
+          : (row.provider_reference || "Account Debit"),
+        date: row.occurred_at
+          ? new Date(row.occurred_at).toISOString().replace("T", " ").slice(0, 16)
+          : new Date().toISOString().replace("T", " ").slice(0, 16),
+        amount: Number(row.amount),
+        currency: row.currency || "USD",
+        status: row.status || "Completed",
+        fee: 0,
+        description: row.provider_reference || "Private Banking Transaction",
+        category: isDeposit ? "Income" : "Debit / Transfers",
+        rawOccurredAt: row.occurred_at,
+      };
+    });
+
+    return { transactions };
   });

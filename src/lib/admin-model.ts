@@ -30,6 +30,7 @@ export const customerSchema = z
     account_type: z.enum(accountTypes),
     currency: z.enum(currencies),
     opening_date: date,
+    status: z.enum(statuses).optional(),
     notes: text(1000),
   })
   .strict();
@@ -115,3 +116,36 @@ export function csvCell(value: unknown) {
 export function canAccessAdministration(primary: boolean, role: boolean, _aal?: string) {
   return primary && role;
 }
+
+export const transactionTypes = [
+  "Credit",
+  "Debit",
+  "Deposit",
+  "Withdrawal",
+  "Domestic Transfer",
+  "International Wire",
+  "Bill Payment",
+] as const;
+
+export const transactionStatuses = ["Completed", "Pending", "Failed", "Reversed"] as const;
+
+export const createTransactionSchema = z.object({
+  customer_id: z.string().uuid("Please select a valid customer."),
+  type: z.enum(transactionTypes),
+  amount: z.coerce.number().positive("Amount must be greater than 0"),
+  currency: z.enum(currencies).default("USD"),
+  occurred_at: z.string().min(1, "Date and time are required"),
+  narration: z.string().trim().min(1, "Narration is required").max(500),
+  status: z.enum(transactionStatuses).default("Completed"),
+  reference: z.string().optional(),
+});
+
+export const updateTransactionSchema = z.object({
+  id: z.string().uuid(),
+  amount: z.coerce.number().positive("Amount must be greater than 0").optional(),
+  type: z.enum(transactionTypes).optional(),
+  currency: z.enum(currencies).optional(),
+  occurred_at: z.string().min(1).optional(),
+  narration: z.string().trim().min(1).max(500).optional(),
+  status: z.enum(transactionStatuses).optional(),
+});
