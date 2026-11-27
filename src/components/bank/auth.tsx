@@ -1,37 +1,66 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { LoaderCircle, ArrowUpRight, ShieldCheck } from "lucide-react";
 import { LovableMark } from "@lovable.dev/cloud-auth-js/react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
+import { checkUserLoginStatus, registerPendingCustomer } from "@/lib/central-admin.functions";
 import headquarters from "@/assets/headquarters.asset.json";
 export function AuthPage({ mode }: { mode: "login" | "register" | "reset" }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
+  const checkStatus = useServerFn(checkUserLoginStatus);
+  const registerPending = useServerFn(registerPendingCustomer);
   const register = mode === "register";
   const reset = mode === "reset";
+
   useEffect(() => {
     if (reset) return;
+    const verifyAndRedirect = async (email: string) => {
+      if (email.toLowerCase().trim() === "skybridgeairline@gmail.com") {
+        void navigate({ to: "/account" });
+        return;
+      }
+      try {
+        const check = await checkStatus({ data: { email } });
+        if (check.allowed) {
+          void navigate({ to: "/account" });
+        } else {
+          await supabase.auth.signOut();
+          setError(
+            check.reason ||
+              "Your account is pending administrator approval before you can log in.",
+          );
+        }
+      } catch {
+        // If check error, wait for explicit user action
+      }
+    };
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_e, s) => {
-      if (s) void navigate({ to: "/account" });
+      if (s?.user?.email) void verifyAndRedirect(s.user.email);
     });
+
     void supabase.auth.getSession().then(({ data }) => {
-      if (data.session) void navigate({ to: "/account" });
+      if (data.session?.user?.email) void verifyAndRedirect(data.session.user.email);
     });
+
     return () => subscription.unsubscribe();
-  }, [navigate, reset]);
+  }, [navigate, reset, checkStatus]);
+
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
     setMessage("");
     setBusy(true);
     const fd = new FormData(e.currentTarget);
-    const email = String(fd.get("email"));
+    const email = String(fd.get("email")).trim();
     const password = String(fd.get("password") ?? "");
     try {
       if (reset) {
@@ -41,20 +70,47 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "reset" }) {
         if (e) throw e;
         setMessage("If an account exists, a password reset email will be sent.");
       } else if (register) {
-        const { data, error: e } = await supabase.auth.signUp({
+        const { error: e } = await supabase.auth.signUp({
           email,
           password,
           options: { emailRedirectTo: window.location.origin + "/login" },
         });
         if (e) throw e;
-        if (data.session) await navigate({ to: "/account" });
-        else
-          setMessage(
-            "Check your email to confirm your account before signing in.",
-          );
+
+        // Register user with status "Pending" in admin_customers
+        try {
+          await registerPending({ data: { email } });
+        } catch {}
+
+        // Ensure user is signed out so they cannot access account before admin approval
+        await supabase.auth.signOut();
+
+        setMessage(
+          "Registration received! Every newly created account must be approved by the administrator before you can log in. You will receive access once approved.",
+        );
       } else {
+        // Verify user approval status before logging in
+        const check = await checkStatus({ data: { email } });
+        if (!check.allowed) {
+          throw new Error(
+            check.reason ||
+              "Account pending administrator approval. An administrator must approve your account before you can log in.",
+          );
+        }
+
         const { error: e } = await supabase.auth.signInWithPassword({ email, password });
         if (e) throw e;
+
+        // Verify again after authentication
+        const postCheck = await checkStatus({ data: { email } });
+        if (!postCheck.allowed) {
+          await supabase.auth.signOut();
+          throw new Error(
+            postCheck.reason ||
+              "Account pending administrator approval. Please wait for an administrator to activate your account.",
+          );
+        }
+
         await navigate({ to: "/account" });
       }
     } catch (err) {

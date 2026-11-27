@@ -23,6 +23,7 @@ import {
   ArrowUpRight,
   RefreshCw,
   Globe,
+  LogIn,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getWorkspace } from "@/lib/central-admin.functions";
@@ -413,11 +414,26 @@ export function RecentCustomers() {
                     <Status value={c.status} />
                   </td>
                   <td>
-                    <Button asChild variant="ghost" size="icon" aria-label={`View ${fullName(c)}`}>
-                      <Link to="/admin/customers/$customerId" params={{ customerId: c.id }}>
-                        <ChevronRight />
-                      </Link>
-                    </Button>
+                    <div className="flex items-center gap-1 justify-end">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 px-2 text-xs gap-1 text-amber-600 border-amber-500/40 hover:bg-amber-500/10"
+                        title={`Login as ${fullName(c)}`}
+                        onClick={() => {
+                          sessionStorage.setItem("auremont_impersonate_customer", JSON.stringify(c));
+                          window.location.href = "/account";
+                        }}
+                      >
+                        <LogIn className="h-3.5 w-3.5" />
+                        Login
+                      </Button>
+                      <Button asChild variant="ghost" size="icon" aria-label={`View ${fullName(c)}`}>
+                        <Link to="/admin/customers/$customerId" params={{ customerId: c.id }}>
+                          <ChevronRight />
+                        </Link>
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}

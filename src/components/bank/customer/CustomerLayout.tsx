@@ -24,6 +24,7 @@ import {
   ShieldAlert,
   ArrowUpDown,
   Lock,
+  ArrowLeft,
 } from "lucide-react";
 import { useCustomerBanking } from "./customer-state";
 import type { NavigationSection } from "./customer-types";
@@ -65,6 +66,8 @@ export function CustomerLayout() {
     searchQuery,
     setSearchQuery,
     markNotificationAsRead,
+    isImpersonating,
+    exitImpersonation,
   } = useCustomerBanking();
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -362,6 +365,27 @@ export function CustomerLayout() {
           isSidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
         }`}
       >
+        {/* Administrator Impersonation Mode Banner */}
+        {isImpersonating && (
+          <div className="sticky top-0 z-40 bg-gradient-to-r from-amber-600 via-amber-700 to-amber-800 text-white px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm font-medium shadow-lg border-b border-amber-500/30">
+            <div className="flex items-center gap-2.5">
+              <span className="bg-black/40 text-amber-200 text-[10px] font-bold px-2 py-0.5 rounded tracking-wider uppercase border border-amber-400/40">
+                Administrator Impersonation
+              </span>
+              <span>
+                Viewing user portal & profile for <strong>{profile.firstName} {profile.lastName}</strong> ({profile.email})
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={exitImpersonation}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-stone-900/90 hover:bg-stone-900 text-amber-300 font-medium text-xs shadow transition-all border border-amber-500/40"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" /> Return to Admin Console
+            </button>
+          </div>
+        )}
+
         {/* TOP NAVIGATION BAR */}
         <header className="sticky top-0 z-30 h-16 bg-[#101D32]/90 backdrop-blur-md border-b border-white/10 px-4 sm:px-6 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">

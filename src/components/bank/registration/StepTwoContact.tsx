@@ -37,13 +37,6 @@ export function StepTwoContact({ data, updateData, errors }: StepTwoProps) {
   const [emailOtpError, setEmailOtpError] = useState("");
   const [emailSending, setEmailSending] = useState(false);
 
-  // Phone OTP simulation state
-  const [phoneOtpSent, setPhoneOtpSent] = useState(false);
-  const [phoneOtpCode, setPhoneOtpCode] = useState("");
-  const [generatedPhoneOtp, setGeneratedPhoneOtp] = useState("492018");
-  const [phoneOtpError, setPhoneOtpError] = useState("");
-  const [phoneSending, setPhoneSending] = useState(false);
-
   // Send Email Code
   const handleSendEmailVerification = () => {
     if (!data.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
@@ -62,35 +55,10 @@ export function StepTwoContact({ data, updateData, errors }: StepTwoProps) {
 
   const handleConfirmEmailOtp = () => {
     if (emailOtpCode === generatedEmailOtp || emailOtpCode === "849201") {
-      updateData({ emailVerified: true });
+      updateData({ emailVerified: true, phoneVerified: true });
       setEmailOtpError("");
     } else {
       setEmailOtpError("Invalid code. Please enter the 6-digit code sent to your email.");
-    }
-  };
-
-  // Send Phone OTP
-  const handleSendPhoneVerification = () => {
-    if (!data.mobilePhone || data.mobilePhone.replace(/\D/g, "").length < 6) {
-      setPhoneOtpError("Please provide a valid mobile number first.");
-      return;
-    }
-    setPhoneSending(true);
-    setPhoneOtpError("");
-    setTimeout(() => {
-      const code = Math.floor(100000 + Math.random() * 900000).toString();
-      setGeneratedPhoneOtp(code);
-      setPhoneOtpSent(true);
-      setPhoneSending(false);
-    }, 600);
-  };
-
-  const handleConfirmPhoneOtp = () => {
-    if (phoneOtpCode === generatedPhoneOtp || phoneOtpCode === "492018") {
-      updateData({ phoneVerified: true });
-      setPhoneOtpError("");
-    } else {
-      setPhoneOtpError("Invalid SMS OTP code. Please enter the 6-digit code.");
     }
   };
 
@@ -270,18 +238,12 @@ export function StepTwoContact({ data, updateData, errors }: StepTwoProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Smartphone className="h-4 w-4 text-primary" />
-            <span className="text-sm font-semibold text-foreground">Mobile Phone Verification</span>
+            <span className="text-sm font-semibold text-foreground">Mobile Phone Number</span>
           </div>
-          {data.phoneVerified ? (
-            <Badge variant="default" className="bg-emerald-600 text-white flex items-center gap-1">
-              <CheckCircle2 className="h-3 w-3" />
-              <span>Phone Verified</span>
-            </Badge>
-          ) : (
-            <Badge variant="outline" className="text-amber-600 border-amber-300 bg-amber-50 dark:bg-amber-950/20">
-              OTP Required
-            </Badge>
-          )}
+          <Badge variant="outline" className="text-emerald-600 border-emerald-300 bg-emerald-50 dark:bg-emerald-950/20 flex items-center gap-1">
+            <CheckCircle2 className="h-3 w-3" />
+            <span>Direct Contact Active</span>
+          </Badge>
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -291,7 +253,6 @@ export function StepTwoContact({ data, updateData, errors }: StepTwoProps) {
             </Label>
             <Select
               value={data.countryCallingCode}
-              disabled={data.phoneVerified}
               onValueChange={(val) => updateData({ countryCallingCode: val })}
             >
               <SelectTrigger id="callingCode">
@@ -315,10 +276,8 @@ export function StepTwoContact({ data, updateData, errors }: StepTwoProps) {
               id="mobilePhone"
               type="tel"
               value={data.mobilePhone}
-              disabled={data.phoneVerified}
               onChange={(e) => {
-                updateData({ mobilePhone: e.target.value, phoneVerified: false });
-                setPhoneOtpSent(false);
+                updateData({ mobilePhone: e.target.value, phoneVerified: true });
               }}
               placeholder="e.g. 7911 123456"
               className={errors["mobilePhone"] ? "border-destructive" : ""}
@@ -343,91 +302,10 @@ export function StepTwoContact({ data, updateData, errors }: StepTwoProps) {
           />
         </div>
 
-        {/* Phone OTP Verification Action & Box */}
-        {!data.phoneVerified ? (
-          <div className="pt-2 border-t border-border/60">
-            {!phoneOtpSent ? (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={phoneSending || !data.mobilePhone}
-                onClick={handleSendPhoneVerification}
-                className="gap-1.5 border-primary/40 hover:bg-primary/10 text-xs text-foreground"
-              >
-                <Smartphone className="h-3.5 w-3.5 text-primary" />
-                {phoneSending ? "Dispatching SMS OTP..." : "Send SMS Verification Code"}
-              </Button>
-            ) : (
-              <div className="rounded-md border border-primary/30 bg-primary/5 p-3 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-xs font-medium text-primary">
-                    <KeyRound className="h-3.5 w-3.5" />
-                    <span>Enter 6-Digit SMS Security Code</span>
-                  </div>
-                  <span className="text-[11px] text-muted-foreground font-mono">
-                    Verification SMS: <strong className="text-primary font-bold">{generatedPhoneOtp}</strong>
-                  </span>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2">
-                  <Input
-                    value={phoneOtpCode}
-                    onChange={(e) => setPhoneOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                    placeholder="e.g. 492018"
-                    maxLength={6}
-                    className="w-36 font-mono text-center tracking-widest text-sm"
-                  />
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={() => setPhoneOtpCode(generatedPhoneOtp)}
-                    variant="ghost"
-                    className="text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    Auto-Fill Code
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={handleConfirmPhoneOtp}
-                    className="bg-primary text-primary-foreground text-xs"
-                  >
-                    Verify Phone
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleSendPhoneVerification}
-                    title="Resend SMS"
-                    className="h-8 w-8 text-muted-foreground"
-                  >
-                    <RotateCw className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-                {phoneOtpError && <p className="text-xs text-destructive">{phoneOtpError}</p>}
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20 px-3 py-2 rounded border border-emerald-200 dark:border-emerald-900/50">
-            <span className="flex items-center gap-1.5 font-medium">
-              <CheckCircle2 className="h-4 w-4" />
-              Mobile number verified. SMS transactional alerts configured.
-            </span>
-            <button
-              type="button"
-              onClick={() => {
-                updateData({ phoneVerified: false });
-                setPhoneOtpSent(false);
-              }}
-              className="text-muted-foreground hover:text-foreground underline cursor-pointer text-[11px]"
-            >
-              Change Phone
-            </button>
-          </div>
-        )}
+        <p className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+          <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+          <span>Provided phone number will be used for official account correspondence and alerts. No SMS code verification required.</span>
+        </p>
       </div>
 
       {/* Preferred Contact Method */}

@@ -16,6 +16,7 @@ import {
   AlertCircle,
   LoaderCircle,
   Search,
+  Clock,
 } from "lucide-react";
 import { useCustomerBanking } from "../customer-state";
 import { Button } from "@/components/ui/button";
@@ -620,16 +621,16 @@ export function PayBillsView() {
       {/* STEP 4: PAYMENT RECEIPT */}
       {step === "success" && txResult && (
         <div className="p-8 rounded-xl border border-white/60 bg-white/80 dark:bg-slate-900/70 backdrop-blur-md shadow-md text-center max-w-lg mx-auto space-y-6">
-          <div className="h-16 w-16 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto">
-            <CheckCircle2 className="h-9 w-9" />
+          <div className="h-16 w-16 bg-amber-500/15 text-amber-600 dark:text-amber-400 rounded-full flex items-center justify-center mx-auto">
+            <Clock className="h-9 w-9" />
           </div>
 
           <div className="space-y-1">
             <h2 className="text-xl font-serif font-semibold text-foreground">
-              Utility Payment Confirmed.
+              Payment Submitted for Administrative Approval
             </h2>
             <p className="text-xs text-muted-foreground">
-              The payment has been disbursed to the utility provider network and cleared.
+              Your utility bill payment instruction has been placed on hold and is awaiting primary administrator approval before disbursement.
             </p>
           </div>
 
@@ -647,7 +648,7 @@ export function PayBillsView() {
               <span className="font-mono text-foreground">{identifier}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Amount Paid:</span>
+              <span className="text-muted-foreground">Amount:</span>
               <span className="font-mono font-semibold text-foreground">
                 £{parseFloat(amount || "0").toLocaleString("en-US", { minimumFractionDigits: 2 })}
               </span>
@@ -658,8 +659,8 @@ export function PayBillsView() {
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Status:</span>
-              <span className="text-emerald-600 font-semibold flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3" /> Completed
+              <span className="text-amber-600 font-semibold flex items-center gap-1">
+                <Clock className="h-3.5 w-3.5" /> Pending Admin Approval
               </span>
             </div>
           </div>

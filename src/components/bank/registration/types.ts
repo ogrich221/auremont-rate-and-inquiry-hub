@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export type StepNumber = 1 | 2 | 3 | 4 | 5 | 6;
+export type StepNumber = 1 | 2 | 3 | 4 | 5;
 
 export const countryList = [
   "United States",
@@ -190,22 +190,22 @@ export interface ApplicationFormData {
   transferPin: string;
   confirmTransferPin: string;
 
-  // Step 5: Identity Verification
-  documentType: "passport" | "national_id" | "driving_license";
-  documentNumber: string;
-  issuingCountry: string;
-  documentExpiryDate: string;
-  documentFrontUploaded: boolean;
+  // Optional Identity Verification (KYC Exempt for direct access)
+  documentType?: "passport" | "national_id" | "driving_license";
+  documentNumber?: string;
+  issuingCountry?: string;
+  documentExpiryDate?: string;
+  documentFrontUploaded?: boolean;
   documentFrontFilename?: string;
-  documentBackUploaded: boolean;
+  documentBackUploaded?: boolean;
   documentBackFilename?: string;
-  proofOfAddressUploaded: boolean;
+  proofOfAddressUploaded?: boolean;
   proofOfAddressFilename?: string;
 
-  // Step 6: Review & Agreements
+  // Step 5: Review & Agreements
   acceptedTerms: boolean;
   acknowledgedPrivacy: boolean;
-  consentedIdentityCheck: boolean;
+  consentedIdentityCheck?: boolean;
   marketingConsent: boolean;
 }
 

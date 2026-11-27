@@ -663,16 +663,16 @@ export function DomesticTransferView() {
       {/* STEP 3: SUCCESS CONFIRMATION */}
       {step === "success" && txResult && (
         <div className="p-8 rounded-xl border border-white/60 bg-white/80 dark:bg-slate-900/70 backdrop-blur-md shadow-md text-center max-w-lg mx-auto space-y-6">
-          <div className="h-16 w-16 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto">
-            <CheckCircle2 className="h-9 w-9" />
+          <div className="h-16 w-16 bg-amber-500/15 text-amber-600 dark:text-amber-400 rounded-full flex items-center justify-center mx-auto">
+            <Clock className="h-9 w-9" />
           </div>
 
           <div className="space-y-1">
             <h2 className="text-xl font-serif font-semibold text-foreground">
-              Transfer Successfully Processed.
+              Transfer Submitted for Administrative Approval
             </h2>
             <p className="text-xs text-muted-foreground">
-              Your domestic payment instruction has been cleared and recorded in the audit journal.
+              Your domestic payment instruction has been placed on hold and is awaiting primary administrator approval before final settlement.
             </p>
           </div>
 
@@ -686,7 +686,7 @@ export function DomesticTransferView() {
               <span className="font-medium text-foreground">{recipientName}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Amount Debited:</span>
+              <span className="text-muted-foreground">Amount:</span>
               <span className="font-mono font-semibold text-foreground">
                 £{parsedAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}
               </span>
@@ -697,8 +697,8 @@ export function DomesticTransferView() {
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Settlement Status:</span>
-              <span className="text-emerald-600 font-semibold flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3" /> Completed
+              <span className="text-amber-600 font-semibold flex items-center gap-1">
+                <Clock className="h-3.5 w-3.5" /> Pending Admin Approval
               </span>
             </div>
           </div>

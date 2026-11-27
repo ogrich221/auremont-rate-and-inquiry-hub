@@ -173,10 +173,7 @@ export function RegistrationPage() {
         newErrors["mobilePhone"] = "A valid mobile telephone number is required.";
       }
       if (!formData.emailVerified) {
-        newErrors["email"] = "Please verify your email address to continue.";
-      }
-      if (!formData.phoneVerified) {
-        newErrors["mobilePhone"] = "Please verify your mobile number via OTP to continue.";
+        newErrors["email"] = "Please verify your email address via code to continue.";
       }
     }
 
@@ -215,31 +212,13 @@ export function RegistrationPage() {
       }
     }
 
-    if (step === 5) {
-      if (!formData.documentNumber.trim()) {
-        newErrors["documentNumber"] = "Official document number is required.";
-      }
-      if (!formData.documentExpiryDate) {
-        newErrors["documentExpiryDate"] = "Expiry date is required.";
-      }
-      if (!formData.documentFrontUploaded) {
-        newErrors["documentFront"] = "Please upload the front scan of your identification.";
-      }
-      if (formData.documentType !== "passport" && !formData.documentBackUploaded) {
-        newErrors["documentBack"] = "Please upload the back scan of your identification.";
-      }
-      if (!formData.proofOfAddressUploaded) {
-        newErrors["proofOfAddress"] = "Please upload proof of residential address.";
-      }
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleNext = () => {
     if (validateStep(currentStep)) {
-      if (currentStep < 6) {
+      if (currentStep < 5) {
         setCurrentStep((prev) => (prev + 1) as StepNumber);
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
@@ -260,13 +239,13 @@ export function RegistrationPage() {
 
   // Final Submission
   const handleSubmitApplication = async () => {
-    if (!validateStep(1) || !validateStep(2) || !validateStep(3) || !validateStep(4) || !validateStep(5)) {
+    if (!validateStep(1) || !validateStep(2) || !validateStep(3) || !validateStep(4)) {
       setSubmitError("Please ensure all previous sections are properly completed.");
       return;
     }
 
-    if (!formData.acceptedTerms || !formData.acknowledgedPrivacy || !formData.consentedIdentityCheck) {
-      setSubmitError("You must accept the Terms, Privacy Policy, and Identity Verification consent.");
+    if (!formData.acceptedTerms || !formData.acknowledgedPrivacy) {
+      setSubmitError("You must accept the Terms and Privacy Policy.");
       return;
     }
 
@@ -345,15 +324,14 @@ export function RegistrationPage() {
     }
   };
 
-  const progressPercentage = Math.round((currentStep / 6) * 100);
+  const progressPercentage = Math.round((currentStep / 5) * 100);
 
   const stepLabels: Record<StepNumber, string> = {
     1: "Personal Information",
-    2: "Contact Information",
+    2: "Contact & Email Verification",
     3: "Account Preferences",
     4: "Security Setup",
-    5: "Identity Verification",
-    6: "Review & Submit",
+    5: "Review & Submit",
   };
 
   return (
@@ -424,7 +402,7 @@ export function RegistrationPage() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs mb-1.5">
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-primary">
-                    Step {currentStep} of 6:
+                    Step {currentStep} of 5:
                   </span>
                   <span className="font-medium text-foreground">
                     {stepLabels[currentStep]}
@@ -485,7 +463,7 @@ export function RegistrationPage() {
 
               {/* Stepper Navigation List on Desktop */}
               <div className="relative z-10 space-y-3 my-8">
-                {([1, 2, 3, 4, 5, 6] as StepNumber[]).map((step) => {
+                {([1, 2, 3, 4, 5] as StepNumber[]).map((step) => {
                   const isCurrent = currentStep === step;
                   const isCompleted = currentStep > step;
                   return (
@@ -564,13 +542,6 @@ export function RegistrationPage() {
                   />
                 )}
                 {currentStep === 5 && (
-                  <StepFiveIdentity
-                    data={formData}
-                    updateData={updateFormData}
-                    errors={errors}
-                  />
-                )}
-                {currentStep === 6 && (
                   <StepSixReview
                     data={formData}
                     updateData={updateFormData}
@@ -583,7 +554,7 @@ export function RegistrationPage() {
               </div>
 
               {/* Bottom Step Controller Actions */}
-              {currentStep < 6 && (
+              {currentStep < 5 && (
                 <div className="mt-10 pt-6 border-t border-border/80 flex items-center justify-between gap-4">
                   <div>
                     {currentStep > 1 ? (

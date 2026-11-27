@@ -27,6 +27,10 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
   Plus,
+  LogIn,
+  CheckCircle2,
+  Clock,
+  XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -43,6 +47,8 @@ import {
   saveCustomer,
   changeCustomer,
   deleteCustomer,
+  approveTransferTransaction,
+  rejectTransferTransaction,
 } from "@/lib/central-admin.functions";
 import {
   listSchema,
@@ -89,8 +95,27 @@ export function CustomerActions({
             View Profile
           </Link>
         </DropdownMenuItem>
+        <DropdownMenuItem
+          className="text-amber-600 font-semibold gap-2"
+          onSelect={() => {
+            sessionStorage.setItem("auremont_impersonate_customer", JSON.stringify(customer));
+            window.location.href = "/account";
+          }}
+        >
+          <LogIn className="h-4 w-4" />
+          Login as User
+        </DropdownMenuItem>
         {!customer.archived_at && (
           <>
+            {customer.status === "Pending" && (
+              <DropdownMenuItem
+                className="text-emerald-600 font-semibold gap-2"
+                onSelect={() => onStatus(customer, "Active")}
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                Approve User
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem asChild>
               <Link
                 to="/admin/customers/$customerId/edit"
@@ -546,13 +571,37 @@ export function UsersPage({ accounts = false }: { accounts?: boolean }) {
                     <Status value={c.archived_at ? "Archived" : c.status} />
                   </td>
                   <td>
-                    <CustomerActions
-                      customer={c}
-                      onStatus={(customer, status, archive = false) =>
-                        setTarget({ customer, status, archive })
-                      }
-                      onDelete={(customer) => setDeleteTarget(customer)}
-                    />
+                    <div className="flex items-center gap-1.5">
+                      {c.status === "Pending" && (
+                        <Button
+                          size="sm"
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white h-7 px-2 text-xs gap-1"
+                          onClick={() => setTarget({ customer: c, status: "Active", archive: false })}
+                        >
+                          <CheckCircle2 className="h-3.5 w-3.5" /> Approve
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 px-2 text-xs gap-1 text-amber-600 border-amber-500/40 hover:bg-amber-500/10"
+                        title={`Login as ${fullName(c)}`}
+                        onClick={() => {
+                          sessionStorage.setItem("auremont_impersonate_customer", JSON.stringify(c));
+                          window.location.href = "/account";
+                        }}
+                      >
+                        <LogIn className="h-3.5 w-3.5" />
+                        Login
+                      </Button>
+                      <CustomerActions
+                        customer={c}
+                        onStatus={(customer, status, archive = false) =>
+                          setTarget({ customer, status, archive })
+                        }
+                        onDelete={(customer) => setDeleteTarget(customer)}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -821,7 +870,11 @@ export function CustomerForm({ customer }: { customer?: Customer }) {
 }
 export function CustomerProfile({ id, edit = false }: { id: string; edit?: boolean }) {
   const navigate = useNavigate();
+  const { notify } = useAdmin();
   const read = useServerFn(getCustomer);
+  const approveTransfer = useServerFn(approveTransferTransaction);
+  const rejectTransfer = useServerFn(rejectTransferTransaction);
+  const [actionBusy, setActionBusy] = useState(false);
   const query = useQuery({
     queryKey: ["admin", "customer", id],
     queryFn: () => read({ data: { id } }),
@@ -862,6 +915,16 @@ export function CustomerProfile({ id, edit = false }: { id: string; edit?: boole
         </Link>
       </Button>
       <SectionHeading title={fullName(c)} description={c.customer_ref}>
+        <Button
+          className="bg-amber-600 hover:bg-amber-700 text-white gap-1.5 font-medium shadow-sm"
+          onClick={() => {
+            sessionStorage.setItem("auremont_impersonate_customer", JSON.stringify(c));
+            window.location.href = "/account";
+          }}
+        >
+          <LogIn className="h-4 w-4" />
+          Login as User
+        </Button>
         <Button asChild variant="outline" disabled={!!c.archived_at}>
           <Link
             to="/admin/customers/$customerId/edit"
@@ -930,6 +993,25 @@ export function CustomerProfile({ id, edit = false }: { id: string; edit?: boole
           </>
         )}
       </SectionHeading>
+      {c.status === "Pending" && (
+        <div className="mb-6 p-4 rounded-lg bg-amber-500/10 border border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <Clock className="h-5 w-5 text-amber-500 shrink-0" />
+            <div>
+              <h4 className="font-semibold text-amber-600 text-sm">Account Pending Administrative Approval</h4>
+              <p className="text-xs text-muted-foreground">This user account requires administrator approval before the customer can log in to their banking portal.</p>
+            </div>
+          </div>
+          <Button
+            className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 shrink-0"
+            size="sm"
+            onClick={() => setTarget({ customer: c, status: "Active", archive: false })}
+          >
+            <CheckCircle2 className="h-4 w-4" />
+            Approve User
+          </Button>
+        </div>
+      )}
       <div className="admin-profile-summary">
         <span className="admin-avatar admin-avatar-large">
           {c.first_name[0]}
@@ -1104,6 +1186,49 @@ export function CustomerProfile({ id, edit = false }: { id: string; edit?: boole
                           </td>
                           <td>
                             <div className="flex items-center gap-1.5">
+                              {tx.status === "Pending" && (
+                                <>
+                                  <Button
+                                    size="sm"
+                                    className="bg-emerald-600 hover:bg-emerald-700 text-white h-7 px-2 text-xs gap-1"
+                                    disabled={actionBusy}
+                                    onClick={async () => {
+                                      setActionBusy(true);
+                                      try {
+                                        await approveTransfer({ data: { transactionId: tx.id } });
+                                        await query.refetch();
+                                        notify("Transfer approved successfully.");
+                                      } catch (e: any) {
+                                        notify(e.message || "Failed to approve transfer.");
+                                      } finally {
+                                        setActionBusy(false);
+                                      }
+                                    }}
+                                  >
+                                    <CheckCircle2 className="h-3.5 w-3.5" /> Approve
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-rose-600 border-rose-600/40 hover:bg-rose-500/10 h-7 px-2 text-xs gap-1"
+                                    disabled={actionBusy}
+                                    onClick={async () => {
+                                      setActionBusy(true);
+                                      try {
+                                        await rejectTransfer({ data: { transactionId: tx.id } });
+                                        await query.refetch();
+                                        notify("Transfer declined.");
+                                      } catch (e: any) {
+                                        notify(e.message || "Failed to decline transfer.");
+                                      } finally {
+                                        setActionBusy(false);
+                                      }
+                                    }}
+                                  >
+                                    <XCircle className="h-3.5 w-3.5" /> Decline
+                                  </Button>
+                                </>
+                              )}
                               <Button
                                 variant="outline"
                                 size="sm"

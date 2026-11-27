@@ -56,7 +56,7 @@ export function StepSixReview({
       <div className="border-b border-border/70 pb-4">
         <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary">
           <FileCheck className="h-4 w-4" />
-          <span>Step 6 of 6 · Application Review & Execution</span>
+          <span>Step 5 of 5 · Application Review & Open Account</span>
         </div>
         <h2 className="mt-1 text-2xl font-serif font-medium tracking-tight text-foreground sm:text-3xl">
           Review Your Application.
@@ -314,65 +314,6 @@ export function StepSixReview({
             </div>
           </AccordionContent>
         </AccordionItem>
-
-        {/* Section 5: Identity Verification */}
-        <AccordionItem
-          value="item-5"
-          className="rounded-xl border border-border/80 bg-card px-4 py-1 shadow-sm"
-        >
-          <div className="flex items-center justify-between">
-            <AccordionTrigger className="hover:no-underline py-3">
-              <div className="flex items-center gap-2.5 text-sm font-semibold text-foreground">
-                <FileText className="h-4 w-4 text-primary" />
-                <span>Identity Verification Documents</span>
-              </div>
-            </AccordionTrigger>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => onGoToStep(5)}
-              className="h-8 gap-1 text-xs text-primary hover:text-primary/80 font-medium"
-            >
-              <Edit2 className="h-3 w-3" />
-              <span>Edit</span>
-            </Button>
-          </div>
-          <AccordionContent className="pt-2 pb-4 text-xs">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 rounded-lg bg-muted/20 p-3.5 border border-border/50">
-              <div>
-                <span className="text-muted-foreground block text-[11px]">Document Type</span>
-                <span className="font-medium text-foreground uppercase">{data.documentType.replace("_", " ")}</span>
-              </div>
-              <div>
-                <span className="text-muted-foreground block text-[11px]">Document Number</span>
-                <span className="font-mono text-foreground">
-                  {data.documentNumber ? `•••• ${data.documentNumber.slice(-4)}` : "—"}
-                </span>
-              </div>
-              <div>
-                <span className="text-muted-foreground block text-[11px]">Issuing Country</span>
-                <span className="font-medium text-foreground">{data.issuingCountry}</span>
-              </div>
-              <div>
-                <span className="text-muted-foreground block text-[11px]">Expiry Date</span>
-                <span className="font-medium text-foreground">{data.documentExpiryDate}</span>
-              </div>
-              <div>
-                <span className="text-muted-foreground block text-[11px]">Front Scan</span>
-                <span className="font-mono text-emerald-700 dark:text-emerald-400">
-                  {data.documentFrontFilename || "Uploaded"}
-                </span>
-              </div>
-              <div>
-                <span className="text-muted-foreground block text-[11px]">Address Verification</span>
-                <span className="font-mono text-emerald-700 dark:text-emerald-400">
-                  {data.proofOfAddressFilename || "Uploaded"}
-                </span>
-              </div>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
       </Accordion>
 
       {/* Mandatory Regulatory & Legal Agreements */}
@@ -414,19 +355,6 @@ export function StepSixReview({
                 Auremont Trust Bank Privacy Notice <ExternalLink className="h-2.5 w-2.5" />
               </Link>{" "}
               and consent to the lawful processing of my personal and financial records. <span className="text-destructive">*</span>
-            </label>
-          </div>
-
-          {/* Checkbox 3: KYC Consent */}
-          <div className="flex items-start gap-3">
-            <Checkbox
-              id="consentedIdentityCheck"
-              checked={data.consentedIdentityCheck}
-              onCheckedChange={(checked) => updateData({ consentedIdentityCheck: !!checked })}
-              className="mt-0.5"
-            />
-            <label htmlFor="consentedIdentityCheck" className="text-xs text-foreground/90 leading-relaxed cursor-pointer">
-              I certify that all information provided is accurate and authentic, and I give consent to Auremont Trust Bank to conduct required identity verification, sanction list screening, and AML compliance audits. <span className="text-destructive">*</span>
             </label>
           </div>
 

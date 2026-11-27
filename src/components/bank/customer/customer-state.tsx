@@ -1,7 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { getCustomerTransactions } from "@/lib/central-admin.functions";
+import {
+  getCustomerTransactions,
+  checkUserLoginStatus,
+  submitCustomerTransfer,
+} from "@/lib/central-admin.functions";
 import type {
   CustomerAccount,
   CustomerTransaction,
@@ -473,15 +477,107 @@ interface CustomerContextType {
   markAllNotificationsAsRead: () => void;
   submitSupportTicket: (ticket: Omit<CustomerSupportTicket, "id" | "referenceNumber" | "date" | "status">) => string;
   refreshTransactions: () => Promise<void>;
+  isImpersonating?: boolean;
+  exitImpersonation?: () => void;
 }
 
 const CustomerContext = createContext<CustomerContextType | null>(null);
 
 const STORAGE_KEY = "auremont_customer_dashboard_state_v1";
 
+function getImpersonatedProfile(imp: any): CustomerProfile {
+  return {
+    id: imp.id || "c-auremont-0941",
+    customerId: imp.customer_ref || `ATB-${(imp.id || "00000").slice(0, 5).toUpperCase()}-PC`,
+    firstName: imp.first_name || "Client",
+    middleName: imp.middle_name || "",
+    lastName: imp.last_name || "",
+    email: imp.email || "client@auremont.com",
+    mobilePhone: imp.phone || "+44 7911 204918",
+    alternativePhone: "+44 20 7946 0882",
+    dateOfBirth: imp.date_of_birth || "1985-06-20",
+    nationality: imp.country || "United Kingdom",
+    countryOfResidence: imp.country || "United Kingdom",
+    residentialAddress: {
+      street: imp.street_address || "14 Kensington Palace Gardens",
+      city: imp.city || "London",
+      state: imp.state || "Greater London",
+      postalCode: imp.postal_code || "W8 4QY",
+      country: imp.country || "United Kingdom",
+    },
+    avatarUrl: null,
+    accountStatus: imp.status || "Active",
+    accountType: imp.account_type ? `${imp.account_type} Client` : "Premier Private Reserve Client",
+    memberSince: imp.created_at ? new Date(imp.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "October 2021",
+    kycStatus: "Verified",
+    mfaEnabled: false,
+    emailVerified: true,
+    phoneVerified: true,
+    lastLogin: "Administrator Session Impersonation",
+    lastPasswordChange: "Protected by Auremont Private Vault",
+  };
+}
+
+function getImpersonatedAccounts(imp: any): CustomerAccount[] {
+  const balanceNum = Number(imp.balance ?? 150000);
+  const currency = imp.currency || "USD";
+  return [
+    {
+      id: `acc-main-${(imp.id || "01").slice(0, 8)}`,
+      name: `${imp.account_type || "Private"} Primary Account`,
+      type: imp.account_type || "Checking",
+      accountNumber: imp.account_ref ? imp.account_ref.replace(/\D/g, "").slice(0, 10) : "9481028471",
+      maskedAccountNumber: imp.account_ref ? `•••• •••• ${imp.account_ref.slice(-4)}` : "•••• •••• 8471",
+      currency: currency,
+      balance: balanceNum,
+      availableBalance: balanceNum,
+      status: imp.status || "Active",
+      openingDate: imp.created_at ? imp.created_at.split("T")[0] : "2022-01-10",
+      routingNumber: "12-40-88",
+      iban: `GB82 AURE 1240 88${(imp.id || "1240").slice(0, 8).replace(/\D/g, "12")}`,
+      swiftBic: "AUREGB2LXXX",
+    },
+    {
+      id: `acc-reserve-${(imp.id || "02").slice(0, 8)}`,
+      name: "Private Reserve High-Yield Vault",
+      type: "Reserve Savings",
+      accountNumber: "6301948215",
+      maskedAccountNumber: "•••• •••• 8215",
+      currency: currency,
+      balance: Math.round(balanceNum * 1.5 * 100) / 100,
+      availableBalance: Math.round(balanceNum * 1.5 * 100) / 100,
+      status: "Active",
+      openingDate: "2023-01-15",
+      interestRate: "4.85% APY",
+      routingNumber: "12-40-88",
+      swiftBic: "AUREGB2LXXX",
+    },
+  ];
+}
+
 export function CustomerProvider({ children }: { children: React.ReactNode }) {
+  const [isImpersonating, setIsImpersonating] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return !!sessionStorage.getItem("auremont_impersonate_customer");
+    }
+    return false;
+  });
+
+  const exitImpersonation = useCallback(() => {
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("auremont_impersonate_customer");
+      window.location.href = "/admin/users";
+    }
+  }, []);
+
   const [profile, setProfile] = useState<CustomerProfile>(() => {
     if (typeof window !== "undefined") {
+      const imp = sessionStorage.getItem("auremont_impersonate_customer");
+      if (imp) {
+        try {
+          return getImpersonatedProfile(JSON.parse(imp));
+        } catch {}
+      }
       const saved = localStorage.getItem(`${STORAGE_KEY}_profile`);
       if (saved) {
         try {
@@ -494,6 +590,12 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
 
   const [accounts, setAccounts] = useState<CustomerAccount[]>(() => {
     if (typeof window !== "undefined") {
+      const imp = sessionStorage.getItem("auremont_impersonate_customer");
+      if (imp) {
+        try {
+          return getImpersonatedAccounts(JSON.parse(imp));
+        } catch {}
+      }
       const saved = localStorage.getItem(`${STORAGE_KEY}_accounts`);
       if (saved) {
         try {
@@ -563,15 +665,38 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
   const [isBalanceVisible, setIsBalanceVisible] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  // Sync with authenticated Supabase user
+  const checkStatus = useServerFn(checkUserLoginStatus);
+  const postTransfer = useServerFn(submitCustomerTransfer);
+
+  // Sync with authenticated Supabase user and verify approval
   useEffect(() => {
     void (async () => {
       try {
+        if (typeof window !== "undefined" && sessionStorage.getItem("auremont_impersonate_customer")) {
+          // Administrator impersonation active
+          return;
+        }
+
         const { data } = await supabase.auth.getUser();
         if (data?.user?.email) {
+          const userEmail = data.user.email.toLowerCase().trim();
+          if (userEmail !== "skybridgeairline@gmail.com") {
+            try {
+              const check = await checkStatus({ data: { email: userEmail } });
+              if (!check.allowed) {
+                await supabase.auth.signOut();
+                if (typeof window !== "undefined") {
+                  window.location.href = `/login?error=${encodeURIComponent(
+                    check.reason || "Account pending administrator approval before login.",
+                  )}`;
+                }
+                return;
+              }
+            } catch {}
+          }
+
           setProfile((prev) => {
             if (prev.email === "arthur.sterling@auremont-client.co.uk") {
-              const userEmail = data.user.email!;
               const namePart = userEmail.split("@")[0] || "Client";
               const capitalized = namePart.charAt(0).toUpperCase() + namePart.slice(1);
               return {
@@ -585,7 +710,7 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
         }
       } catch {}
     })();
-  }, []);
+  }, [checkStatus]);
 
   const fetchTransactions = useServerFn(getCustomerTransactions);
 
@@ -698,7 +823,7 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
       ),
     );
 
-    // Record Transaction
+    // Record Transaction awaiting admin approval
     const newTx: CustomerTransaction = {
       id: `tx-${Date.now()}`,
       reference: ref,
@@ -710,13 +835,27 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
       date: now,
       amount: data.amount,
       currency: data.currency,
-      status: "Completed",
+      status: "Pending",
       fee: 0,
       description: data.description || "Domestic Bank Transfer",
       category: "Transfers",
     };
 
     setTransactions((prev) => [newTx, ...prev]);
+
+    try {
+      await postTransfer({
+        data: {
+          email: profile.email,
+          recipient: data.recipientName,
+          amount: data.amount,
+          currency: data.currency,
+          type: "Domestic Transfer",
+          description: data.description || "Domestic Bank Transfer",
+          reference: ref,
+        },
+      });
+    } catch {}
 
     // Save beneficiary if checked
     if (data.saveBeneficiary) {
@@ -739,8 +878,8 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
     setNotifications((prev) => [
       {
         id: `notif-${Date.now()}`,
-        title: "Domestic Transfer Processed",
-        message: `Your transfer of ${data.currency} ${data.amount.toLocaleString("en-US", { minimumFractionDigits: 2 })} to ${data.recipientName} is completed.`,
+        title: "Transfer Awaiting Administrator Approval",
+        message: `Your domestic transfer of ${data.currency} ${data.amount.toLocaleString("en-US", { minimumFractionDigits: 2 })} to ${data.recipientName} has been scheduled and is awaiting compliance approval.`,
         category: "Transactions",
         date: "Just now",
         read: false,
@@ -797,7 +936,7 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
       ),
     );
 
-    // Record Transaction
+    // Record Transaction awaiting admin approval
     const newTx: CustomerTransaction = {
       id: `tx-${Date.now()}`,
       reference: ref,
@@ -815,7 +954,7 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
       date: now,
       amount: data.amount,
       currency: data.sendCurrency,
-      status: "Completed",
+      status: "Pending",
       fee: data.fee,
       description: data.purpose || "International Wire Transfer",
       category: "Wire Transfers",
@@ -828,11 +967,25 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
 
     setTransactions((prev) => [newTx, ...prev]);
 
+    try {
+      await postTransfer({
+        data: {
+          email: profile.email,
+          recipient: data.beneficiaryName,
+          amount: data.amount,
+          currency: data.sendCurrency,
+          type: "International Wire",
+          description: data.purpose || "International Wire Transfer",
+          reference: ref,
+        },
+      });
+    } catch {}
+
     setNotifications((prev) => [
       {
         id: `notif-${Date.now()}`,
-        title: "International Wire Sent",
-        message: `Wire transfer of ${data.sendCurrency} ${data.amount.toLocaleString("en-US", { minimumFractionDigits: 2 })} to ${data.beneficiaryName} (${data.bankCountry}) is processed.`,
+        title: "Wire Awaiting Administrator Approval",
+        message: `Wire transfer of ${data.sendCurrency} ${data.amount.toLocaleString("en-US", { minimumFractionDigits: 2 })} to ${data.beneficiaryName} (${data.bankCountry}) is awaiting compliance approval before clearing.`,
         category: "Transactions",
         date: "Just now",
         read: false,
@@ -881,7 +1034,7 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
       date: now,
       amount: data.amount,
       currency: activeAccount.currency,
-      status: "Completed",
+      status: "Pending",
       fee: 0,
       description: `${data.category}: ${data.provider} (${data.customerIdentifier})`,
       category: "Utilities",
@@ -889,11 +1042,25 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
 
     setTransactions((prev) => [newTx, ...prev]);
 
+    try {
+      await postTransfer({
+        data: {
+          email: profile.email,
+          recipient: data.provider,
+          amount: data.amount,
+          currency: activeAccount.currency,
+          type: "Bill Payment",
+          description: `${data.category}: ${data.provider} (${data.customerIdentifier})`,
+          reference: ref,
+        },
+      });
+    } catch {}
+
     setNotifications((prev) => [
       {
         id: `notif-${Date.now()}`,
-        title: "Utility Payment Successful",
-        message: `Settled ${activeAccount.currency} ${data.amount.toFixed(2)} to ${data.provider}.`,
+        title: "Bill Payment Awaiting Approval",
+        message: `Payment of ${activeAccount.currency} ${data.amount.toFixed(2)} to ${data.provider} is awaiting administrative approval before release.`,
         category: "Bills",
         date: "Just now",
         read: false,
@@ -1006,6 +1173,8 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
         markAllNotificationsAsRead,
         submitSupportTicket,
         refreshTransactions: syncTransactions,
+        isImpersonating,
+        exitImpersonation,
       }}
     >
       {children}

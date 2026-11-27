@@ -26,6 +26,8 @@ import {
   Pencil,
   Trash2,
   ArrowDownLeft,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -47,6 +49,8 @@ import {
   markNotifications,
   exportCustomers,
   recordAdminEvent,
+  approveTransferTransaction,
+  rejectTransferTransaction,
 } from "@/lib/central-admin.functions";
 import { saveContent } from "@/lib/admin.functions";
 import {
@@ -604,7 +608,10 @@ export function Applications() {
   );
 }
 export function Transactions() {
-  const { data } = useAdmin();
+  const { data, refresh, notify } = useAdmin();
+  const approveTransfer = useServerFn(approveTransferTransaction);
+  const rejectTransfer = useServerFn(rejectTransferTransaction);
+  const [actionBusy, setActionBusy] = useState(false);
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Tables<"admin_transactions"> | null>(null);
@@ -716,6 +723,49 @@ export function Transactions() {
                   </td>
                   <td>
                     <div className="flex items-center gap-1.5">
+                      {t.status === "Pending" && (
+                        <>
+                          <Button
+                            size="sm"
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white h-7 px-2 text-xs gap-1"
+                            disabled={actionBusy}
+                            onClick={async () => {
+                              setActionBusy(true);
+                              try {
+                                await approveTransfer({ data: { transactionId: t.id } });
+                                await refresh();
+                                notify("Transfer approved successfully.");
+                              } catch (e: any) {
+                                notify(e.message || "Failed to approve transfer.");
+                              } finally {
+                                setActionBusy(false);
+                              }
+                            }}
+                          >
+                            <CheckCircle2 className="h-3.5 w-3.5" /> Approve
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-rose-600 border-rose-600/40 hover:bg-rose-500/10 h-7 px-2 text-xs gap-1"
+                            disabled={actionBusy}
+                            onClick={async () => {
+                              setActionBusy(true);
+                              try {
+                                await rejectTransfer({ data: { transactionId: t.id } });
+                                await refresh();
+                                notify("Transfer declined.");
+                              } catch (e: any) {
+                                notify(e.message || "Failed to decline transfer.");
+                              } finally {
+                                setActionBusy(false);
+                              }
+                            }}
+                          >
+                            <XCircle className="h-3.5 w-3.5" /> Decline
+                          </Button>
+                        </>
+                      )}
                       <Button variant="outline" size="sm" onClick={() => setSelected(t)}>
                         Review
                       </Button>
@@ -757,16 +807,61 @@ export function Transactions() {
             Audit and verified transaction record details.
           </DialogDescription>
           {selected && (
-            <dl className="admin-details-grid">
-              {Object.entries(selected)
-                .filter(([k]) => k !== "id")
-                .map(([key, value]) => (
-                  <div key={key}>
-                    <dt>{key.replaceAll("_", " ")}</dt>
-                    <dd>{String(value)}</dd>
-                  </div>
-                ))}
-            </dl>
+            <>
+              <dl className="admin-details-grid">
+                {Object.entries(selected)
+                  .filter(([k]) => k !== "id")
+                  .map(([key, value]) => (
+                    <div key={key}>
+                      <dt>{key.replaceAll("_", " ")}</dt>
+                      <dd>{String(value)}</dd>
+                    </div>
+                  ))}
+              </dl>
+              {selected.status === "Pending" && (
+                <div className="flex items-center justify-end gap-2 mt-4 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    className="text-rose-600 border-rose-600/40 hover:bg-rose-500/10 gap-1.5"
+                    disabled={actionBusy}
+                    onClick={async () => {
+                      setActionBusy(true);
+                      try {
+                        await rejectTransfer({ data: { transactionId: selected.id } });
+                        await refresh();
+                        notify("Transfer declined.");
+                        setSelected(null);
+                      } catch (e: any) {
+                        notify(e.message || "Failed to decline transfer.");
+                      } finally {
+                        setActionBusy(false);
+                      }
+                    }}
+                  >
+                    <XCircle className="h-4 w-4" /> Decline Transfer
+                  </Button>
+                  <Button
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5"
+                    disabled={actionBusy}
+                    onClick={async () => {
+                      setActionBusy(true);
+                      try {
+                        await approveTransfer({ data: { transactionId: selected.id } });
+                        await refresh();
+                        notify("Transfer approved successfully.");
+                        setSelected(null);
+                      } catch (e: any) {
+                        notify(e.message || "Failed to approve transfer.");
+                      } finally {
+                        setActionBusy(false);
+                      }
+                    }}
+                  >
+                    <CheckCircle2 className="h-4 w-4" /> Approve Transfer
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </DialogContent>
       </Dialog>

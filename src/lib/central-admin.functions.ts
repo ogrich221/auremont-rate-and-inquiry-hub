@@ -864,3 +864,338 @@ export const getCustomerTransactions = createServerFn({ method: "POST" })
 
     return { transactions };
   });
+
+export const checkUserLoginStatus = createServerFn({ method: "POST" })
+  .inputValidator((v) => z.object({ email: z.string().email() }).parse(v))
+  .handler(async ({ context, data }) => {
+    const email = data.email.toLowerCase().trim();
+
+    // Solo admin is always authorized
+    if (email === SOLO_ADMIN_EMAIL) {
+      return { allowed: true, status: "Active", reason: null };
+    }
+
+    let client: any = context.supabase;
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      if (supabaseAdmin) client = supabaseAdmin;
+    } catch {}
+
+    if (!client) {
+      return { allowed: true, status: "Active", reason: null };
+    }
+
+    const { data: customer } = await client
+      .from("admin_customers")
+      .select("id, email, status, first_name, last_name")
+      .eq("email", email)
+      .maybeSingle();
+
+    if (!customer) {
+      const { data: app } = await client
+        .from("admin_applications")
+        .select("status")
+        .eq("email", email)
+        .maybeSingle();
+
+      if (app && app.status !== "Approved") {
+        return {
+          allowed: false,
+          status: "Pending",
+          reason: "Your application is currently pending administrator review. You cannot log in until your account is approved.",
+        };
+      }
+
+      return {
+        allowed: false,
+        status: "Pending",
+        reason: "Account pending administrative approval. An administrator must approve your account before you can log in.",
+      };
+    }
+
+    if (customer.status === "Pending") {
+      return {
+        allowed: false,
+        status: "Pending",
+        reason: "Your account is pending administrator approval. Please wait for an administrator to review and approve your account before signing in.",
+      };
+    }
+
+    if (customer.status === "Suspended") {
+      return {
+        allowed: false,
+        status: "Suspended",
+        reason: "Your account has been suspended by the administrator. Please contact Auremont client services.",
+      };
+    }
+
+    if (customer.status === "Closed" || customer.status === "Restricted") {
+      return {
+        allowed: false,
+        status: customer.status,
+        reason: `Your account is marked as ${customer.status.toLowerCase()}. Access is restricted.`,
+      };
+    }
+
+    return { allowed: true, status: "Active", reason: null };
+  });
+
+export const registerPendingCustomer = createServerFn({ method: "POST" })
+  .inputValidator((v) => z.object({ email: z.string().email(), name: z.string().optional() }).parse(v))
+  .handler(async ({ context, data }) => {
+    const email = data.email.toLowerCase().trim();
+    if (email === SOLO_ADMIN_EMAIL) return { success: true };
+
+    const client = await getDbClient(context.supabase);
+    const nameParts = (data.name || email.split("@")[0] || "Client").split(" ");
+    const firstName = nameParts[0] || "Client";
+    const lastName = nameParts.slice(1).join(" ") || "User";
+
+    const customerRef = `ATB-REG-${Date.now().toString().slice(-6)}`;
+    const accountRef = `9481${Math.floor(100000 + Math.random() * 900000)}`;
+
+    const { error } = await client.from("admin_customers").upsert(
+      {
+        email,
+        first_name: firstName,
+        last_name: lastName,
+        customer_ref: customerRef,
+        account_ref: accountRef,
+        account_type: "Personal",
+        currency: "USD",
+        status: "Pending",
+        verification_status: "Pending",
+      },
+      { onConflict: "email" },
+    );
+
+    try {
+      await client.from("admin_notifications").insert({
+        title: "New User Registered (Pending Approval)",
+        body: `${email} has registered and requires administrator approval before logging in.`,
+      });
+    } catch {}
+
+    return { success: !error };
+  });
+
+export const approveUserCustomer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) => z.object({ id: z.string().uuid() }).parse(v))
+  .handler(async ({ context, data }) => {
+    if (!isSoloAdmin(context.claims)) {
+      throw new Error("Administrator verification required.");
+    }
+    const client = await getDbClient(context.supabase);
+
+    const { data: customer, error: custErr } = await client
+      .from("admin_customers")
+      .update({
+        status: "Active",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", data.id)
+      .select("id, email, first_name, last_name, customer_ref")
+      .single();
+
+    if (custErr || !customer) {
+      throw new Error("Failed to approve user account.");
+    }
+
+    try {
+      await client.from("admin_audit").insert({
+        actor_id: context.userId,
+        action: "User Approved",
+        entity: "admin_customers",
+        entity_id: customer.id,
+        reason: `Administrator approved account for ${customer.first_name} ${customer.last_name} (${customer.email}). User is now permitted to log in.`,
+      });
+    } catch {}
+
+    try {
+      await client.from("admin_notifications").insert({
+        title: "User Account Approved",
+        body: `${customer.first_name} ${customer.last_name} (${customer.email}) approved for login access.`,
+        entity_id: customer.id,
+      });
+    } catch {}
+
+    return { success: true, customer };
+  });
+
+export const submitCustomerTransfer = createServerFn({ method: "POST" })
+  .inputValidator(
+    (v) =>
+      z
+        .object({
+          email: z.string().email().optional(),
+          recipient: z.string().min(1),
+          amount: z.number().positive(),
+          currency: z.string().default("USD"),
+          type: z.string().default("Domestic Transfer"),
+          description: z.string().default("Transfer"),
+          reference: z.string(),
+        })
+        .parse(v),
+  )
+  .handler(async ({ context, data }) => {
+    let client: any = context.supabase;
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      if (supabaseAdmin) client = supabaseAdmin;
+    } catch {}
+
+    const email =
+      data.email ||
+      (context.claims?.["email"] ? String(context.claims["email"]) : undefined);
+
+    let customerId = "";
+    if (email && client) {
+      try {
+        const { data: cust } = await client
+          .from("admin_customers")
+          .select("id")
+          .eq("email", email.toLowerCase().trim())
+          .maybeSingle();
+        if (cust) customerId = cust.id;
+      } catch {}
+    }
+
+    if (!customerId && client) {
+      try {
+        const { data: anyCust } = await client
+          .from("admin_customers")
+          .select("id")
+          .limit(1)
+          .maybeSingle();
+        if (anyCust) customerId = anyCust.id;
+      } catch {}
+    }
+
+    if (client && customerId) {
+      try {
+        await client.from("admin_transactions").insert({
+          customer_id: customerId,
+          amount: data.amount,
+          currency: data.currency,
+          occurred_at: new Date().toISOString(),
+          provider_reference: `${data.description} (To: ${data.recipient})`,
+          reference: data.reference,
+          status: "Pending",
+          transaction_type: data.type,
+        });
+
+        await client.from("admin_notifications").insert({
+          title: `Transfer Awaiting Approval: ${data.currency} ${data.amount.toLocaleString()}`,
+          body: `Transfer to ${data.recipient} (${data.reference}) is awaiting compliance approval before settlement.`,
+          entity_id: customerId,
+        });
+
+        await client.from("admin_audit").insert({
+          actor_id: customerId,
+          action: "Transfer Initiated (Pending Approval)",
+          entity: "admin_transactions",
+          entity_id: customerId,
+          reason: `User scheduled ${data.type} of ${data.currency} ${data.amount} to ${data.recipient}. Awaiting admin authorization.`,
+        });
+      } catch (err) {
+        console.warn("Could not record pending transfer to admin_transactions:", err);
+      }
+    }
+
+    return { success: true, reference: data.reference, status: "Pending" };
+  });
+
+export const approveTransferTransaction = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) => z.object({ id: z.string().uuid() }).parse(v))
+  .handler(async ({ context, data }) => {
+    if (!isSoloAdmin(context.claims)) {
+      throw new Error("Administrator verification required.");
+    }
+    const client = await getDbClient(context.supabase);
+
+    const { data: existing, error: existErr } = await client
+      .from("admin_transactions")
+      .select("*")
+      .eq("id", data.id)
+      .single();
+
+    if (existErr || !existing) {
+      throw new Error("Transaction not found.");
+    }
+
+    const { data: updated, error: updateErr } = await client
+      .from("admin_transactions")
+      .update({ status: "Completed" })
+      .eq("id", data.id)
+      .select()
+      .single();
+
+    if (updateErr) {
+      throw new Error("Failed to approve transfer.");
+    }
+
+    try {
+      await client.from("admin_audit").insert({
+        actor_id: context.userId,
+        action: "Transfer Approved",
+        entity: "admin_transactions",
+        entity_id: existing.customer_id,
+        reason: `Administrator approved transfer ${existing.reference} (${existing.currency} ${existing.amount}). Settlement complete.`,
+      });
+    } catch {}
+
+    try {
+      await client.from("admin_notifications").insert({
+        title: `Transfer Settled: ${existing.reference}`,
+        body: `Transfer of ${existing.currency} ${existing.amount} approved and settled.`,
+        entity_id: existing.customer_id,
+      });
+    } catch {}
+
+    return { success: true, transaction: updated };
+  });
+
+export const rejectTransferTransaction = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) => z.object({ id: z.string().uuid(), reason: z.string().optional() }).parse(v))
+  .handler(async ({ context, data }) => {
+    if (!isSoloAdmin(context.claims)) {
+      throw new Error("Administrator verification required.");
+    }
+    const client = await getDbClient(context.supabase);
+
+    const { data: existing } = await client
+      .from("admin_transactions")
+      .select("*")
+      .eq("id", data.id)
+      .single();
+
+    if (!existing) {
+      throw new Error("Transaction not found.");
+    }
+
+    const { data: updated, error: updateErr } = await client
+      .from("admin_transactions")
+      .update({ status: "Failed" })
+      .eq("id", data.id)
+      .select()
+      .single();
+
+    if (updateErr) {
+      throw new Error("Failed to reject transfer.");
+    }
+
+    try {
+      await client.from("admin_audit").insert({
+        actor_id: context.userId,
+        action: "Transfer Declined",
+        entity: "admin_transactions",
+        entity_id: existing.customer_id,
+        reason: `Administrator declined transfer ${existing.reference}. Reason: ${data.reason || "Compliance review rejection"}`,
+      });
+    } catch {}
+
+    return { success: true, transaction: updated };
+  });

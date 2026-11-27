@@ -14,6 +14,7 @@ import {
   TrendingUp,
   Landmark,
   Calculator,
+  Clock,
 } from "lucide-react";
 import { useCustomerBanking } from "../customer-state";
 import { Button } from "@/components/ui/button";
@@ -841,16 +842,16 @@ export function InternationalWireView() {
       {/* STEP 3: SUCCESS CONFIRMATION */}
       {step === "success" && txResult && (
         <div className="p-8 rounded-xl border border-white/60 bg-white/80 dark:bg-slate-900/70 backdrop-blur-md shadow-md text-center max-w-lg mx-auto space-y-6">
-          <div className="h-16 w-16 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto">
-            <CheckCircle2 className="h-9 w-9" />
+          <div className="h-16 w-16 bg-amber-500/15 text-amber-600 dark:text-amber-400 rounded-full flex items-center justify-center mx-auto">
+            <Clock className="h-9 w-9" />
           </div>
 
           <div className="space-y-1">
             <h2 className="text-xl font-serif font-semibold text-foreground">
-              International Wire Dispatched.
+              Wire Submitted for Administrative Approval
             </h2>
             <p className="text-xs text-muted-foreground">
-              Your cross-border wire instruction has been routed onto the SWIFT network under priority clearing.
+              Your cross-border wire instruction has been scheduled and is awaiting compliance officer approval before SWIFT clearance.
             </p>
           </div>
 
@@ -883,8 +884,8 @@ export function InternationalWireView() {
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Status:</span>
-              <span className="text-emerald-600 font-semibold flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3" /> Completed / Dispatched
+              <span className="text-amber-600 font-semibold flex items-center gap-1">
+                <Clock className="h-3.5 w-3.5" /> Pending Admin Approval
               </span>
             </div>
           </div>
