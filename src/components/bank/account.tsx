@@ -12,11 +12,14 @@ import { PageBanner } from "./pages";
 import { AdminApplicationsTab } from "./admin/AdminApplicationsTab";
 import { CustomerProvider } from "./customer/customer-state";
 import { CustomerLayout } from "./customer/CustomerLayout";
+import { PinGate } from "./customer/PinGate";
 
 export function AccountPage() {
   return (
     <CustomerProvider>
-      <CustomerLayout />
+      <PinGate>
+        <CustomerLayout />
+      </PinGate>
     </CustomerProvider>
   );
 }

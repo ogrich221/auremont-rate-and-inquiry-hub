@@ -145,6 +145,7 @@ export function CustomerLayout() {
 
   const handleLogout = async () => {
     try {
+      sessionStorage.removeItem("auremont-pin-unlocked");
       await supabase.auth.signOut();
     } catch (e) {
       // ignore

@@ -36,6 +36,13 @@
       "when": 1795327809318,
       "tag": "0004_designated_administrator_registration",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795768545606,
+      "tag": "0005_customer_security_pin",
+      "breakpoints": true
     }
   ]
 }

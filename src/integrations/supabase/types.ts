@@ -333,6 +333,30 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_security_pins: {
+        Row: {
+          created_at: string
+          failed_attempts: number
+          locked_until: string | null
+          pin_hash: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          failed_attempts?: number
+          locked_until?: string | null
+          pin_hash: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          failed_attempts?: number
+          locked_until?: string | null
+          pin_hash?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       primary_administrator: {
         Row: {
           singleton: boolean
@@ -432,11 +456,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_security_pin: { Args: never; Returns: boolean }
       is_primary_administrator: { Args: never; Returns: boolean }
       require_primary_administrator: {
         Args: { recent?: boolean }
         Returns: undefined
       }
+      set_security_pin: { Args: { _pin: string }; Returns: undefined }
+      verify_security_pin: { Args: { _pin: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "user"
