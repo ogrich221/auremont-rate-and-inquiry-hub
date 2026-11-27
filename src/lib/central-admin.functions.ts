@@ -41,6 +41,21 @@ async function ensureSoloAdminInDb(userId: string) {
   }
 }
 
+async function safeQuery<T extends { data?: any; error?: any; count?: number | null }>(
+  query: PromiseLike<T>,
+  fallbackData: any,
+): Promise<{ data: any; count?: number | null; error: any }> {
+  try {
+    const res = await query;
+    if (res && res.error) {
+      return { data: fallbackData, count: 0, error: res.error };
+    }
+    return res ?? { data: fallbackData, count: 0, error: null };
+  } catch (err) {
+    return { data: fallbackData, count: 0, error: err };
+  }
+}
+
 export const getAdministratorAccess = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -92,50 +107,56 @@ export const getWorkspace = createServerFn({ method: "POST" })
       inboxResult,
       ...countsResult
     ] = await Promise.all([
-      client.rpc("admin_summary").catch(() => ({ data: null })),
-      client
-        .from("admin_customers")
-        .select("*")
-        .is("archived_at", null)
-        .order("created_at", { ascending: false })
-        .limit(5)
-        .catch(() => ({ data: [] })),
-      client
-        .from("admin_applications")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(200)
-        .catch(() => ({ data: [] })),
-      client
-        .from("admin_transactions")
-        .select("*")
-        .order("occurred_at", { ascending: false })
-        .limit(200)
-        .catch(() => ({ data: [] })),
-      client
-        .from("admin_audit")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(100)
-        .catch(() => ({ data: [] })),
-      client
-        .from("admin_notifications")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(200)
-        .catch(() => ({ data: [] })),
-      client
-        .from("admin_preferences")
-        .select("*")
-        .eq("user_id", context.userId)
-        .maybeSingle()
-        .catch(() => ({ data: null })),
-      client
-        .from("contact_submissions")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(100)
-        .catch(() => ({ data: [] })),
+      safeQuery(client.rpc("admin_summary"), null),
+      safeQuery(
+        client
+          .from("admin_customers")
+          .select("*")
+          .is("archived_at", null)
+          .order("created_at", { ascending: false })
+          .limit(5),
+        [],
+      ),
+      safeQuery(
+        client
+          .from("admin_applications")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(200),
+        [],
+      ),
+      safeQuery(
+        client
+          .from("admin_transactions")
+          .select("*")
+          .order("occurred_at", { ascending: false })
+          .limit(200),
+        [],
+      ),
+      safeQuery(
+        client.from("admin_audit").select("*").order("created_at", { ascending: false }).limit(100),
+        [],
+      ),
+      safeQuery(
+        client
+          .from("admin_notifications")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(200),
+        [],
+      ),
+      safeQuery(
+        client.from("admin_preferences").select("*").eq("user_id", context.userId).maybeSingle(),
+        null,
+      ),
+      safeQuery(
+        client
+          .from("contact_submissions")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(100),
+        [],
+      ),
       ...(["All", "Active", "Pending", "Suspended", "Closed", "Restricted", "New"] as const).map(
         (status) => {
           let q = client
@@ -145,7 +166,7 @@ export const getWorkspace = createServerFn({ method: "POST" })
           if (status === "New")
             q = q.gte("created_at", new Date(Date.now() - 30 * 86400000).toISOString());
           else if (status !== "All") q = q.eq("status", status);
-          return q.catch(() => ({ count: 0 }));
+          return safeQuery(q, null);
         },
       ),
     ]);
